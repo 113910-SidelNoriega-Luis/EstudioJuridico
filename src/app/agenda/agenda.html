@@ -1,0 +1,135 @@
+<div class="container mt-5">
+  <!-- Tabs de navegación -->
+  <ul class="nav nav-tabs mb-4" id="agendaTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="agendar-tab" data-bs-toggle="tab" data-bs-target="#agendar" type="button">
+        Agendar Turno
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="misturnos-tab" data-bs-toggle="tab" data-bs-target="#misturnos" type="button">
+        Mis Turnos
+      </button>
+    </li>
+  </ul>
+
+  <!-- Contenido de tabs -->
+  <div class="tab-content" id="agendaTabsContent">
+    
+    <!-- TAB: AGENDAR TURNO -->
+    <div class="tab-pane fade show active" id="agendar" role="tabpanel">
+      <h2 class="text-center mb-4">Agendar Turno - Estudio Jurídico</h2>
+      
+      <div class="alert alert-info" role="alert">
+        <strong>Información:</strong> Seleccione un horario <span class="badge bg-success">Disponible</span>. Los turnos son de 30 minutos. Click en <span class="badge bg-danger">Ocupado</span> para ver detalles.
+      </div>
+
+      <div class="agenda-container">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th class="table-header" style="width: 100px;">Horas</th>
+              <th class="table-header">Lun 10/11</th>
+              <th class="table-header">Mar 11/11</th>
+              <th class="table-header">Mié 12/11</th>
+              <th class="table-header">Jue 13/11</th>
+              <th class="table-header">Vie 14/11</th>
+              <th class="table-header">Sáb 15/11</th>
+              <th class="table-header">Dom 16/11</th>
+            </tr>
+          </thead>
+          <tbody id="tablaTurnos">
+            <!-- Los turnos se generarán dinámicamente -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Información del turno seleccionado -->
+      <div id="turnoSeleccionado" class="alert alert-success mt-4" style="display: none;">
+        <h5>Turno Seleccionado:</h5>
+        <p id="infoTurno"></p>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmarTurnoModal">
+          Confirmar Turno
+        </button>
+      </div>
+
+      <!-- Leyenda -->
+      <div class="row mt-4 mb-5">
+        <div class="col-md-12">
+          <h5>Referencias:</h5>
+          <div class="d-flex gap-3 flex-wrap">
+            <div><span class="badge bg-success">Disponible</span> - Puede reservar este horario</div>
+            <div><span class="badge bg-danger">Ocupado</span> - Click para ver detalles</div>
+            <div><span class="badge bg-primary">Seleccionado</span> - Turno que está por reservar</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: MIS TURNOS -->
+    <div class="tab-pane fade" id="misturnos" role="tabpanel">
+      <h2 class="text-center mb-4">Mis Turnos Agendados</h2>
+      
+      <div class="row" id="listaTurnos">
+        <!-- Los turnos se mostrarán aquí -->
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal Confirmación -->
+<div class="modal fade" id="confirmarTurnoModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmar Turno</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmarInfo"></p>
+        <form id="formTurno">
+          <div class="mb-3">
+            <label for="nombreCliente" class="form-label">Nombre Completo</label>
+            <input type="text" class="form-control" id="nombreCliente" required>
+          </div>
+          <div class="mb-3">
+            <label for="emailCliente" class="form-label">Email</label>
+            <input type="email" class="form-control" id="emailCliente" required>
+          </div>
+          <div class="mb-3">
+            <label for="telefonoCliente" class="form-label">Teléfono</label>
+            <input type="tel" class="form-control" id="telefonoCliente" required>
+          </div>
+          <div class="mb-3">
+            <label for="motivoConsulta" class="form-label">Motivo de la Consulta</label>
+            <textarea class="form-control" id="motivoConsulta" rows="3"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="confirmarReserva()">Confirmar Reserva</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ver Detalles Turno Ocupado -->
+<div class="modal fade" id="detallesTurnoModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detalles del Turno</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="detallesTurnoBody">
+        <!-- Contenido dinámico -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-danger" (click)="cancelarTurno()">Cancelar Turno</button>
+      </div>
+    </div>
+  </div>
+</div>

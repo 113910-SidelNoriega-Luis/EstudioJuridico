@@ -1,0 +1,102 @@
+.time-slot {
+  padding: 12px;
+  text-align: center;
+  border: 1px solid #dee2e6;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.9rem;
+}
+
+.disponible {
+  background-color: #28a745;
+  color: white;
+  font-weight: 500;
+}
+
+.disponible:hover {
+  background-color: #218838;
+  transform: scale(1.05);
+}
+
+.ocupado {
+  background-color: #dc3545;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.ocupado:hover {
+  background-color: #c82333;
+}
+
+.seleccionado {
+  background-color: #0d6efd;
+  color: white;
+  font-weight: bold;
+}
+
+.table-header {
+  background-color: #f8f9fa;
+  font-weight: bold;
+  text-align: center;
+  padding: 15px;
+  border: 1px solid #dee2e6;
+}
+
+.time-column {
+  background-color: #f8f9fa;
+  font-weight: bold;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.agenda-container {
+  overflow-x: auto;
+}
+
+.table {
+  min-width: 800px;
+}
+
+.turno-card {
+  border-left: 4px solid #0d6efd;
+  transition: all 0.3s;
+}
+
+.turno-card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.calendar-icon {
+  width: 60px;
+  height: 60px;
+  background-color: #0d6efd;
+  color: white;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-day {
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.calendar-month {
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.ver-detalles {
+  color: #6c757d;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.ver-detalles:hover {
+  color: #0d6efd;
+}

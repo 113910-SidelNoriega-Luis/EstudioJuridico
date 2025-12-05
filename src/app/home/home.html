@@ -1,0 +1,360 @@
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" routerLink="/panel-cliente">Estudio Jurídico</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/panel-cliente/dashboard" routerLinkActive="active">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/panel-cliente/turnos" routerLinkActive="active">Mis Turnos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/panel-cliente/consultas" routerLinkActive="active">Consultas</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/panel-cliente/casos" routerLinkActive="active">Mis Casos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/panel-cliente/documentos" routerLinkActive="active">Documentos</a>
+        </li>
+      </ul>
+      
+      <!-- User menu -->
+      <div class="user-menu">
+        <div class="dropdown">
+          <button class="btn btn-link dropdown-toggle text-white text-decoration-none d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
+            <div class="user-avatar">{{getIniciales(usuario?.nombre || 'Usuario')}}</div>
+            <span class="d-none d-md-inline">{{usuario?.nombre || 'Usuario'}}</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#">Mi Perfil</a></li>
+            <li><a class="dropdown-item" href="#">Configuración</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" (click)="cerrarSesion()" style="cursor: pointer;">Cerrar Sesión</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+  <!-- VISTA: DASHBOARD -->
+  <div id="vistaDashboard">
+    
+    <!-- Hero Section -->
+    <section class="panel-hero">
+      <div class="container">
+        <h1>Bienvenido, Juan 👋</h1>
+        <p>Aquí puedes gestionar tus turnos, consultas y casos legales</p>
+      </div>
+    </section>
+
+    <div class="container">
+      
+      <!-- Estadísticas
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-value">3</div>
+            <div class="stat-label">Turnos Próximos</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card" style="border-left-color: #ffc107;">
+            <div class="stat-icon">💬</div>
+            <div class="stat-value">2</div>
+            <div class="stat-label">Consultas Pendientes</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card" style="border-left-color: #198754;">
+            <div class="stat-icon">📂</div>
+            <div class="stat-value">5</div>
+            <div class="stat-label">Casos Activos</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card" style="border-left-color: #6f42c1;">
+            <div class="stat-icon">📄</div>
+            <div class="stat-value">12</div>
+            <div class="stat-label">Documentos</div>
+          </div>
+        </div>
+      </div> -->
+
+      <!-- Acciones Rápidas -->
+      <h5 class="mb-3">Acciones Rápidas</h5>
+      <div class="quick-actions">
+        <a href="#" class="quick-action-btn" onclick="cambiarVista('turnos'); return false;">
+          <div class="quick-action-icon">📅</div>
+          <div class="quick-action-label">Agendar Turno</div>
+        </a>
+        <a href="#" class="quick-action-btn" onclick="cambiarVista('consultas'); return false;">
+          <div class="quick-action-icon">✉️</div>
+          <div class="quick-action-label">Nueva Consulta</div>
+        </a>
+        <a href="#" class="quick-action-btn" onclick="cambiarVista('documentos'); return false;">
+          <div class="quick-action-icon">📤</div>
+          <div class="quick-action-label">Subir Documento</div>
+        </a>
+        <a href="#" class="quick-action-btn">
+          <div class="quick-action-icon">💳</div>
+          <div class="quick-action-label">Pagos</div>
+        </a>
+      </div>
+
+      <!-- Contenido en dos columnas -->
+      <div class="row">
+        
+        <!-- Columna Izquierda -->
+        <div class="col-lg-8">
+          
+          <!-- Próximos Turnos -->
+          <div class="content-card">
+            <h5>📅 Próximos Turnos</h5>
+            <ul class="item-list">
+              <li>
+                <div>
+                  <div class="item-title">Consulta Inicial - Derecho Laboral</div>
+                  <div class="item-date">Viernes, 15 de Noviembre 2024 - 19:00 hs</div>
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                  <span class="badge status-confirmado">Confirmado</span>
+                  <button class="btn btn-sm btn-outline-primary">Ver Detalles</button>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <div class="item-title">Seguimiento - Caso Civil</div>
+                  <div class="item-date">Lunes, 18 de Noviembre 2024 - 20:30 hs</div>
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                  <span class="badge status-confirmado">Confirmado</span>
+                  <button class="btn btn-sm btn-outline-primary">Ver Detalles</button>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <div class="item-title">Revisión de Documentos</div>
+                  <div class="item-date">Miércoles, 20 de Noviembre 2024 - 19:30 hs</div>
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                  <span class="badge status-pendiente">Pendiente</span>
+                  <button class="btn btn-sm btn-outline-primary">Confirmar</button>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Mis Casos Activos -->
+          <div class="content-card">
+            <h5>📂 Mis Casos Activos</h5>
+            <ul class="item-list">
+              <li>
+                <div>
+                  <div class="item-title">Despido Injustificado</div>
+                  <div class="item-date">Caso #2024-001 • Iniciado: 01/10/2024</div>
+                  <div class="mt-2">
+                    <span class="badge bg-primary me-2">Laboral</span>
+                    <small class="text-muted">Asesor: Dra. María González</small>
+                  </div>
+                </div>
+                <span class="badge status-proceso">En Proceso</span>
+              </li>
+              <li>
+                <div>
+                  <div class="item-title">Divorcio de Mutuo Acuerdo</div>
+                  <div class="item-date">Caso #2024-002 • Iniciado: 15/10/2024</div>
+                  <div class="mt-2">
+                    <span class="badge bg-info me-2">Familiar</span>
+                    <small class="text-muted">Asesor: Dr. Carlos Rodríguez</small>
+                  </div>
+                </div>
+                <span class="badge status-proceso">En Proceso</span>
+              </li>
+            </ul>
+            <div class="text-center mt-3">
+              <button class="btn btn-outline-primary" onclick="cambiarVista('casos'); return false;">Ver Todos los Casos</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Columna Derecha -->
+        <div class="col-lg-4">
+          
+          <!-- Actividad Reciente
+          <div class="content-card">
+            <h5>🕒 Actividad Reciente</h5>
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-date">Hace 2 horas</div>
+                <div class="timeline-content">
+                  <strong>Documento subido</strong><br>
+                  <small>DNI - Frente y dorso</small>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-date">Ayer</div>
+                <div class="timeline-content">
+                  <strong>Consulta respondida</strong><br>
+                  <small>Dra. González respondió tu consulta</small>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-date">Hace 2 días</div>
+                <div class="timeline-content">
+                  <strong>Turno confirmado</strong><br>
+                  <small>15/11/2024 a las 19:00 hs</small>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-date">Hace 3 días</div>
+                <div class="timeline-content">
+                  <strong>Caso actualizado</strong><br>
+                  <small>Caso #2024-001 - Nuevo documento</small>
+                </div>
+              </div>
+            </div>
+          </div> -->
+
+          <!-- Mensajes -->
+          <div class="content-card">
+            <h5>💬 Mensajes</h5>
+            <ul class="item-list">
+              <li>
+                <div>
+                  <div class="item-title">Dra. María González</div>
+                  <small class="text-muted">Necesito que traigas los recibos...</small>
+                  <div class="item-date">Hace 3 horas</div>
+                </div>
+                <span class="badge bg-danger rounded-pill">2</span>
+              </li>
+              <li>
+                <div>
+                  <div class="item-title">Secretaría</div>
+                  <small class="text-muted">Recordatorio de turno para mañana</small>
+                  <div class="item-date">Ayer</div>
+                </div>
+              </li>
+            </ul>
+            <div class="text-center mt-3">
+              <button class="btn btn-outline-primary w-100">Ver Todos los Mensajes</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- OTRAS VISTAS (placeholders) -->
+  <div id="vistaTurnos" style="display: none;">
+    <section class="panel-hero">
+      <div class="container">
+        <h1>Mis Turnos</h1>
+        <p>Gestiona y agenda tus turnos para consultas legales</p>
+      </div>
+    </section>
+    <div class="container">
+      <div class="content-card">
+        <p>Sistema de agenda de turnos...</p>
+        <button class="btn btn-primary">Agendar Nuevo Turno</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="vistaConsultas" style="display: none;">
+    <section class="panel-hero">
+      <div class="container">
+        <h1>Mis Consultas</h1>
+        <p>Revisa tus consultas y respuestas</p>
+      </div>
+    </section>
+    <div class="container">
+      <div class="content-card">
+        <p>Listado de consultas...</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="vistaCasos" style="display: none;">
+    <section class="panel-hero">
+      <div class="container">
+        <h1>Mis Casos</h1>
+        <p>Seguimiento de tus casos legales</p>
+      </div>
+    </section>
+    <div class="container">
+      <div class="content-card">
+        <p>Todos tus casos legales...</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="vistaDocumentos" style="display: none;">
+    <section class="panel-hero">
+      <div class="container">
+        <h1>Mis Documentos</h1>
+        <p>Administra y descarga tus documentos</p>
+      </div>
+    </section>
+    <div class="container">
+      <div class="content-card">
+        <p>Gestión de documentos...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer igual que el inicio -->
+  <footer class="bg-dark text-white">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <h5>Estudio Jurídico</h5>
+          <p class="small">Soluciones legales profesionales desde 2003</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p class="small mb-0">&copy; 2024 Estudio Jurídico. Todos los derechos reservados.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function cambiarVista(vista) {
+      // Ocultar todas las vistas
+      document.getElementById('vistaDashboard').style.display = 'none';
+      document.getElementById('vistaTurnos').style.display = 'none';
+      document.getElementById('vistaConsultas').style.display = 'none';
+      document.getElementById('vistaCasos').style.display = 'none';
+      document.getElementById('vistaDocumentos').style.display = 'none';
+
+      // Mostrar vista seleccionada
+      const vistaId = 'vista' + vista.charAt(0).toUpperCase() + vista.slice(1);
+      document.getElementById(vistaId).style.display = 'block';
+
+      // Actualizar nav activo
+      document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+        link.classList.remove('active');
+      });
+
+      // Scroll to top
+      window.scrollTo(0, 0);
+    }
+
+    function cerrarSesion() {
+      if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
+        alert('Cerrando sesión...');
+        // window.location.href = '/login';
+      }
+    }
+  </script>

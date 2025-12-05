@@ -1,0 +1,247 @@
+<div class="auth-page">
+  
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" style="cursor: pointer;" (click)="volverInicio()">Estudio Jurídico</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" style="cursor: pointer;" (click)="volverInicio()">Inicio</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Servicios</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Contacto</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="auth-hero">
+    <div class="container text-center">
+      <h1 id="heroTitle">Bienvenido</h1>
+      <p id="heroSubtitle">Accede a tu cuenta o crea una nueva</p>
+    </div>
+  </section>
+
+  <!-- Contenedor de Autenticación -->
+  <div class="container auth-container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 col-md-8">
+        
+        <!-- Card de Autenticación -->
+        <div class="auth-card">
+          
+          <!-- Tabs -->
+          <div class="auth-tabs" id="authTabs">
+            <button class="auth-tab" [class.active]="vistaActual === 'login'" (click)="mostrarLogin()">Iniciar Sesión</button>
+            <button class="auth-tab" [class.active]="vistaActual === 'registro'" (click)="mostrarRegistro()">Registrarse</button>
+          </div>
+
+          <!-- FORMULARIO DE LOGIN -->
+          <div class="auth-body" *ngIf="vistaActual === 'login'">
+            <form (ngSubmit)="handleLogin($event)">
+              <div class="mb-3">
+                <label for="loginEmail" class="form-label">Correo Electrónico</label>
+                <input 
+                  type="email" 
+                  class="form-control" 
+                  id="loginEmail"
+                  name="loginEmail"
+                  [(ngModel)]="loginData.email"
+                  placeholder="tu@email.com" 
+                  required>
+              </div>
+
+              <div class="mb-3">
+                <label for="loginPassword" class="form-label">Contraseña</label>
+                <div class="password-toggle">
+                  <input 
+                    type="password" 
+                    class="form-control" 
+                    id="loginPassword"
+                    name="loginPassword"
+                    [(ngModel)]="loginData.password"
+                    placeholder="••••••••" 
+                    required>
+                  <span class="password-toggle-icon" (click)="togglePassword('loginPassword')">👁️</span>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="form-check">
+                  <input 
+                    class="form-check-input" 
+                    type="checkbox" 
+                    id="rememberMe"
+                    name="rememberMe"
+                    [(ngModel)]="loginData.remember">
+                  <label class="form-check-label" for="rememberMe">
+                    Recordarme
+                  </label>
+                </div>
+                <a href="#" class="text-link" (click)="mostrarRecuperar(); $event.preventDefault()">
+                  ¿Olvidaste tu contraseña?
+                </a>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
+            </form>
+
+            <div class="alert alert-info mt-4 mb-0">
+              <small>
+                <strong>Demo:</strong> 
+                <br>Asesor: asesor@estudio.com / 12345678
+                <br>Cliente: cliente@email.com / 12345678
+              </small>
+            </div>
+          </div>
+
+          <!-- FORMULARIO DE REGISTRO -->
+          <div class="auth-body" *ngIf="vistaActual === 'registro'">
+            <form (ngSubmit)="handleRegister($event)">
+              <div class="row">
+                <div class="col-md-12 mb-3">
+                  <label for="registerNombre" class="form-label">Nombre Completo</label>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    id="registerNombre"
+                    name="registerNombre"
+                    [(ngModel)]="registerData.nombre"
+                    placeholder="Juan Pérez" 
+                    required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="registerEmail" class="form-label">Correo Electrónico</label>
+                  <input 
+                    type="email" 
+                    class="form-control" 
+                    id="registerEmail"
+                    name="registerEmail"
+                    [(ngModel)]="registerData.email"
+                    placeholder="tu@email.com" 
+                    required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="registerTelefono" class="form-label">Teléfono</label>
+                  <input 
+                    type="tel" 
+                    class="form-control" 
+                    id="registerTelefono"
+                    name="registerTelefono"
+                    [(ngModel)]="registerData.telefono"
+                    placeholder="351 123 4567" 
+                    required>
+                </div>
+
+                <div class="col-md-12 mb-3">
+                  <label for="registerTipoUsuario" class="form-label">Tipo de Usuario</label>
+                  <select 
+                    class="form-select" 
+                    id="registerTipoUsuario"
+                    name="registerTipoUsuario"
+                    [(ngModel)]="registerData.tipoUsuario"
+                    required>
+                    <option value="">Seleccione...</option>
+                    <option value="cliente">Cliente - Necesito asesoramiento legal</option>
+                    <option value="asesor">Asesor Jurídico - Soy profesional del derecho</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="registerPassword" class="form-label">Contraseña</label>
+                  <div class="password-toggle">
+                    <input 
+                      type="password" 
+                      class="form-control" 
+                      id="registerPassword"
+                      name="registerPassword"
+                      [(ngModel)]="registerData.password"
+                      placeholder="Mínimo 8 caracteres" 
+                      required 
+                      minlength="8">
+                    <span class="password-toggle-icon" (click)="togglePassword('registerPassword')">👁️</span>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="registerPasswordConfirm" class="form-label">Confirmar Contraseña</label>
+                  <div class="password-toggle">
+                    <input 
+                      type="password" 
+                      class="form-control" 
+                      id="registerPasswordConfirm"
+                      name="registerPasswordConfirm"
+                      [(ngModel)]="registerData.passwordConfirm"
+                      placeholder="Repite tu contraseña" 
+                      required>
+                    <span class="password-toggle-icon" (click)="togglePassword('registerPasswordConfirm')">👁️</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <div class="form-check">
+                  <input 
+                    class="form-check-input" 
+                    type="checkbox" 
+                    id="acceptTerms"
+                    name="acceptTerms"
+                    [(ngModel)]="registerData.acceptTerms"
+                    required>
+                  <label class="form-check-label" for="acceptTerms">
+                    Acepto los <a href="#" class="text-link">términos y condiciones</a> y la <a href="#" class="text-link">política de privacidad</a>
+                  </label>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100">Crear Cuenta</button>
+            </form>
+          </div>
+
+          <!-- FORMULARIO RECUPERAR CONTRASEÑA -->
+          <div class="auth-body" *ngIf="vistaActual === 'recuperar'">
+            <div class="text-center mb-4">
+              <div style="font-size: 48px; margin-bottom: 15px;">🔑</div>
+              <h4>Recuperar Contraseña</h4>
+              <p class="text-muted">Te enviaremos un enlace a tu correo electrónico</p>
+            </div>
+
+            <form (ngSubmit)="handleRecuperar($event)">
+              <div class="mb-4">
+                <label for="recuperarEmail" class="form-label">Correo Electrónico</label>
+                <input 
+                  type="email" 
+                  class="form-control" 
+                  id="recuperarEmail"
+                  name="recuperarEmail"
+                  [(ngModel)]="recuperarData.email"
+                  placeholder="tu@email.com" 
+                  required>
+                <small class="text-muted">Ingresa el email asociado a tu cuenta</small>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100 mb-3">Enviar Enlace</button>
+              <button type="button" class="btn btn-outline-primary w-100" (click)="mostrarLogin()">
+                ← Volver al Login
+              </button>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
