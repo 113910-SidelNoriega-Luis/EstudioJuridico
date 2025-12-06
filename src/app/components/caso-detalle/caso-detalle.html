@@ -1,0 +1,434 @@
+<div class="caso-detalle" *ngIf="caso">
+  <!-- Header -->
+  <div class="caso-header">
+    <div class="container-fluid">
+      <div class="header-content">
+        <div class="header-left">
+          <button class="btn btn-outline-light btn-sm" (click)="volver()">
+            ← Volver
+          </button>
+          <div class="caso-info-principal">
+            <h1>{{ caso.titulo }}</h1>
+            <div class="caso-meta">
+              <span class="badge bg-light text-dark">{{ caso.numero }}</span>
+              <span class="badge" [ngClass]="getEstadoBadgeClass()">{{ getEstadoTexto() }}</span>
+              <span class="badge bg-secondary">{{ caso.tipo }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Botones según usuario -->
+        <div class="header-actions">
+          <!-- ASESOR -->
+          <ng-container *ngIf="tipoUsuario === 'asesor'">
+            <button class="btn btn-light me-2" (click)="abrirModalDocumento()">
+              📤 Subir Documento
+            </button>
+            <button class="btn btn-light me-2" (click)="abrirModalPlantilla()">
+              📋 Agregar Plantilla
+            </button>
+            <button 
+              *ngIf="!caso.pagoHabilitado" 
+              class="btn btn-success" 
+              (click)="habilitarPago()">
+              ✅ Habilitar Pago
+            </button>
+            <button 
+              *ngIf="caso.pagoHabilitado && !caso.pagado" 
+              class="btn btn-warning text-white">
+              ⏳ Esperando Pago
+            </button>
+            <button 
+              *ngIf="caso.pagado" 
+              class="btn btn-primary">
+              ✓ Caso Pagado
+            </button>
+          </ng-container>
+
+          <!-- CLIENTE -->
+          <ng-container *ngIf="tipoUsuario === 'cliente'">
+            <button 
+              *ngIf="caso.pagoHabilitado && !caso.pagado" 
+              class="btn btn-success btn-lg" 
+              (click)="abrirModalPago()">
+              💳 Pagar $50.000
+            </button>
+            <button 
+              *ngIf="caso.pagado" 
+              class="btn btn-primary btn-lg">
+              ✓ Pagado
+            </button>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-container">
+    <div class="container-fluid">
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tabActiva === 'info'" (click)="cambiarTab('info')">
+            📋 Información
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tabActiva === 'documentos'" (click)="cambiarTab('documentos')">
+            📄 Documentos ({{ caso.documentos.length }})
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tabActiva === 'pago'" (click)="cambiarTab('pago')">
+            💰 Pago
+            <span *ngIf="caso.pagoHabilitado && !caso.pagado" class="badge bg-danger ms-1">!</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tabActiva === 'historial'" (click)="cambiarTab('historial')">
+            🕐 Historial
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Contenido -->
+  <div class="container-fluid mt-4">
+    
+    <!-- TAB: INFORMACIÓN -->
+    <div *ngIf="tabActiva === 'info'" class="tab-content-info">
+      <div class="row">
+        <div class="col-md-8">
+          <div class="card mb-4">
+            <div class="card-header">
+              <h5>📝 Descripción del Caso</h5>
+            </div>
+            <div class="card-body">
+              <p>{{ caso.descripcion }}</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h5>📊 Detalles</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="text-muted small">Cliente</label>
+                  <p class="mb-0"><strong>{{ caso.cliente.nombre }}</strong></p>
+                  <p class="text-muted small">{{ caso.cliente.email }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="text-muted small">Asesor</label>
+                  <p class="mb-0"><strong>{{ caso.asesor.nombre }}</strong></p>
+                  <p class="text-muted small">{{ caso.asesor.email }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="text-muted small">Tipo de Caso</label>
+                  <p class="mb-0"><strong>{{ caso.tipo }}</strong></p>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="text-muted small">Fecha de Inicio</label>
+                  <p class="mb-0"><strong>{{ caso.fechaInicio }}</strong></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">⚡ Estado</h5>
+            </div>
+            <div class="card-body text-center">
+              <h2>
+                <span class="badge" [ngClass]="getEstadoBadgeClass()">
+                  {{ getEstadoTexto() }}
+                </span>
+              </h2>
+            </div>
+          </div>
+
+          <div class="card" *ngIf="tipoUsuario === 'cliente'">
+            <div class="card-header" [ngClass]="caso.pagoHabilitado ? 'bg-success text-white' : 'bg-secondary text-white'">
+              <h5 class="mb-0">💳 Estado de Pago</h5>
+            </div>
+            <div class="card-body text-center">
+              <div class="pago-status-icon mb-3">
+                {{ caso.pagado ? '✅' : (caso.pagoHabilitado ? '💳' : '⏳') }}
+              </div>
+              <h5 *ngIf="caso.pagado">Pagado</h5>
+              <h5 *ngIf="!caso.pagado && caso.pagoHabilitado">Pago Habilitado</h5>
+              <h5 *ngIf="!caso.pagoHabilitado">Pago No Habilitado</h5>
+              <p class="text-muted small" *ngIf="!caso.pagoHabilitado">
+                Su asesor habilitará el pago cuando corresponda
+              </p>
+              <button 
+                *ngIf="caso.pagoHabilitado && !caso.pagado" 
+                class="btn btn-success w-100 mt-3"
+                (click)="abrirModalPago()">
+                Pagar Ahora
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: DOCUMENTOS -->
+    <div *ngIf="tabActiva === 'documentos'" class="tab-content-documentos">
+      <div class="row">
+        <div class="col-12 mb-3" *ngIf="tipoUsuario === 'asesor'">
+          <button class="btn btn-primary me-2" (click)="abrirModalDocumento()">
+            📤 Subir Documento
+          </button>
+          <button class="btn btn-secondary" (click)="abrirModalPlantilla()">
+            📋 Agregar Plantilla
+          </button>
+        </div>
+
+        <div class="col-12">
+          <div class="documentos-grid">
+            <div class="documento-card" *ngFor="let doc of caso.documentos">
+              <div class="documento-icon">
+                {{ getDocumentoIcon(doc.tipo) }}
+              </div>
+              <div class="documento-info">
+                <h6>
+                  {{ doc.nombre }}
+                  <span *ngIf="doc.tipo === 'plantilla'" class="badge bg-info ms-2">Plantilla</span>
+                </h6>
+                <p class="text-muted small mb-1">
+                  Tamaño: {{ doc.tamano }}
+                </p>
+                <p class="text-muted small mb-0">
+                  Subido por: {{ doc.autor }} | {{ doc.fecha }}
+                </p>
+              </div>
+              <div class="documento-actions">
+                <button 
+                  *ngIf="tipoUsuario === 'asesor'"
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="eliminarDocumento(doc)">
+                  🗑️ Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="caso.documentos.length === 0" class="text-center py-5">
+            <p class="text-muted">No hay documentos cargados</p>
+            <button 
+              *ngIf="tipoUsuario === 'asesor'"
+              class="btn btn-primary"
+              (click)="abrirModalDocumento()">
+              Subir Primer Documento
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: PAGO -->
+    <div *ngIf="tabActiva === 'pago'" class="tab-content-pago">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header" [ngClass]="caso.pagado ? 'bg-success text-white' : 'bg-primary text-white'">
+              <h5 class="mb-0">💰 Información de Pago</h5>
+            </div>
+            <div class="card-body text-center">
+              <div class="pago-status-icon mb-4" style="font-size: 4rem;">
+                {{ caso.pagado ? '✅' : '💳' }}
+              </div>
+              
+              <h3 class="mb-4">Honorarios Profesionales</h3>
+              <h1 class="display-3 text-success mb-4">$50.000</h1>
+
+              <div *ngIf="!caso.pagoHabilitado && tipoUsuario === 'cliente'" class="alert alert-info">
+                <p class="mb-0">El pago aún no está habilitado por su asesor</p>
+              </div>
+
+              <div *ngIf="caso.pagado" class="alert alert-success">
+                <h5>✓ Pago Completado</h5>
+                <p class="mb-0">El pago se realizó exitosamente</p>
+              </div>
+
+              <button 
+                *ngIf="caso.pagoHabilitado && !caso.pagado && tipoUsuario === 'cliente'"
+                class="btn btn-success btn-lg w-100"
+                (click)="abrirModalPago()"
+                [disabled]="cargandoPago">
+                <span *ngIf="!cargandoPago">💳 Pagar con Mercado Pago</span>
+                <span *ngIf="cargandoPago">⏳ Procesando...</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: HISTORIAL -->
+    <div *ngIf="tabActiva === 'historial'" class="tab-content-historial">
+      <div class="timeline">
+        <div class="timeline-item" *ngFor="let mov of caso.movimientos">
+          <div class="timeline-marker">
+            {{ getMovimientoIcon(mov.tipo) }}
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-header">
+              <span class="timeline-fecha">{{ mov.fecha }}</span>
+              <span class="badge" 
+                    [ngClass]="{
+                      'bg-info': mov.tipo === 'actualizacion',
+                      'bg-primary': mov.tipo === 'documento',
+                      'bg-success': mov.tipo === 'pago'
+                    }">
+                {{ mov.tipo }}
+              </span>
+            </div>
+            <p class="timeline-descripcion">{{ mov.descripcion }}</p>
+            <p class="timeline-autor text-muted small mb-0">Por: {{ mov.autor }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL: Subir Documento -->
+<div class="modal-overlay" *ngIf="mostrarModalDocumento" (click)="cerrarModalDocumento()">
+  <div class="modal-documento" (click)="$event.stopPropagation()">
+    <button class="modal-cerrar" (click)="cerrarModalDocumento()">×</button>
+    
+    <h3>📤 Subir Documento</h3>
+    
+    <div class="form-group mb-3">
+      <label>Seleccionar archivo:</label>
+      <input 
+        type="file" 
+        class="form-control"
+        (change)="onFileSelected($event)"
+        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+    </div>
+
+    <div class="form-group mb-3" *ngIf="archivoSeleccionado">
+      <label>Nombre:</label>
+      <input 
+        type="text" 
+        class="form-control"
+        [(ngModel)]="nombreDocumento">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="cerrarModalDocumento()">
+        Cancelar
+      </button>
+      <button 
+        class="btn btn-primary" 
+        (click)="subirDocumento()"
+        [disabled]="!archivoSeleccionado">
+        Subir
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Agregar Plantilla -->
+<div class="modal-overlay" *ngIf="mostrarModalPlantilla" (click)="cerrarModalPlantilla()">
+  <div class="modal-documento" (click)="$event.stopPropagation()">
+    <button class="modal-cerrar" (click)="cerrarModalPlantilla()">×</button>
+    
+    <h3>📋 Agregar Plantilla</h3>
+    
+    <div class="form-group mb-3">
+      <label>Seleccionar plantilla:</label>
+      <select class="form-control" [(ngModel)]="plantillaSeleccionada">
+        <option value="">-- Seleccione una plantilla --</option>
+        <option *ngFor="let p of plantillasDisponibles" [value]="p.id">
+          {{ p.nombre }} ({{ p.tipo }})
+        </option>
+      </select>
+    </div>
+
+    <div class="alert alert-info" *ngIf="plantillaSeleccionada">
+      <small>
+        <strong>📝 Nota:</strong> La plantilla se agregará al caso y podrá ser completada posteriormente.
+      </small>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="cerrarModalPlantilla()">
+        Cancelar
+      </button>
+      <button 
+        class="btn btn-primary" 
+        (click)="guardarPlantilla()"
+        [disabled]="!plantillaSeleccionada">
+        Guardar Plantilla
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Pagar con Mercado Pago -->
+<div class="modal-overlay" *ngIf="mostrarModalPago" (click)="cerrarModalPago()">
+  <div class="modal-pago" (click)="$event.stopPropagation()">
+    <button class="modal-cerrar" (click)="cerrarModalPago()">×</button>
+    
+    <div class="modal-header-mp">
+      <img src="https://http2.mlstatic.com/frontend-assets/mp-web-navigation/ui-navigation/6.6.92/mercadopago/logo__large@2x.png" 
+           alt="Mercado Pago" 
+           class="mp-logo">
+    </div>
+
+    <div class="modal-body-mp" *ngIf="caso">
+      <h3>Confirmar Pago</h3>
+      
+      <div class="pago-detalle">
+        <div class="detalle-row">
+          <span class="detalle-label">Caso:</span>
+          <span class="detalle-valor">{{ caso.numero }}</span>
+        </div>
+        <div class="detalle-row">
+          <span class="detalle-label">Concepto:</span>
+          <span class="detalle-valor">{{ caso.titulo }}</span>
+        </div>
+        <div class="detalle-row">
+          <span class="detalle-label">Cliente:</span>
+          <span class="detalle-valor">{{ caso.cliente.nombre }}</span>
+        </div>
+      </div>
+
+      <div class="monto-total">
+        <span class="monto-label">Total a Pagar</span>
+        <span class="monto-valor">$50.000</span>
+      </div>
+
+      <div class="metodos-pago">
+        <p>Podés pagar con:</p>
+        <div class="metodos-icons">
+          <span>💳 Tarjetas</span>
+          <span>💰 Efectivo</span>
+          <span>🏦 Transferencia</span>
+        </div>
+      </div>
+
+      <button 
+        class="btn btn-mp" 
+        (click)="procesarPagoMercadoPago()"
+        [disabled]="cargandoPago">
+        <span *ngIf="!cargandoPago">Continuar con Mercado Pago</span>
+        <span *ngIf="cargandoPago">⏳ Procesando...</span>
+      </button>
+
+      <p class="text-muted small text-center mt-3">
+        Serás redirigido a Mercado Pago para completar el pago de forma segura
+      </p>
+    </div>
+  </div>
+</div>

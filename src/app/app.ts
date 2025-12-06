@@ -3,6 +3,7 @@ import { Component, inject} from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
+
 @Component({
   selector: 'app-root',
   imports: [CommonModule, NgbModule, RouterOutlet, RouterLink],

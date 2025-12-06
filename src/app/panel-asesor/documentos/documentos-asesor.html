@@ -1,0 +1,721 @@
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" style="cursor: pointer;" (click)="volverDashboard()">
+      ⚖️ Panel del Asesor
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" (click)="volverDashboard()" style="cursor: pointer;">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" style="cursor: pointer;">Agenda</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" style="cursor: pointer;">Consultas</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" style="cursor: pointer;">Casos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" style="cursor: pointer;">Clientes</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" style="cursor: pointer;">Documentos</a>
+        </li>
+      </ul>
+      
+      <div class="dropdown">
+        <button class="btn btn-link dropdown-toggle text-white text-decoration-none" 
+                type="button" 
+                data-bs-toggle="dropdown">
+          <span>{{ usuario?.nombre || 'Asesor' }}</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" style="cursor: pointer;">Mi Perfil</a></li>
+          <li><a class="dropdown-item" style="cursor: pointer;">Configuración</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item text-danger" (click)="cerrarSesion()" style="cursor: pointer;">Cerrar Sesión</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="panel-hero">
+  <div class="container">
+    <h1>📂 Gestión de Documentos</h1>
+    <p>Administra documentos de clientes, crea escritos y gestiona plantillas del estudio</p>
+  </div>
+</section>
+
+<!-- Contenido Principal -->
+<div class="container">
+
+  <!-- Estadísticas -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="stat-card">
+        <div class="stat-value">{{ estadisticas.totalDocumentos }}</div>
+        <div class="stat-label">Total Documentos</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card" style="border-left-color: #0d6efd;">
+        <div class="stat-value">{{ estadisticas.escritosCreados }}</div>
+        <div class="stat-label">Escritos Creados</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card" style="border-left-color: #198754;">
+        <div class="stat-value">{{ estadisticas.clientesConDocs }}</div>
+        <div class="stat-label">Clientes con Docs</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card" style="border-left-color: #ffc107;">
+        <div class="stat-value">{{ estadisticas.plantillasActivas }}</div>
+        <div class="stat-label">Plantillas Activas</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Acciones Rápidas -->
+  <div class="quick-actions-docs">
+    <div class="quick-action-btn" (click)="cambiarTab('todos')">
+      <div class="quick-action-icon">📂</div>
+      <div class="quick-action-label">Todos los Docs</div>
+    </div>
+    <div class="quick-action-btn" (click)="cambiarTab('porCliente')">
+      <div class="quick-action-icon">👥</div>
+      <div class="quick-action-label">Por Cliente</div>
+    </div>
+    <div class="quick-action-btn" (click)="cambiarTab('nuevoEscrito')">
+      <div class="quick-action-icon">📝</div>
+      <div class="quick-action-label">Nuevo Escrito</div>
+    </div>
+    <div class="quick-action-btn" (click)="cambiarTab('subirDoc')">
+      <div class="quick-action-icon">📤</div>
+      <div class="quick-action-label">Subir Documento</div>
+    </div>
+    <div class="quick-action-btn" (click)="cambiarTab('plantillas')">
+      <div class="quick-action-icon">📋</div>
+      <div class="quick-action-label">Plantillas</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <button class="nav-link" 
+              [class.active]="tabActivo === 'todos'" 
+              (click)="cambiarTab('todos')">
+        Todos los Documentos
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" 
+              [class.active]="tabActivo === 'porCliente'" 
+              (click)="cambiarTab('porCliente')">
+        Por Cliente
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" 
+              [class.active]="tabActivo === 'nuevoEscrito'" 
+              (click)="cambiarTab('nuevoEscrito')">
+        Nuevo Escrito
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" 
+              [class.active]="tabActivo === 'subirDoc'" 
+              (click)="cambiarTab('subirDoc')">
+        Subir Documento
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" 
+              [class.active]="tabActivo === 'plantillas'" 
+              (click)="cambiarTab('plantillas')">
+        Gestionar Plantillas
+      </button>
+    </li>
+  </ul>
+
+  <!-- TAB: TODOS LOS DOCUMENTOS -->
+  <div *ngIf="tabActivo === 'todos'">
+    
+    <!-- Filtros -->
+    <div class="filtros-section">
+      <div class="row align-items-center">
+        <div class="col-md-3 mb-3 mb-md-0">
+          <input type="text" 
+                 class="form-control" 
+                 placeholder="🔍 Buscar documento..."
+                 [(ngModel)]="filtros.busqueda"
+                 (input)="filtrarDocumentos()">
+        </div>
+        <div class="col-md-2 mb-3 mb-md-0">
+          <select class="form-select" 
+                  [(ngModel)]="filtros.tipo"
+                  (change)="filtrarDocumentos()">
+            <option value="todos">Todos los tipos</option>
+            <option value="pdf">PDF</option>
+            <option value="doc">Word</option>
+            <option value="img">Imágenes</option>
+            <option value="escrito">Escritos</option>
+          </select>
+        </div>
+        <div class="col-md-3 mb-3 mb-md-0">
+          <select class="form-select"
+                  [(ngModel)]="filtros.cliente"
+                  (change)="filtrarDocumentos()">
+            <option value="todos">Todos los clientes</option>
+            <option *ngFor="let cliente of clientes" [value]="cliente.id">
+              {{ cliente.nombre }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-2 mb-3 mb-md-0">
+          <select class="form-select"
+                  [(ngModel)]="filtros.caso"
+                  (change)="filtrarDocumentos()">
+            <option value="todos">Todos los casos</option>
+            <option *ngFor="let caso of casos" [value]="caso.id">
+              #{{ caso.numero }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-outline-primary w-100" (click)="limpiarFiltros()">
+            Limpiar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de Documentos -->
+    <div class="content-card">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">📂 Documentos ({{ documentosFiltrados.length }})</h5>
+        <div class="btn-group">
+          <button class="btn btn-sm btn-outline-secondary" (click)="ordenarPor('fecha')">
+            Fecha {{ ordenActual === 'fecha' ? (ordenAsc ? '↑' : '↓') : '' }}
+          </button>
+          <button class="btn btn-sm btn-outline-secondary" (click)="ordenarPor('cliente')">
+            Cliente {{ ordenActual === 'cliente' ? (ordenAsc ? '↑' : '↓') : '' }}
+          </button>
+          <button class="btn btn-sm btn-outline-secondary" (click)="ordenarPor('tipo')">
+            Tipo {{ ordenActual === 'tipo' ? (ordenAsc ? '↑' : '↓') : '' }}
+          </button>
+        </div>
+      </div>
+      
+      <div *ngIf="documentosFiltrados.length === 0" class="alert alert-info">
+        No se encontraron documentos con los filtros aplicados.
+      </div>
+
+      <div *ngFor="let doc of documentosFiltrados" class="documento-list-item">
+        <div class="documento-icon" [ngClass]="doc.tipo">
+          {{ getIconoTipo(doc.tipo) }}
+        </div>
+        <div class="flex-grow-1">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="documento-nombre fw-bold">{{ doc.nombre }}</span>
+            <span class="cliente-badge">{{ doc.clienteNombre }}</span>
+          </div>
+          <div class="documento-meta">
+            <span class="badge bg-secondary me-2">{{ doc.extension }}</span>
+            <span class="badge bg-primary me-2" *ngIf="doc.caso">Caso #{{ doc.caso }}</span>
+            {{ doc.tamanio }} • {{ doc.fecha }}
+            <span *ngIf="doc.creadoPor" class="ms-2">• Por: {{ doc.creadoPor }}</span>
+          </div>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-primary" (click)="verDocumento(doc)">
+            👁️ Ver
+          </button>
+          <button class="btn btn-sm btn-outline-success" (click)="descargarDocumento(doc)">
+            ⬇️
+          </button>
+          <button class="btn btn-sm btn-outline-warning" (click)="editarDocumento(doc)" *ngIf="doc.tipo === 'escrito'">
+            ✏️
+          </button>
+          <button class="btn btn-sm btn-outline-danger" (click)="eliminarDocumento(doc)">
+            🗑️
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actividad Reciente -->
+    <div class="content-card">
+      <h5>🕒 Actividad Reciente</h5>
+      <div *ngFor="let actividad of actividadReciente" class="actividad-item">
+        <div class="actividad-icono">{{ actividad.icono }}</div>
+        <div class="actividad-contenido">
+          <div class="actividad-titulo">{{ actividad.titulo }}</div>
+          <div class="actividad-detalle">{{ actividad.detalle }}</div>
+          <div class="actividad-fecha">{{ actividad.fecha }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: POR CLIENTE -->
+  <div *ngIf="tabActivo === 'porCliente'">
+    <div class="row">
+      <!-- Lista de Clientes -->
+      <div class="col-md-4">
+        <div class="content-card">
+          <h5>👥 Seleccionar Cliente</h5>
+          <input type="text" 
+                 class="form-control mb-3" 
+                 placeholder="🔍 Buscar cliente..."
+                 [(ngModel)]="busquedaCliente">
+          
+          <div *ngFor="let cliente of getClientesFiltrados()" 
+               class="cliente-selector mb-2"
+               [class.selected]="clienteSeleccionado?.id === cliente.id"
+               (click)="seleccionarCliente(cliente)">
+            <div class="cliente-avatar">{{ getIniciales(cliente.nombre) }}</div>
+            <div class="cliente-info">
+              <div class="cliente-nombre">{{ cliente.nombre }}</div>
+              <div class="cliente-casos">{{ cliente.casosActivos }} casos • {{ cliente.documentos }} docs</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documentos del Cliente -->
+      <div class="col-md-8">
+        <div class="content-card" *ngIf="!clienteSeleccionado">
+          <div class="text-center py-5">
+            <div style="font-size: 64px; opacity: 0.3;">👈</div>
+            <p class="text-muted mt-3">Selecciona un cliente para ver sus documentos</p>
+          </div>
+        </div>
+
+        <div class="content-card" *ngIf="clienteSeleccionado">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h5 class="mb-0">📂 Documentos de {{ clienteSeleccionado.nombre }}</h5>
+              <small class="text-muted">{{ getDocumentosCliente().length }} documentos</small>
+            </div>
+            <div>
+              <button class="btn btn-sm btn-primary me-2" (click)="subirDocumentoCliente()">
+                📤 Subir Doc
+              </button>
+              <button class="btn btn-sm btn-outline-primary" (click)="crearEscritoCliente()">
+                📝 Nuevo Escrito
+              </button>
+            </div>
+          </div>
+
+          <!-- Agrupar por caso -->
+          <div *ngFor="let caso of getCasosCliente()" class="mb-4">
+            <h6 class="border-bottom pb-2">
+              <span class="badge bg-primary me-2">Caso #{{ caso.numero }}</span>
+              {{ caso.titulo }}
+            </h6>
+            
+            <div *ngFor="let doc of getDocumentosCaso(caso.id)" class="documento-list-item">
+              <div class="documento-icon" [ngClass]="doc.tipo">
+                {{ getIconoTipo(doc.tipo) }}
+              </div>
+              <div class="flex-grow-1">
+                <div class="documento-nombre">{{ doc.nombre }}</div>
+                <div class="documento-meta">
+                  {{ doc.extension }} • {{ doc.tamanio }} • {{ doc.fecha }}
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-primary" (click)="verDocumento(doc)">👁️</button>
+                <button class="btn btn-sm btn-outline-success" (click)="descargarDocumento(doc)">⬇️</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Documentos sin caso -->
+          <div *ngIf="getDocumentosSinCaso().length > 0">
+            <h6 class="border-bottom pb-2">
+              <span class="badge bg-secondary me-2">Sin caso asignado</span>
+            </h6>
+            <div *ngFor="let doc of getDocumentosSinCaso()" class="documento-list-item">
+              <div class="documento-icon" [ngClass]="doc.tipo">
+                {{ getIconoTipo(doc.tipo) }}
+              </div>
+              <div class="flex-grow-1">
+                <div class="documento-nombre">{{ doc.nombre }}</div>
+                <div class="documento-meta">{{ doc.extension }} • {{ doc.fecha }}</div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-primary" (click)="verDocumento(doc)">👁️</button>
+                <button class="btn btn-sm btn-outline-warning" (click)="asignarCaso(doc)">📎 Asignar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: NUEVO ESCRITO -->
+  <div *ngIf="tabActivo === 'nuevoEscrito'">
+    <div class="content-card">
+      <div class="escrito-header">
+        <h5>📝 Crear Nuevo Escrito</h5>
+      </div>
+
+      <div class="info-banner">
+        <p>
+          <strong>ℹ️ Información:</strong> Seleccione el cliente y caso, luego elija el tipo de escrito. 
+          Puede usar plantillas predefinidas o redactar desde cero.
+        </p>
+      </div>
+
+      <!-- Selección de Cliente y Caso -->
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Cliente *</label>
+          <select class="form-select" 
+                  [(ngModel)]="nuevoEscrito.clienteId"
+                  (change)="onClienteEscritoChange()">
+            <option value="">Seleccione cliente...</option>
+            <option *ngFor="let cliente of clientes" [value]="cliente.id">
+              {{ cliente.nombre }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Caso *</label>
+          <select class="form-select" 
+                  [(ngModel)]="nuevoEscrito.casoId"
+                  [disabled]="!nuevoEscrito.clienteId">
+            <option value="">Seleccione caso...</option>
+            <option *ngFor="let caso of getCasosClienteEscrito()" [value]="caso.id">
+              #{{ caso.numero }} - {{ caso.titulo }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Carátula</label>
+          <input type="text" 
+                 class="form-control" 
+                 [(ngModel)]="nuevoEscrito.caratula"
+                 placeholder="Se autocompleta con el caso">
+        </div>
+      </div>
+
+      <!-- Tipo de Escrito y Plantilla -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Tipo de Escrito *</label>
+          <select class="form-select" 
+                  [(ngModel)]="nuevoEscrito.tipo"
+                  (change)="onTipoEscritoChange()">
+            <option value="">Seleccione tipo...</option>
+            <option *ngFor="let tipo of tiposEscrito" [value]="tipo.value">
+              {{ tipo.label }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Plantilla Base</label>
+          <select class="form-select" 
+                  [(ngModel)]="nuevoEscrito.plantillaId"
+                  (change)="cargarPlantilla()">
+            <option value="">Plantilla en blanco</option>
+            <option *ngFor="let plantilla of plantillas" [value]="plantilla.id">
+              {{ plantilla.nombre }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Variables disponibles -->
+      <div class="mb-3">
+        <label class="form-label fw-bold">Variables (click para insertar):</label>
+        <div class="d-flex flex-wrap gap-2">
+          <span *ngFor="let variable of variablesDisponibles" 
+                class="variable-tag"
+                (click)="insertarVariable(variable)">
+            {{ variable }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Editor -->
+      <label class="form-label fw-bold">Contenido del Escrito</label>
+      <div class="editor-container">
+        <div class="editor-toolbar">
+          <select (change)="formatText('formatBlock', $event)">
+            <option value="">Párrafo</option>
+            <option value="h1">Título 1</option>
+            <option value="h2">Título 2</option>
+            <option value="h3">Título 3</option>
+          </select>
+          <div class="separator"></div>
+          <button class="btn-tool" (click)="formatText('bold')" title="Negrita">
+            <strong>B</strong>
+          </button>
+          <button class="btn-tool" (click)="formatText('italic')" title="Cursiva">
+            <em>I</em>
+          </button>
+          <button class="btn-tool" (click)="formatText('underline')" title="Subrayado">
+            <u>U</u>
+          </button>
+          <div class="separator"></div>
+          <button class="btn-tool" (click)="formatText('justifyLeft')">≡</button>
+          <button class="btn-tool" (click)="formatText('justifyCenter')">≡</button>
+          <button class="btn-tool" (click)="formatText('justifyRight')">≡</button>
+          <button class="btn-tool" (click)="formatText('justifyFull')">≡</button>
+          <div class="separator"></div>
+          <button class="btn-tool" (click)="formatText('insertUnorderedList')">•</button>
+          <button class="btn-tool" (click)="formatText('insertOrderedList')">1.</button>
+        </div>
+        <div class="editor-content" 
+             #editorContent
+             contenteditable="true"
+             (input)="onEditorInput($event)"
+             [innerHTML]="nuevoEscrito.contenido">
+        </div>
+      </div>
+
+      <!-- Botones -->
+      <div class="d-flex justify-content-between mt-4">
+        <div>
+          <button class="btn btn-outline-secondary me-2" (click)="limpiarEscrito()">
+            🗑️ Limpiar
+          </button>
+          <button class="btn btn-outline-primary" (click)="previsualizarEscrito()">
+            👁️ Previsualizar
+          </button>
+        </div>
+        <div>
+          <button class="btn btn-outline-success me-2" (click)="guardarBorrador()">
+            💾 Guardar Borrador
+          </button>
+          <button class="btn btn-primary" (click)="guardarEscrito()">
+            ✅ Guardar y Asignar al Cliente
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: SUBIR DOCUMENTO -->
+  <div *ngIf="tabActivo === 'subirDoc'">
+    <div class="content-card">
+      <h5>📤 Subir Documento a Cliente</h5>
+      
+      <!-- Selección de destino -->
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Cliente *</label>
+          <select class="form-select" 
+                  [(ngModel)]="uploadConfig.clienteId"
+                  (change)="onClienteUploadChange()">
+            <option value="">Seleccione cliente...</option>
+            <option *ngFor="let cliente of clientes" [value]="cliente.id">
+              {{ cliente.nombre }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Caso (opcional)</label>
+          <select class="form-select" 
+                  [(ngModel)]="uploadConfig.casoId"
+                  [disabled]="!uploadConfig.clienteId">
+            <option value="">Sin caso específico</option>
+            <option *ngFor="let caso of getCasosClienteUpload()" [value]="caso.id">
+              #{{ caso.numero }} - {{ caso.titulo }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Descripción</label>
+          <input type="text" 
+                 class="form-control" 
+                 [(ngModel)]="uploadConfig.descripcion"
+                 placeholder="Ej: Contrato firmado">
+        </div>
+      </div>
+
+      <!-- Zona de Upload -->
+      <div class="upload-zone"
+           [class.dragover]="isDragging"
+           (dragover)="onDragOver($event)"
+           (dragleave)="onDragLeave($event)"
+           (drop)="onDrop($event)"
+           (click)="fileInput.click()">
+        <div class="upload-zone-icon">📁</div>
+        <h5>Arrastra los archivos aquí</h5>
+        <p>o haz clic para seleccionar</p>
+        <button class="btn btn-primary">Seleccionar Archivos</button>
+        <p class="mt-3 text-muted small">
+          PDF, DOC, DOCX, JPG, PNG • Máximo 10MB por archivo
+        </p>
+        <input type="file" 
+               #fileInput 
+               (change)="onFileSelected($event)"
+               multiple
+               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+               style="display: none;">
+      </div>
+
+      <!-- Archivos seleccionados -->
+      <div *ngIf="archivosSeleccionados.length > 0" class="mt-4">
+        <h6>Archivos seleccionados ({{ archivosSeleccionados.length }}):</h6>
+        <div *ngFor="let archivo of archivosSeleccionados; let i = index" 
+             class="documento-list-item">
+          <div class="documento-icon" [ngClass]="getTipoArchivo(archivo.name)">
+            {{ getIconoTipo(getTipoArchivo(archivo.name)) }}
+          </div>
+          <div class="flex-grow-1">
+            <div class="documento-nombre">{{ archivo.name }}</div>
+            <div class="documento-meta">{{ formatearTamanio(archivo.size) }}</div>
+          </div>
+          <button class="btn btn-sm btn-outline-danger" (click)="removerArchivo(i)">✕</button>
+        </div>
+
+        <button class="btn btn-primary mt-3" 
+                (click)="subirArchivos()"
+                [disabled]="!uploadConfig.clienteId">
+          📤 Subir {{ archivosSeleccionados.length }} archivo(s) al cliente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: GESTIONAR PLANTILLAS -->
+  <div *ngIf="tabActivo === 'plantillas'">
+    <div class="row">
+      <!-- Lista de Plantillas -->
+      <div class="col-md-8">
+        <div class="content-card">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">📋 Plantillas del Estudio</h5>
+            <button class="btn btn-primary btn-sm" (click)="nuevaPlantilla()">
+              ➕ Nueva Plantilla
+            </button>
+          </div>
+
+          <div *ngFor="let plantilla of plantillas" class="plantilla-gestion-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="d-flex gap-3">
+                <div style="font-size: 32px;">{{ plantilla.icono }}</div>
+                <div>
+                  <h6 class="mb-1">{{ plantilla.nombre }}</h6>
+                  <p class="text-muted mb-1 small">{{ plantilla.descripcion }}</p>
+                  <span class="badge" [ngClass]="'tipo-' + plantilla.tipo">
+                    {{ plantilla.tipo | uppercase }}
+                  </span>
+                  <span class="badge bg-secondary ms-2">
+                    Usado {{ plantilla.vecesUsada || 0 }} veces
+                  </span>
+                </div>
+              </div>
+              <div class="plantilla-actions">
+                <button class="btn btn-sm btn-outline-primary" (click)="editarPlantilla(plantilla)">
+                  ✏️ Editar
+                </button>
+                <button class="btn btn-sm btn-outline-success" (click)="duplicarPlantilla(plantilla)">
+                  📋 Duplicar
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="eliminarPlantilla(plantilla)">
+                  🗑️
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vista Previa -->
+      <div class="col-md-4">
+        <div class="content-card">
+          <h5>👁️ Vista Previa</h5>
+          
+          <div *ngIf="!plantillaSeleccionada" class="text-center py-4">
+            <p class="text-muted">Selecciona una plantilla para ver su contenido</p>
+          </div>
+
+          <div *ngIf="plantillaSeleccionada">
+            <h6>{{ plantillaSeleccionada.nombre }}</h6>
+            <div class="documento-preview" [innerHTML]="plantillaSeleccionada.contenido">
+            </div>
+            <button class="btn btn-primary w-100 mt-3" (click)="usarPlantilla(plantillaSeleccionada)">
+              ✏️ Usar Esta Plantilla
+            </button>
+          </div>
+        </div>
+
+        <!-- Estadísticas de uso -->
+        <div class="content-card">
+          <h5>📊 Estadísticas de Uso</h5>
+          <div *ngFor="let plantilla of getPlantillasMasUsadas()" class="d-flex justify-content-between mb-2">
+            <span>{{ plantilla.nombre }}</span>
+            <span class="badge bg-primary">{{ plantilla.vecesUsada || 0 }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal Previsualización -->
+<div class="modal fade" 
+     [class.show]="mostrarModalPreview" 
+     [style.display]="mostrarModalPreview ? 'block' : 'none'"
+     tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">👁️ Vista Previa del Documento</h5>
+        <button type="button" class="btn-close" (click)="cerrarModalPreview()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="documento-preview" style="max-height: 500px;" [innerHTML]="documentoPreview">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalPreview()">Cerrar</button>
+        <button type="button" class="btn btn-outline-primary" (click)="imprimirDocumento()">
+          🖨️ Imprimir
+        </button>
+        <button type="button" class="btn btn-primary" (click)="descargarPDF()">
+          ⬇️ Descargar PDF
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop del modal -->
+<div class="modal-backdrop fade" 
+     [class.show]="mostrarModalPreview"
+     *ngIf="mostrarModalPreview"
+     (click)="cerrarModalPreview()"></div>
+
+<!-- Footer -->
+<footer class="bg-dark text-white py-4 mt-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <h5>Estudio Jurídico</h5>
+        <p class="small">Panel del Asesor - Gestión de Documentos</p>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <p class="small mb-0">&copy; 2024 Estudio Jurídico. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </div>
+</footer>

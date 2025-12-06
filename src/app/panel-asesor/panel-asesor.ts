@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLinkActive } from '@angular/router';
 import { AuthService, Usuario } from '../auth/auth.service';
 import { NotificacionesService } from '../services/notificaciones.service';
 import { SelectorFechaComponent, FechaSeleccionada } from '../components/selector-fecha.component';
@@ -63,7 +63,7 @@ interface SlotAgenda {
 @Component({
   selector: 'app-panel-asesor',
   standalone: true,
-  imports: [CommonModule, FormsModule, SelectorFechaComponent],  // ✅ FormsModule agregado
+  imports: [CommonModule, FormsModule, SelectorFechaComponent, RouterLinkActive],  // ✅ FormsModule agregado
   templateUrl: './panel-asesor.html',
   styleUrls: ['./panel-asesor.css']
 })

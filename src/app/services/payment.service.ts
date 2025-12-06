@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../environments/environment';
 
-// Agregar interfaz
-export interface TurnoPaymentData {
+export interface TurnoPaymentDTO {
   turnoId: string;
   clienteNombre: string;
   consultaAsunto: string;
@@ -13,49 +11,45 @@ export interface TurnoPaymentData {
   hora: string;
 }
 
-export interface PaymentRequest {
-  title: string;
-  description: string;
-  price: number;
-  quantity: number;
-  externalReference: string;
-}
-
-export interface PaymentResponse {
+export interface PaymentResponseDTO {
   preferenceId: string;
   initPoint: string;
   sandboxInitPoint: string;
   externalReference: string;
 }
 
-export interface PaymentInfo {
-  id: number;
-  status: string;
-  statusDetail: string;
-  transactionAmount: number;
-  externalReference: string;
-  dateCreated: string;
-}
-
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class PaymentService {
-  private apiUrl = `${environment.apiUrl}/api/payment`;
+  
+  private apiUrl = 'http://localhost:8080/api/payment'; // Tu backend
 
   constructor(private http: HttpClient) {}
 
   /**
-   * Crea preferencia de pago para un turno
+   * Crea una preferencia de pago en Mercado Pago a través del backend
    */
-  createPreferenceForTurno(turnoData: TurnoPaymentData): Observable<PaymentResponse> {
-    return this.http.post<PaymentResponse>(`${this.apiUrl}/create-preference`, turnoData);
+  crearPreferenciaPago(casoId: number, casoTitulo: string, clienteNombre: string): Observable<PaymentResponseDTO> {
+    const turnoData: TurnoPaymentDTO = {
+      turnoId: `CASO-${casoId}`,
+      clienteNombre: clienteNombre,
+      consultaAsunto: casoTitulo,
+      consultaDescripcion: 'Pago de honorarios profesionales',
+      fecha: new Date().toLocaleDateString('es-AR'),
+      hora: new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+    };
+
+    return this.http.post<PaymentResponseDTO>(
+      `${this.apiUrl}/create-preference`,
+      turnoData
+    );
   }
 
   /**
    * Obtiene información de un pago
    */
-  getPaymentInfo(paymentId: number): Observable<PaymentInfo> {
-    return this.http.get<PaymentInfo>(`${this.apiUrl}/info/${paymentId}`);
+  obtenerInfoPago(paymentId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/info/${paymentId}`);
   }
 }

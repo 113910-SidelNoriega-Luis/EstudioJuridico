@@ -1,0 +1,562 @@
+/* ===== HEADER DEL CASO ===== */
+.caso-header {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  color: white;
+  padding: 30px 0;
+  margin-bottom: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+}
+
+.caso-info-principal h1 {
+  font-size: 1.75rem;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+}
+
+.caso-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.caso-meta .badge {
+  font-size: 0.85rem;
+  padding: 6px 12px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ===== TABS ===== */
+.tabs-container {
+  background: white;
+  border-bottom: 1px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.nav-tabs {
+  border: none;
+  margin-bottom: 0;
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  color: #6c757d;
+  font-weight: 600;
+  padding: 15px 25px;
+  transition: all 0.3s;
+  border-bottom: 3px solid transparent;
+}
+
+.nav-tabs .nav-link:hover {
+  color: #0d6efd;
+  background: transparent;
+  border-color: transparent;
+}
+
+.nav-tabs .nav-link.active {
+  color: #0d6efd;
+  background: transparent;
+  border-bottom: 3px solid #0d6efd;
+}
+
+.nav-tabs .nav-link .badge {
+  margin-left: 5px;
+}
+
+/* ===== TAB: INFORMACIÓN ===== */
+.tab-content-info .card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border: none;
+}
+
+.tab-content-info .card-header {
+  background: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  font-weight: 700;
+}
+
+.pago-status-icon {
+  font-size: 4rem;
+}
+
+/* ===== TAB: DOCUMENTOS ===== */
+.documentos-grid {
+  display: grid;
+  gap: 15px;
+}
+
+.documento-card {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.documento-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.documento-icon {
+  font-size: 3rem;
+  min-width: 60px;
+  text-align: center;
+}
+
+.documento-info {
+  flex: 1;
+}
+
+.documento-info h6 {
+  margin: 0 0 8px 0;
+  font-weight: 700;
+  color: #212529;
+}
+
+.documento-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* ===== TAB: PAGOS ===== */
+.pagos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.pago-card {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: all 0.3s;
+}
+
+.pago-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+
+.pago-card.pendiente {
+  border-left: 4px solid #ffc107;
+}
+
+.pago-card.pagado {
+  border-left: 4px solid #28a745;
+}
+
+.pago-header {
+  padding: 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pago-header h5 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.pago-body {
+  padding: 20px;
+}
+
+.pago-monto,
+.pago-vencimiento,
+.pago-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.pago-monto:last-child,
+.pago-vencimiento:last-child,
+.pago-info:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.pago-monto .label,
+.pago-vencimiento .label,
+.pago-info .label {
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.pago-monto .valor {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #28a745;
+}
+
+.pago-vencimiento .valor,
+.pago-info .valor {
+  font-weight: 700;
+  color: #212529;
+}
+
+.pago-footer {
+  padding: 15px 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+}
+
+/* ===== TAB: HISTORIAL ===== */
+.timeline {
+  position: relative;
+  padding-left: 50px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #dee2e6;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -35px;
+  width: 30px;
+  height: 30px;
+  background: white;
+  border: 2px solid #0d6efd;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  z-index: 1;
+}
+
+.timeline-content {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.timeline-fecha {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.timeline-descripcion {
+  margin: 10px 0;
+  color: #212529;
+}
+
+.timeline-autor {
+  font-size: 0.85rem;
+}
+
+/* ===== MODALES ===== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-pago,
+.modal-documento,
+.modal-nota {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideUp 0.3s;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-cerrar {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #6c757d;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+.modal-cerrar:hover {
+  background: #f0f0f0;
+  color: #212529;
+}
+
+/* Modal de Pago */
+.modal-header-mp {
+  text-align: center;
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.mp-logo {
+  max-width: 200px;
+  height: auto;
+}
+
+.modal-body-mp h3 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #212529;
+  font-weight: 700;
+}
+
+.pago-detalle {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.detalle-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.detalle-row:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.detalle-label {
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.detalle-valor {
+  font-weight: 700;
+  color: #212529;
+  text-align: right;
+  max-width: 60%;
+}
+
+.monto-total {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.monto-label {
+  display: block;
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin-bottom: 5px;
+}
+
+.monto-valor {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.metodos-pago {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.metodos-pago p {
+  color: #6c757d;
+  margin-bottom: 10px;
+}
+
+.metodos-icons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.metodos-icons span {
+  background: #f8f9fa;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.btn-mp {
+  width: 100%;
+  background: #00b1ea;
+  color: white;
+  border: none;
+  padding: 15px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-mp:hover {
+  background: #009ed1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 177, 234, 0.3);
+}
+
+/* Modal de Documento y Nota */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-left {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .header-actions button {
+    flex: 1;
+  }
+
+  .caso-info-principal h1 {
+    font-size: 1.3rem;
+  }
+
+  .pagos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .timeline {
+    padding-left: 40px;
+  }
+
+  .timeline-marker {
+    left: -30px;
+    width: 25px;
+    height: 25px;
+    font-size: 12px;
+  }
+
+  .nav-tabs .nav-link {
+    padding: 12px 15px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .caso-header {
+    padding: 20px 0;
+  }
+
+  .modal-pago,
+  .modal-documento,
+  .modal-nota {
+    padding: 20px;
+    width: 95%;
+  }
+
+  .monto-valor {
+    font-size: 1.5rem;
+  }
+}
+
+/* ===== UTILIDADES ===== */
+.badge-sm {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+}
