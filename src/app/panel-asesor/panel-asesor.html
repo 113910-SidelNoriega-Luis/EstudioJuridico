@@ -1,68 +1,71 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold" style="cursor: pointer;">⚖️ Panel del Asesor</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+    <a class="navbar-brand fw-bold" style="cursor: pointer;">⚖️ Panel del
+      Asesor</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+      data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
-          <a class="nav-link" 
-             [class.active]="vistaActiva === 'dashboard'" 
-             (click)="cambiarVista('dashboard')" 
-             style="cursor: pointer;">
+          <a class="nav-link"
+            [class.active]="vistaActiva === 'dashboard'"
+            (click)="cambiarVista('dashboard')"
+            style="cursor: pointer;">
             Dashboard
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" 
-             [class.active]="vistaActiva === 'agenda'" 
-             (click)="cambiarVista('agenda')" 
-             style="cursor: pointer;">
+          <a class="nav-link"
+            [class.active]="vistaActiva === 'agenda'"
+            (click)="cambiarVista('agenda')"
+            style="cursor: pointer;">
             Agenda
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" 
-             [class.active]="vistaActiva === 'consultas'" 
-             (click)="cambiarVista('consultas')" 
-             style="cursor: pointer;">
+          <a class="nav-link"
+            [class.active]="vistaActiva === 'consultas'"
+            (click)="cambiarVista('consultas')"
+            style="cursor: pointer;">
             Consultas
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" 
-             [class.active]="vistaActiva === 'casos'" 
-             (click)="cambiarVista('casos')" 
-             style="cursor: pointer;">
-            Casos
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" 
-             [class.active]="vistaActiva === 'clientes'" 
-             (click)="cambiarVista('clientes')" 
-             style="cursor: pointer;">
+          <a class="nav-link"
+            [class.active]="vistaActiva === 'clientes'"
+            (click)="cambiarVista('clientes')"
+            style="cursor: pointer;">
             Clientes
           </a>
         </li>
         <li class="nav-item">
-        <a routerLink="/panel-asesor/documentos" routerLinkActive="active">Documentos</a>
+          <a class="nav-link"
+            [class.active]="vistaActiva === 'casos'"
+            (click)="cambiarVista('casos')"
+            style="cursor: pointer;">
+            Mis Casos
+          </a>
         </li>
       </ul>
-      
+
       <div class="dropdown">
-        <button class="btn btn-link dropdown-toggle text-white text-decoration-none" 
-                type="button" 
-                data-bs-toggle="dropdown">
+        <button
+          class="btn btn-link dropdown-toggle text-white text-decoration-none"
+          type="button"
+          data-bs-toggle="dropdown">
           <span>{{ usuario?.nombre || 'Asesor' }}</span>
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" style="cursor: pointer;">Mi Perfil</a></li>
-          <li><a class="dropdown-item" style="cursor: pointer;">Configuración</a></li>
+          <li><a class="dropdown-item" style="cursor: pointer;">Mi
+              Perfil</a></li>
+          <li><a class="dropdown-item"
+              style="cursor: pointer;">Configuración</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item text-danger" (click)="cerrarSesion()" style="cursor: pointer;">Cerrar Sesión</a></li>
+          <li><a class="dropdown-item text-danger" (click)="cerrarSesion()"
+              style="cursor: pointer;">Cerrar Sesión</a></li>
         </ul>
       </div>
     </div>
@@ -71,7 +74,7 @@
 
 <!-- VISTA: DASHBOARD -->
 <div *ngIf="vistaActiva === 'dashboard'">
-  
+
   <!-- Hero Section -->
   <section class="panel-hero">
     <div class="container">
@@ -81,7 +84,7 @@
   </section>
 
   <div class="container">
-    
+
     <!-- Estadísticas -->
     <div class="row mb-4">
       <div class="col-md-3">
@@ -117,19 +120,23 @@
     <!-- Acciones Rápidas -->
     <h5 class="mb-3">Acciones Rápidas</h5>
     <div class="quick-actions">
-      <a (click)="cambiarVista('agenda')" class="quick-action-btn" style="cursor: pointer;">
+      <a (click)="cambiarVista('agenda')" class="quick-action-btn"
+        style="cursor: pointer;">
         <div class="quick-action-icon">📅</div>
         <div class="quick-action-label">Ver Agenda</div>
       </a>
-      <a (click)="cambiarVista('consultas')" class="quick-action-btn" style="cursor: pointer;">
+      <a (click)="cambiarVista('consultas')" class="quick-action-btn"
+        style="cursor: pointer;">
         <div class="quick-action-icon">✉️</div>
         <div class="quick-action-label">Responder Consultas</div>
       </a>
-      <a (click)="cambiarVista('casos')" class="quick-action-btn" style="cursor: pointer;">
+      <a (click)="cambiarVista('casos')" class="quick-action-btn"
+        style="cursor: pointer;">
         <div class="quick-action-icon">📂</div>
         <div class="quick-action-label">Gestionar Casos</div>
       </a>
-      <a (click)="cambiarVista('clientes')" class="quick-action-btn" style="cursor: pointer;">
+      <a (click)="cambiarVista('clientes')" class="quick-action-btn"
+        style="cursor: pointer;">
         <div class="quick-action-icon">👥</div>
         <div class="quick-action-label">Ver Clientes</div>
       </a>
@@ -137,18 +144,20 @@
 
     <!-- Contenido en dos columnas -->
     <div class="row mt-4">
-      
+
       <!-- Columna Izquierda -->
       <div class="col-lg-8">
-        
+
         <!-- Próximos Turnos -->
         <div class="content-card">
           <h5>📅 Próximos Turnos del Día</h5>
           <ul class="item-list">
             <li *ngFor="let turno of getProximosTurnos()">
               <div>
-                <div class="item-title">{{ turno.clienteNombre }} - {{ turno.asunto }}</div>
-                <div class="item-date">{{ turno.hora }} - {{ turno.horaFin }} hs</div>
+                <div class="item-title">{{ turno.clienteNombre }} - {{
+                  turno.asunto }}</div>
+                <div class="item-date">{{ turno.hora }} - {{ turno.horaFin }}
+                  hs</div>
               </div>
               <span class="badge" [ngClass]="getEstadoClass(turno.estado)">
                 {{ getEstadoTexto(turno.estado) }}
@@ -164,7 +173,7 @@
 
       <!-- Columna Derecha -->
       <div class="col-lg-4">
-        
+
         <!-- Actividad Reciente -->
         <div class="content-card">
           <h5>🕒 Actividad Reciente</h5>
@@ -190,10 +199,12 @@
         <div class="content-card">
           <h5>📌 Recordatorios</h5>
           <div class="alert alert-warning mb-2">
-            <small><strong>Audiencia</strong><br>Mañana 10:00 - Caso #2024-001</small>
+            <small><strong>Audiencia</strong><br>Mañana 10:00 - Caso
+              #2024-001</small>
           </div>
           <div class="alert alert-info mb-0">
-            <small><strong>Vencimiento</strong><br>Presentación documentos - Caso #2024-003</small>
+            <small><strong>Vencimiento</strong><br>Presentación documentos -
+              Caso #2024-003</small>
           </div>
         </div>
 
@@ -205,7 +216,7 @@
 
 <!-- VISTA: AGENDA -->
 <div *ngIf="vistaActiva === 'agenda'">
-  
+
   <!-- Hero Section -->
   <section class="panel-hero">
     <div class="container">
@@ -215,11 +226,11 @@
   </section>
 
   <div class="container">
-    
+
     <!-- Selector de Fechas -->
     <div class="content-card" *ngIf="mostrarSelectorFecha">
       <h5>Selecciona una fecha</h5>
-      <app-selector-fecha 
+      <app-selector-fecha
         [fechasDisponibles]="fechasConTurnos"
         (fechaSeleccionadaEvent)="onFechaSeleccionada($event)">
       </app-selector-fecha>
@@ -230,20 +241,23 @@
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="mb-0">Agenda Semanal</h5>
         <div class="btn-group">
-          <button class="btn btn-sm btn-outline-primary" (click)="semanaAnterior()">
+          <button class="btn btn-sm btn-outline-primary"
+            (click)="semanaAnterior()">
             ← Semana Anterior
           </button>
           <button class="btn btn-sm btn-primary" (click)="irAHoy()">
             Hoy
           </button>
-          <button class="btn btn-sm btn-outline-primary" (click)="semanaSiguiente()">
+          <button class="btn btn-sm btn-outline-primary"
+            (click)="semanaSiguiente()">
             Semana Siguiente →
           </button>
         </div>
       </div>
 
       <div class="alert alert-info">
-        <small><strong>ℹ️ Tip:</strong> Haz clic en los slots para ver detalles o marcar como disponible/ocupado</small>
+        <small><strong>ℹ️ Tip:</strong> Haz clic en los slots para ver detalles
+          o marcar como disponible/ocupado</small>
       </div>
 
       <!-- Tabla responsive -->
@@ -258,18 +272,19 @@
           <tbody>
             <tr *ngFor="let slotHora of agendaSemanal">
               <td class="time-column">{{ slotHora.hora }}</td>
-              <td *ngFor="let slot of slotHora.slots" 
-                  [class.slot-disponible]="slot.disponible"
-                  [class.slot-ocupado]="!slot.disponible"
-                  (click)="clickSlotAgenda(slot)"
-                  style="cursor: pointer; vertical-align: top; min-height: 80px;">
+              <td *ngFor="let slot of slotHora.slots"
+                [class.slot-disponible]="slot.disponible"
+                [class.slot-ocupado]="!slot.disponible"
+                (click)="clickSlotAgenda(slot)"
+                style="cursor: pointer; vertical-align: top; min-height: 80px;">
                 <div *ngIf="slot.disponible">
                   <span class="text-success fw-bold">✓ Disponible</span>
                 </div>
                 <div *ngIf="!slot.disponible && slot.turno">
                   <strong>{{ slot.turno.clienteNombre }}</strong><br>
                   <small>{{ slot.turno.asunto }}</small><br>
-                  <span class="badge" [ngClass]="getEstadoClass(slot.turno.estado)">
+                  <span class="badge"
+                    [ngClass]="getEstadoClass(slot.turno.estado)">
                     {{ getEstadoTexto(slot.turno.estado) }}
                   </span>
                 </div>
@@ -299,12 +314,13 @@
     <!-- Lista de Turnos del Día -->
     <div class="content-card" *ngIf="fechaSeleccionadaCalendario">
       <h5>📋 Turnos del {{ fechaSeleccionadaCalendario.fechaTexto }}</h5>
-      
+
       <div class="alert alert-info" *ngIf="getTurnosDelDia().length === 0">
         No hay turnos agendados para este día
       </div>
 
-      <div *ngFor="let turno of getTurnosDelDia()" class="turno-asesor-card mb-3">
+      <div *ngFor="let turno of getTurnosDelDia()"
+        class="turno-asesor-card mb-3">
         <div class="d-flex justify-content-between align-items-start">
           <div>
             <h6 class="mb-1">
@@ -315,25 +331,27 @@
               <span class="badge" [ngClass]="getEstadoClass(turno.estado)">
                 {{ getEstadoTexto(turno.estado) }}
               </span>
-              <span class="badge bg-secondary ms-2">Caso #{{ turno.caso }}</span>
+              <span class="badge bg-secondary ms-2">Caso #{{ turno.caso
+                }}</span>
             </div>
             <small class="text-muted">
-              Creado: {{ turno.fechaCreacion }} | Confirmado: {{ turno.fechaConfirmacion || 'Pendiente' }}
+              Creado: {{ turno.fechaCreacion }} | Confirmado: {{
+              turno.fechaConfirmacion || 'Pendiente' }}
             </small>
           </div>
           <div class="d-flex flex-column gap-2">
-            <button class="btn btn-sm btn-success" 
-                    *ngIf="turno.estado === 'pendiente'"
-                    (click)="confirmarTurno(turno)">
+            <button class="btn btn-sm btn-success"
+              *ngIf="turno.estado === 'pendiente'"
+              (click)="confirmarTurno(turno)">
               ✅ Confirmar
             </button>
-            <button class="btn btn-sm btn-primary" 
-                    *ngIf="turno.estado === 'confirmado'"
-                    (click)="marcarTurnoCompletado(turno)">
+            <button class="btn btn-sm btn-primary"
+              *ngIf="turno.estado === 'confirmado'"
+              (click)="marcarTurnoCompletado(turno)">
               ✔️ Completado
             </button>
-            <button class="btn btn-sm btn-outline-primary" 
-                    (click)="verDetallesTurno(turno)">
+            <button class="btn btn-sm btn-outline-primary"
+              (click)="verDetallesTurno(turno)">
               👁️ Ver Detalles
             </button>
           </div>
@@ -346,7 +364,7 @@
 
 <!-- VISTA: CONSULTAS -->
 <div *ngIf="vistaActiva === 'consultas'">
-  
+
   <section class="panel-hero">
     <div class="container">
       <h1>💬 Consultas</h1>
@@ -357,28 +375,31 @@
   <div class="container">
     <div class="content-card">
       <h5>Consultas Pendientes ({{ getConsultasPendientes().length }})</h5>
-      
-      <div *ngIf="getConsultasPendientes().length === 0" class="alert alert-info">
+
+      <div *ngIf="getConsultasPendientes().length === 0"
+        class="alert alert-info">
         No hay consultas pendientes de responder
       </div>
 
-      <div *ngFor="let consulta of getConsultasPendientes()" class="item-list mb-3 border rounded p-3">
+      <div *ngFor="let consulta of getConsultasPendientes()"
+        class="item-list mb-3 border rounded p-3">
         <div class="d-flex justify-content-between align-items-start">
           <div class="flex-grow-1">
             <h6 class="mb-2">
               {{ consulta.asunto }}
-              <span class="badge bg-warning text-dark ms-2" *ngIf="consulta.urgente">Urgente</span>
+              <span class="badge bg-warning text-dark ms-2"
+                *ngIf="consulta.urgente">Urgente</span>
             </h6>
             <p class="mb-2">{{ consulta.mensaje }}</p>
             <small class="text-muted">
-              Cliente: {{ consulta.clienteNombre }} | 
-              Email: {{ consulta.clienteEmail }} | 
+              Cliente: {{ consulta.clienteNombre }} |
+              Email: {{ consulta.clienteEmail }} |
               Fecha: {{ consulta.fecha }}
             </small>
           </div>
           <div>
-            <button class="btn btn-sm btn-primary" 
-                    (click)="abrirModalRespuesta(consulta)">
+            <button class="btn btn-sm btn-primary"
+              (click)="abrirModalRespuesta(consulta)">
               Responder
             </button>
           </div>
@@ -389,38 +410,20 @@
 </div>
 
 <!-- VISTA: CASOS -->
+
+<!-- CASOS - NUEVA SECCIÓN -->
 <div *ngIf="vistaActiva === 'casos'">
-  
   <section class="panel-hero">
     <div class="container">
       <h1>📂 Casos</h1>
       <p>Gestiona todos tus casos activos</p>
     </div>
   </section>
-
-  <div class="container">
-    <div class="content-card">
-      <h5>Casos Activos ({{ casos.length }})</h5>
-      
-      <div *ngFor="let caso of casos" class="border-bottom pb-3 mb-3">
-        <div class="d-flex justify-content-between">
-          <div>
-            <h6>{{ caso.titulo }}</h6>
-            <p class="mb-1"><strong>Cliente:</strong> {{ caso.cliente }}</p>
-            <p class="mb-1"><small>Tipo: {{ caso.tipo }} | Iniciado: {{ caso.fechaInicio }}</small></p>
-          </div>
-          <div>
-            <span class="badge bg-primary">{{ caso.estado }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- VISTA: CLIENTES -->
 <div *ngIf="vistaActiva === 'clientes'">
-  
+
   <section class="panel-hero">
     <div class="container">
       <h1>👥 Clientes</h1>
@@ -431,13 +434,15 @@
   <div class="container">
     <div class="content-card">
       <h5>Clientes Activos ({{ clientes.length }})</h5>
-      
+
       <div *ngFor="let cliente of clientes" class="border-bottom pb-3 mb-3">
         <div class="d-flex justify-content-between">
           <div>
             <h6>{{ cliente.nombre }}</h6>
-            <p class="mb-1"><small>Email: {{ cliente.email }} | Tel: {{ cliente.telefono }}</small></p>
-            <p class="mb-0"><small>Casos activos: {{ cliente.casosActivos }} | Última consulta: {{ cliente.ultimaConsulta }}</small></p>
+            <p class="mb-1"><small>Email: {{ cliente.email }} | Tel: {{
+                cliente.telefono }}</small></p>
+            <p class="mb-0"><small>Casos activos: {{ cliente.casosActivos }} |
+                Última consulta: {{ cliente.ultimaConsulta }}</small></p>
           </div>
           <div>
             <button class="btn btn-sm btn-outline-primary">Ver Perfil</button>
@@ -448,16 +453,19 @@
   </div>
 </div>
 
+<router-outlet></router-outlet>
+
 <!-- Modal Responder Consulta -->
-<div class="modal fade" 
-     [class.show]="mostrarModalConsulta" 
-     [style.display]="mostrarModalConsulta ? 'block' : 'none'"
-     tabindex="-1">
+<div class="modal fade"
+  [class.show]="mostrarModalConsulta"
+  [style.display]="mostrarModalConsulta ? 'block' : 'none'"
+  tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Responder Consulta</h5>
-        <button type="button" class="btn-close" (click)="cerrarModalConsulta()"></button>
+        <button type="button" class="btn-close"
+          (click)="cerrarModalConsulta()"></button>
       </div>
       <div class="modal-body" *ngIf="consultaSeleccionada">
         <div class="mb-3">
@@ -468,25 +476,27 @@
         </div>
         <div class="mb-3">
           <label for="respuesta" class="form-label">Tu respuesta:</label>
-          <textarea class="form-control" 
-                    [(ngModel)]="respuestaConsulta"
-                    rows="5" 
-                    placeholder="Escribe tu respuesta aquí..."></textarea>
+          <textarea class="form-control"
+            [(ngModel)]="respuestaConsulta"
+            rows="5"
+            placeholder="Escribe tu respuesta aquí..."></textarea>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="cerrarModalConsulta()">Cancelar</button>
-        <button type="button" class="btn btn-primary" (click)="enviarRespuestaConsulta()">Enviar Respuesta</button>
+        <button type="button" class="btn btn-secondary"
+          (click)="cerrarModalConsulta()">Cancelar</button>
+        <button type="button" class="btn btn-primary"
+          (click)="enviarRespuestaConsulta()">Enviar Respuesta</button>
       </div>
     </div>
   </div>
 </div>
 
 <!-- Backdrop del modal -->
-<div class="modal-backdrop fade" 
-     [class.show]="mostrarModalConsulta"
-     *ngIf="mostrarModalConsulta"
-     (click)="cerrarModalConsulta()"></div>
+<div class="modal-backdrop fade"
+  [class.show]="mostrarModalConsulta"
+  *ngIf="mostrarModalConsulta"
+  (click)="cerrarModalConsulta()"></div>
 
 <!-- Footer -->
 <footer class="bg-dark text-white py-4 mt-5">
@@ -497,7 +507,8 @@
         <p class="small">Panel del Asesor</p>
       </div>
       <div class="col-md-6 text-md-end">
-        <p class="small mb-0">&copy; 2024 Estudio Jurídico. Todos los derechos reservados.</p>
+        <p class="small mb-0">&copy; 2024 Estudio Jurídico. Todos los derechos
+          reservados.</p>
       </div>
     </div>
   </div>

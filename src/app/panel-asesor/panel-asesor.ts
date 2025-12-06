@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService, Usuario } from '../auth/auth.service';
 import { NotificacionesService } from '../services/notificaciones.service';
 import { SelectorFechaComponent, FechaSeleccionada } from '../components/selector-fecha.component';
+import { CasosAsesorComponent } from './casos-asesor/casos-asesor';
+import { CasosAsesorDetalleComponent } from './caso-detalle-asesor/casos-asesor-detaller';
 
 // Interfaces
 interface Turno {
@@ -63,7 +65,8 @@ interface SlotAgenda {
 @Component({
   selector: 'app-panel-asesor',
   standalone: true,
-  imports: [CommonModule, FormsModule, SelectorFechaComponent, RouterLinkActive],  // ✅ FormsModule agregado
+  imports: [CommonModule, FormsModule, SelectorFechaComponent, CasosAsesorComponent,
+    CasosAsesorDetalleComponent, RouterOutlet],  // ✅ FormsModule agregado
   templateUrl: './panel-asesor.html',
   styleUrls: ['./panel-asesor.css']
 })

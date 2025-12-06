@@ -1,0 +1,107 @@
+<div class="casos-asesor-container">
+  <div class="header-section">
+    <h2>📋 Mis Casos Asignados</h2>
+    <p class="text-muted">Gestiona todos tus casos activos y revisa sus estados</p>
+  </div>
+
+  <!-- Filtros y Búsqueda -->
+  <div class="filtros-section card mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">🔍 Buscar</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            placeholder="Buscar por título, cliente o tipo..."
+            [(ngModel)]="busqueda"
+            (ngModelChange)="filtrarCasos()">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">📊 Estado</label>
+          <select class="form-select" [(ngModel)]="filtroEstado" (ngModelChange)="filtrarCasos()">
+            <option value="todos">Todos los estados</option>
+            <option value="activo">Activos</option>
+            <option value="pendiente">Pendientes</option>
+            <option value="finalizado">Finalizados</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">💳 Pago</label>
+          <select class="form-select" [(ngModel)]="filtroPago" (ngModelChange)="filtrarCasos()">
+            <option value="todos">Todos</option>
+            <option value="pagado">Pagados</option>
+            <option value="pendiente">Pendientes de Pago</option>
+            <option value="habilitado">Pago Habilitado</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Resultados</label>
+          <div class="resultado-contador">
+            <span class="badge bg-primary fs-6">{{ casosFiltrados.length }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de Casos -->
+  <div class="casos-grid">
+    <div class="caso-card" *ngFor="let caso of casosFiltrados" (click)="verDetalle(caso.id)">
+      <div class="caso-header">
+        <div class="caso-info">
+          <h4>{{ caso.titulo }}</h4>
+          <p class="cliente-info">
+            <i class="bi bi-person-circle"></i> {{ caso.cliente.nombre }}
+          </p>
+        </div>
+        <div class="caso-badges">
+          <span class="badge" [ngClass]="getEstadoBadgeClass(caso.estado)">
+            {{ getEstadoTexto(caso.estado) }}
+          </span>
+          <span class="badge" [ngClass]="getPrioridadBadgeClass(caso.prioridad)">
+            {{ caso.prioridad }}
+          </span>
+        </div>
+      </div>
+
+      <div class="caso-body">
+        <div class="caso-detalles">
+          <div class="detalle-item">
+            <span class="label">📁 Tipo:</span>
+            <span class="value">{{ caso.tipo }}</span>
+          </div>
+          <div class="detalle-item">
+            <span class="label">📅 Inicio:</span>
+            <span class="value">{{ caso.fechaInicio }}</span>
+          </div>
+          <div class="detalle-item">
+            <span class="label">🔄 Última actualización:</span>
+            <span class="value">{{ caso.ultimaActualizacion }}</span>
+          </div>
+        </div>
+
+        <div class="caso-pago-status mt-3">
+          <span class="badge" [ngClass]="getPagoBadgeClass(caso)">
+            {{ getPagoTexto(caso) }}
+          </span>
+        </div>
+      </div>
+
+      <div class="caso-footer">
+        <button class="btn btn-primary btn-sm">
+          Ver Detalle <i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no hay casos -->
+  <div class="no-casos-message" *ngIf="casosFiltrados.length === 0">
+    <div class="text-center p-5">
+      <i class="bi bi-folder-x" style="font-size: 4rem; color: #ccc;"></i>
+      <h4 class="mt-3">No se encontraron casos</h4>
+      <p class="text-muted">Intenta ajustar los filtros de búsqueda</p>
+    </div>
+  </div>
+</div>
