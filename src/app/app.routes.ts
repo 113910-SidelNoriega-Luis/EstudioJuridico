@@ -6,6 +6,7 @@ import { Turnos } from './cliente/turnos/turnos';
 import { Consultas } from './cliente/consultas/consultas';
 import { Casos } from './cliente/casos/casos';
 import { Inicio } from './inicio/inicio';
+import { PanelAsesorComponent } from './panel-asesor/panel-asesor';
 
 export const routes: Routes = [
   // Ruta raíz - redirige al inicio o login
@@ -25,7 +26,7 @@ export const routes: Routes = [
   // { path: 'panel-cliente/documentos', component: DocumentosComponent }
 
   // Rutas del Asesor (para más adelante)
-  // { path: 'panel-asesor', component: PanelAsesorComponent },
+  { path: 'panel-asesor', component: PanelAsesorComponent },
   
   // Ruta 404
   { path: '**', redirectTo: '/inicio' }

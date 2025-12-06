@@ -9,8 +9,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     CommonModule,
     NgbModule,
     RouterOutlet,
-    RouterLink,
-    RouterLinkActive
+    RouterLink
   ],
   templateUrl: './app.html',
   styleUrl: './app.css'
