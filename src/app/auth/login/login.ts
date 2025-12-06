@@ -84,38 +84,27 @@ export class Login {
   }
 
   handleLogin(event: Event) {
-    event.preventDefault();
-    
-    console.log('Intentando login...', this.loginData);
-    
-    // Validar credenciales de demo
-    if ((this.loginData.email === 'asesor@estudio.com' && this.loginData.password === '12345678') ||
-        (this.loginData.email === 'cliente@email.com' && this.loginData.password === '12345678')) {
-      
-      const tipoUsuario = this.loginData.email.includes('asesor') ? 'asesor' : 'cliente';
-      
-      // Guardar sesión
-      const usuario = {
-        email: this.loginData.email,
-        tipoUsuario: tipoUsuario,
-        nombre: tipoUsuario === 'asesor' ? 'Admin Asesor' : 'Juan Pérez'
-      };
-      
-      localStorage.setItem('usuario', JSON.stringify(usuario));
-      localStorage.setItem('token', 'fake-jwt-token-' + Date.now());
-      
-      alert('✅ ¡Inicio de sesión exitoso!\n\nTipo de usuario: ' + tipoUsuario.toUpperCase());
-      
-      // Redirigir según el tipo de usuario
-      if (tipoUsuario === 'asesor') {
-        this.router.navigate(['/panel-asesor']);
-      } else {
-        this.router.navigate(['/panel-cliente']);
+  event.preventDefault();
+
+  this.authService.login(this.loginData.email, this.loginData.password)
+    .subscribe({
+      next: (usuario) => {
+        // usuario viene SIN password, del servicio
+        const tipoUsuario = usuario.tipoUsuario;
+
+        alert('✅ ¡Inicio de sesión exitoso!\n\nTipo de usuario: ' + tipoUsuario.toUpperCase());
+
+        if (tipoUsuario === 'asesor') {
+          this.router.navigate(['/panel-asesor']);
+        } else {
+          this.router.navigate(['/panel-cliente']);
+        }
+      },
+      error: (err) => {
+        alert('❌ ' + (err.message || 'Credenciales incorrectas'));
       }
-    } else {
-      alert('❌ Credenciales incorrectas.\n\nPrueba con las cuentas demo:\n• asesor@estudio.com / 12345678\n• cliente@email.com / 12345678');
-    }
-  }
+    });
+}
 
   handleRegister(event: Event) {
     event.preventDefault();
