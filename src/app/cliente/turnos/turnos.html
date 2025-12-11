@@ -1,29 +1,36 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold" routerLink="/panel-cliente" style="cursor: pointer;">⚖️ Estudio Jurídico</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+    <a class="navbar-brand fw-bold" routerLink="/panel-cliente"
+      style="cursor: pointer;">⚖️ Estudio Jurídico</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+      data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
-          <a class="nav-link" routerLink="/panel-cliente/dashboard" routerLinkActive="active">Dashboard</a>
+          <a class="nav-link" routerLink="/panel-cliente/dashboard"
+            routerLinkActive="active">Dashboard</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" routerLink="/panel-cliente/turnos" routerLinkActive="active">Mis Turnos</a>
+          <a class="nav-link active" routerLink="/panel-cliente/turnos"
+            routerLinkActive="active">Mis Turnos</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/panel-cliente/consultas" routerLinkActive="active">Consultas</a>
+          <a class="nav-link" routerLink="/panel-cliente/consultas"
+            routerLinkActive="active">Consultas</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/panel-cliente/casos" routerLinkActive="active">Mis Casos</a>
+          <a class="nav-link" routerLink="/panel-cliente/casos"
+            routerLinkActive="active">Mis Casos</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/panel-cliente/documentos" routerLinkActive="active">Documentos</a>
+          <a class="nav-link" routerLink="/panel-cliente/documentos"
+            routerLinkActive="active">Documentos</a>
         </li>
       </ul>
-      
+
       <div class="user-menu">
         <span class="text-white">👤 {{ usuario?.nombre || 'Usuario' }}</span>
       </div>
@@ -41,30 +48,30 @@
 
 <!-- Contenido Principal -->
 <div class="container">
-  
+
   <!-- Tabs -->
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item">
-      <button class="nav-link" 
-              [class.active]="tabActivo === 'agendar'" 
-              (click)="cambiarTab('agendar')"
-              type="button">
+      <button class="nav-link"
+        [class.active]="tabActivo === 'agendar'"
+        (click)="cambiarTab('agendar')"
+        type="button">
         Agendar Turno
       </button>
     </li>
     <li class="nav-item">
-      <button class="nav-link" 
-              [class.active]="tabActivo === 'misturnos'" 
-              (click)="cambiarTab('misturnos')"
-              type="button">
+      <button class="nav-link"
+        [class.active]="tabActivo === 'misturnos'"
+        (click)="cambiarTab('misturnos')"
+        type="button">
         Mis Turnos
       </button>
     </li>
     <li class="nav-item">
-      <button class="nav-link" 
-              [class.active]="tabActivo === 'historial'" 
-              (click)="cambiarTab('historial')"
-              type="button">
+      <button class="nav-link"
+        [class.active]="tabActivo === 'historial'"
+        (click)="cambiarTab('historial')"
+        type="button">
         Historial
       </button>
     </li>
@@ -72,24 +79,41 @@
 
   <!-- TAB: AGENDAR TURNO -->
   <div *ngIf="tabActivo === 'agendar'">
-    
+
     <div class="content-card">
-      <h5>Selecciona una fecha</h5>
-      
+      <!-- <h5>Selecciona una fecha</h5> -->
+
       <!-- Selector de Fechas Avanzado -->
-      <app-selector-fecha 
+      <!-- <app-selector-fecha
         [fechasDisponibles]="fechasConTurnos"
         (fechaSeleccionadaEvent)="onFechaSeleccionada($event)">
-      </app-selector-fecha>
+      </app-selector-fecha> -->
 
       <h5 class="mt-4">Selecciona un horario disponible</h5>
-      
+
       <div class="alert alert-info mb-4">
-        <strong>ℹ️ Información:</strong> Los turnos son de 30 minutos. Selecciona un horario 
-        <span class="badge bg-success">Disponible</span> para agendar tu consulta.
+        <strong>ℹ️ Información:</strong> Los turnos son de 30 minutos.
+        Selecciona un horario
+        <span class="badge bg-success">Disponible</span> para agendar tu
+        consulta.
       </div>
 
       <!-- Tabla de Agenda -->
+       <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Agenda Semanal</h5>
+        <div class="btn-group">
+          <button class="btn btn-sm btn-outline-primary"
+            (click)="anteriorSemana()"
+            [disabled]="semanaOffset === 0">
+            ← Semana Anterior
+          </button>
+          
+          <button class="btn btn-sm btn-outline-primary"
+            (click)="siguienteSemana()">
+            Semana Siguiente →
+          </button>
+        </div>
+      </div>
       <div class="table-responsive">
         <table class="agenda-table">
           <thead>
@@ -98,19 +122,21 @@
               <th *ngFor="let dia of dias">{{ dia.nombre }}</th>
             </tr>
           </thead>
+
           <tbody>
             <tr *ngFor="let hora of horarios">
               <td class="time-column">{{ hora }}</td>
               <td *ngFor="let slot of agendaSlots[hora]"
-                  [ngClass]="{
+                [ngClass]="{
                     'slot-disponible': slot.disponible && !isSlotSeleccionado(slot),
                     'slot-ocupado': !slot.disponible,
                     'slot-seleccionado': isSlotSeleccionado(slot)
                   }"
-                  (click)="seleccionarTurno(slot)"
-                  [style.cursor]="slot.disponible ? 'pointer' : 'default'">
+                (click)="seleccionarTurno(slot)"
+                [style.cursor]="slot.disponible ? 'pointer' : 'default'">
                 <span *ngIf="!slot.disponible">Ocupado</span>
-                <span *ngIf="slot.disponible && !isSlotSeleccionado(slot)">Disponible</span>
+                <span
+                  *ngIf="slot.disponible && !isSlotSeleccionado(slot)">Disponible</span>
                 <span *ngIf="isSlotSeleccionado(slot)">Seleccionado</span>
               </td>
             </tr>
@@ -139,7 +165,8 @@
         <h6 class="mb-3">✅ Turno Seleccionado:</h6>
         <p class="mb-3">
           <strong>Fecha:</strong> {{ turnoSeleccionado.fechaTexto }}<br>
-          <strong>Horario:</strong> {{ turnoSeleccionado.hora }} a {{ turnoSeleccionado.horaFin }} hs
+          <strong>Horario:</strong> {{ turnoSeleccionado.hora }} a {{
+          turnoSeleccionado.horaFin }} hs
         </p>
         <button class="btn btn-primary" (click)="abrirModalConfirmar()">
           Confirmar Turno
@@ -151,47 +178,53 @@
 
   <!-- TAB: MIS TURNOS -->
   <div *ngIf="tabActivo === 'misturnos'">
-    
+
     <div class="row">
-      
+
       <!-- Próximos Turnos -->
       <div class="col-lg-12 mb-4">
         <div class="content-card">
           <h5>Próximos Turnos</h5>
-          
+
           <div *ngIf="proximosTurnos.length === 0" class="alert alert-info">
-            No tienes turnos próximos. ¡Agenda uno en la pestaña "Agendar Turno"!
+            No tienes turnos próximos. ¡Agenda uno en la pestaña
+            "Agendar Turno"!
           </div>
 
           <div *ngFor="let turno of proximosTurnos" class="turno-card">
             <div class="turno-header">
               <div class="turno-fecha">
-                <div class="calendar-icon" [style.background-color]="getCalendarIconColor(turno.estado)">
+                <div class="calendar-icon"
+                  [style.background-color]="getCalendarIconColor(turno.estado)">
                   <div class="calendar-day">{{ getDiaMes(turno.fecha) }}</div>
-                  <div class="calendar-month">{{ getMesCorto(turno.fecha) }}</div>
+                  <div class="calendar-month">{{ getMesCorto(turno.fecha)
+                    }}</div>
                 </div>
                 <div class="turno-info">
                   <h6>{{ turno.motivo }}</h6>
-                  <div class="turno-hora">📍 {{ formatearFecha(turno.fecha) }} - {{ turno.hora }} a {{ turno.horaFin }} hs</div>
-                  <div class="turno-descripcion">Asesor: {{ turno.asesor }}</div>
+                  <div class="turno-hora">📍 {{ formatearFecha(turno.fecha) }} -
+                    {{ turno.hora }} a {{ turno.horaFin }} hs</div>
+                  <div class="turno-descripcion">Asesor: {{ turno.asesor
+                    }}</div>
                 </div>
               </div>
               <div class="d-flex flex-column gap-2 align-items-end">
-                <span class="badge" [ngClass]="getEstadoBadgeClass(turno.estado)">
+                <span class="badge"
+                  [ngClass]="getEstadoBadgeClass(turno.estado)">
                   {{ getEstadoTexto(turno.estado) }}
                 </span>
-                <button class="btn btn-sm btn-outline-primary" 
-                        (click)="verDetallesTurno(turno)"
-                        *ngIf="turno.estado !== 'pendiente'">
+                <button class="btn btn-sm btn-outline-primary"
+                  (click)="verDetallesTurno(turno)"
+                  *ngIf="turno.estado !== 'pendiente'">
                   Ver Detalles
                 </button>
-                <button class="btn btn-sm btn-primary" 
-                        (click)="confirmarTurnoPendiente(turno)"
-                        *ngIf="turno.estado === 'pendiente'">
+                <button class="btn btn-sm btn-primary"
+                  (click)="confirmarTurnoPendiente(turno)"
+                  *ngIf="turno.estado === 'pendiente'">
                   Confirmar
                 </button>
-                <button class="btn btn-sm btn-outline-danger" 
-                        (click)="cancelarTurno(turno)">
+                <button class="btn btn-sm btn-outline-danger"
+                  (click)="cancelarTurno(turno)">
                   Cancelar
                 </button>
               </div>
@@ -207,30 +240,34 @@
 
   <!-- TAB: HISTORIAL -->
   <div *ngIf="tabActivo === 'historial'">
-    
+
     <div class="content-card">
       <h5>Historial de Turnos</h5>
-      
+
       <div *ngIf="historialTurnos.length === 0" class="alert alert-info">
         No tienes turnos en el historial aún.
       </div>
 
-      <div *ngFor="let turno of historialTurnos" 
-           class="turno-card" 
-           [style.border-left-color]="turno.estado === 'cancelado' ? '#dc3545' : '#6c757d'"
-           [style.opacity]="0.8">
+      <div *ngFor="let turno of historialTurnos"
+        class="turno-card"
+        [style.border-left-color]="turno.estado === 'cancelado' ? '#dc3545' : '#6c757d'"
+        [style.opacity]="0.8">
         <div class="turno-header">
           <div class="turno-fecha">
-            <div class="calendar-icon" [style.background-color]="getCalendarIconColor(turno.estado)">
+            <div class="calendar-icon"
+              [style.background-color]="getCalendarIconColor(turno.estado)">
               <div class="calendar-day">{{ getDiaMes(turno.fecha) }}</div>
               <div class="calendar-month">{{ getMesCorto(turno.fecha) }}</div>
             </div>
             <div class="turno-info">
               <h6>{{ turno.motivo }}</h6>
-              <div class="turno-hora">📍 {{ formatearFecha(turno.fecha) }} - {{ turno.hora }} a {{ turno.horaFin }} hs</div>
+              <div class="turno-hora">📍 {{ formatearFecha(turno.fecha) }} - {{
+                turno.hora }} a {{ turno.horaFin }} hs</div>
               <div class="turno-descripcion">
-                <span *ngIf="turno.estado === 'cancelado'">{{ turno.descripcion }}</span>
-                <span *ngIf="turno.estado !== 'cancelado'">Asesor: {{ turno.asesor }}</span>
+                <span *ngIf="turno.estado === 'cancelado'">{{ turno.descripcion
+                  }}</span>
+                <span *ngIf="turno.estado !== 'cancelado'">Asesor: {{
+                  turno.asesor }}</span>
               </div>
             </div>
           </div>
@@ -249,57 +286,64 @@
 </div>
 
 <!-- Modal Confirmar Turno -->
-<div class="modal fade" 
-     [class.show]="mostrarModal" 
-     [style.display]="mostrarModal ? 'block' : 'none'"
-     tabindex="-1">
+<div class="modal fade"
+  [class.show]="mostrarModal"
+  [style.display]="mostrarModal ? 'block' : 'none'"
+  tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Confirmar Turno</h5>
-        <button type="button" class="btn-close" (click)="cerrarModal()"></button>
+        <button type="button" class="btn-close"
+          (click)="cerrarModal()"></button>
       </div>
       <div class="modal-body">
         <p class="mb-3" *ngIf="turnoSeleccionado">
-          Estás por confirmar el turno para el <strong>{{ turnoSeleccionado.fechaTexto }}</strong> 
-          de <strong>{{ turnoSeleccionado.hora }}</strong> a <strong>{{ turnoSeleccionado.horaFin }}</strong> hs.
+          Estás por confirmar el turno para el <strong>{{
+            turnoSeleccionado.fechaTexto }}</strong>
+          de <strong>{{ turnoSeleccionado.hora }}</strong> a <strong>{{
+            turnoSeleccionado.horaFin }}</strong> hs.
         </p>
         <form>
           <div class="mb-3">
             <label for="motivo" class="form-label">Motivo de la Consulta</label>
-            <select class="form-select" 
-                    [(ngModel)]="motivoSeleccionado"
-                    name="motivo"
-                    required>
-              <option value="">Seleccione...</option>
-              <option *ngFor="let motivo of motivosDisponibles" [value]="motivo.value">
+            <select class="form-select"
+              [(ngModel)]="motivoSeleccionado"
+              name="motivo"
+              required>
+              <option value>Seleccione...</option>
+              <option *ngFor="let motivo of motivosDisponibles"
+                [value]="motivo.value">
                 {{ motivo.label }}
               </option>
             </select>
           </div>
           <div class="mb-3">
-            <label for="descripcion" class="form-label">Descripción (Opcional)</label>
-            <textarea class="form-control" 
-                      [(ngModel)]="descripcionTurno"
-                      name="descripcion"
-                      rows="3" 
-                      placeholder="Breve descripción de tu consulta..."></textarea>
+            <label for="descripcion" class="form-label">Descripción
+              (Opcional)</label>
+            <textarea class="form-control"
+              [(ngModel)]="descripcionTurno"
+              name="descripcion"
+              rows="3"
+              placeholder="Breve descripción de tu consulta..."></textarea>
           </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
-        <button type="button" class="btn btn-primary" (click)="confirmarTurno()">Confirmar Turno</button>
+        <button type="button" class="btn btn-secondary"
+          (click)="cerrarModal()">Cancelar</button>
+        <button type="button" class="btn btn-primary"
+          (click)="confirmarTurno()">Confirmar Turno</button>
       </div>
     </div>
   </div>
 </div>
 
 <!-- Backdrop del modal -->
-<div class="modal-backdrop fade" 
-     [class.show]="mostrarModal"
-     *ngIf="mostrarModal"
-     (click)="cerrarModal()"></div>
+<div class="modal-backdrop fade"
+  [class.show]="mostrarModal"
+  *ngIf="mostrarModal"
+  (click)="cerrarModal()"></div>
 
 <!-- Footer -->
 <footer class="bg-dark text-white py-4 mt-5">
@@ -310,7 +354,8 @@
         <p class="small">Soluciones legales profesionales desde 2003</p>
       </div>
       <div class="col-md-6 text-md-end">
-        <p class="small mb-0">&copy; 2024 Estudio Jurídico. Todos los derechos reservados.</p>
+        <p class="small mb-0">&copy; 2024 Estudio Jurídico. Todos los derechos
+          reservados.</p>
       </div>
     </div>
   </div>

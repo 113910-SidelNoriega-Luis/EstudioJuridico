@@ -6,7 +6,37 @@ import { AuthService, Usuario } from '../auth/auth.service';
 import { NotificacionesService } from '../services/notificaciones.service';
 import { SelectorFechaComponent, FechaSeleccionada } from '../components/selector-fecha.component';
 import { CasosAsesorComponent } from './casos-asesor/casos-asesor';
-import { CasosAsesorDetalleComponent } from './caso-detalle-asesor/casos-asesor-detaller';
+import { CasoDetalleAsesorComponent } from './caso-detalle-asesor/caso-detalle-asesor-actualizado';
+
+interface DiaAgenda {
+  nombre: string; // Ej: "Lun 09/12"
+  fecha: string; // "2025-12-09"
+}
+
+const LS_TURNOS_KEY = 'turnos_ocupados';
+
+interface TurnoAgenda {
+  fecha: string;
+  hora: string;
+  horaFin: string;
+  clienteNombre: string;
+  asunto: string;
+  estado: 'pendiente' | 'confirmado' | 'completado' | 'cancelado';
+  caso: number;
+  fechaCreacion: string;
+  fechaConfirmacion?: string;
+}
+
+interface SlotAgendaAsesor {
+  fecha: string;
+  disponible: boolean;
+  turno?: TurnoAgenda;
+}
+
+interface FilaAgenda {
+  hora: string;
+  slots: SlotAgendaAsesor[];
+}
 
 // Interfaces
 interface Turno {
@@ -17,11 +47,11 @@ interface Turno {
   fecha: string;
   hora: string;
   horaFin: string;
-  caso?: string;  // ✅ Agregado
+  caso?: string; // ✅ Agregado
   estado: 'pendiente' | 'confirmado' | 'cancelado' | 'completado';
   motivo?: string;
-  fechaCreacion?: string;  // ✅ Agregado
-  fechaConfirmacion?: string;  // ✅ Agregado
+  fechaCreacion?: string; // ✅ Agregado
+  fechaConfirmacion?: string; // ✅ Agregado
 }
 
 interface Consulta {
@@ -39,8 +69,8 @@ interface Consulta {
 interface Caso {
   id: number;
   numero: string;
-  titulo: string;  // ✅ Agregado
-  cliente: string;  // ✅ Agregado (alias de clienteNombre)
+  titulo: string; // ✅ Agregado
+  cliente: string; // ✅ Agregado (alias de clienteNombre)
   clienteNombre?: string;
   tipo: string;
   estado: 'activo' | 'en_proceso' | 'finalizado';
@@ -55,7 +85,8 @@ interface DiaAgenda {
 
 interface SlotAgenda {
   hora: string;
-  slots: {  // ✅ Agregado - estructura simplificada
+  slots: {
+    // ✅ Agregado - estructura simplificada
     disponible: boolean;
     turno?: Turno;
     fecha: string;
@@ -65,13 +96,50 @@ interface SlotAgenda {
 @Component({
   selector: 'app-panel-asesor',
   standalone: true,
-  imports: [CommonModule, FormsModule, SelectorFechaComponent, CasosAsesorComponent,
-    CasosAsesorDetalleComponent, RouterOutlet],  // ✅ FormsModule agregado
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    FormsModule,
+    SelectorFechaComponent,
+  ],
   templateUrl: './panel-asesor.html',
-  styleUrls: ['./panel-asesor.css']
+  styleUrls: ['./panel-asesor.css'],
 })
 export class PanelAsesorComponent implements OnInit {
-  
+  mostrarSelectorFecha: boolean = false; // o true si querés que se vea
+
+  // si usás el selector de fechas también necesitarás:
+  fechasConTurnos: string[] = [];
+
+  // 🔹 AGENDA SEMANAL
+  horarios: string[] = ['19:00', '19:30', '20:00', '20:30', '21:00', '21:30'];
+
+  dias: DiaAgenda[] = [];
+  agendaSemanal: FilaAgenda[] = [];
+
+  // semanaOffset: 0 = semana actual, 1 = próxima, etc.
+  semanaOffset: number = 0;
+
+  // si usás el selector de fecha del día
+  fechaSeleccionadaCalendario: { fechaISO: string; fechaTexto: string } | null = null;
+
+  turnosAgendados: TurnoAgenda[] = [
+    {
+      fecha: '2025-12-11',
+      hora: '19:00',
+      horaFin: '19:30',
+      clienteNombre: 'Juan Pérez',
+      asunto: 'Consulta laboral',
+      estado: 'pendiente',
+      caso: 101,
+      fechaCreacion: '2025-12-10 15:30',
+      fechaConfirmacion: '',
+    },
+    // ... otros turnos
+  ];
+
   // Usuario actual
   usuario: Usuario | null = null;
 
@@ -83,26 +151,8 @@ export class PanelAsesorComponent implements OnInit {
     turnosSemana: 3,
     consultasPendientes: 2,
     casosActivos: 5,
-    clientesTotales: 12
+    clientesTotales: 12,
   };
-
-  // Selector de fechas
-  fechaSeleccionadaCalendario: FechaSeleccionada | null = null;
-  fechasConTurnos: string[] = [];
-  mostrarSelectorFecha: boolean = false;
-
-  // Días de la semana para la agenda
-  dias: DiaAgenda[] = [  // ✅ Agregado
-    { nombre: 'Lun 25/11', fecha: '2024-11-25' },
-    { nombre: 'Mar 26/11', fecha: '2024-11-26' },
-    { nombre: 'Mié 27/11', fecha: '2024-11-27' },
-    { nombre: 'Jue 28/11', fecha: '2024-11-28' },
-    { nombre: 'Vie 29/11', fecha: '2024-11-29' },
-    { nombre: 'Sáb 30/11', fecha: '2024-11-30' }
-  ];
-
-  // Agenda semanal
-  agendaSemanal: SlotAgenda[] = [];  // ✅ Agregado
 
   // Turnos
   proximosTurnos: Turno[] = [
@@ -118,7 +168,7 @@ export class PanelAsesorComponent implements OnInit {
       estado: 'pendiente',
       motivo: 'Despido injustificado',
       fechaCreacion: '2024-11-20',
-      fechaConfirmacion: undefined
+      fechaConfirmacion: undefined,
     },
     {
       id: 2,
@@ -132,7 +182,7 @@ export class PanelAsesorComponent implements OnInit {
       estado: 'confirmado',
       motivo: 'Contrato de alquiler',
       fechaCreacion: '2024-11-18',
-      fechaConfirmacion: '2024-11-19'
+      fechaConfirmacion: '2024-11-19',
     },
     {
       id: 3,
@@ -146,8 +196,8 @@ export class PanelAsesorComponent implements OnInit {
       estado: 'confirmado',
       motivo: 'Divorcio',
       fechaCreacion: '2024-11-21',
-      fechaConfirmacion: '2024-11-22'
-    }
+      fechaConfirmacion: '2024-11-22',
+    },
   ];
 
   // Consultas
@@ -160,7 +210,7 @@ export class PanelAsesorComponent implements OnInit {
       mensaje: 'Me despidieron sin previo aviso después de 3 años. ¿Qué puedo hacer?',
       fecha: '2024-11-20',
       urgente: true,
-      respondida: false
+      respondida: false,
     },
     {
       id: 2,
@@ -170,12 +220,13 @@ export class PanelAsesorComponent implements OnInit {
       mensaje: 'Necesito información sobre el proceso de sucesión',
       fecha: '2024-11-19',
       urgente: false,
-      respondida: false
-    }
+      respondida: false,
+    },
   ];
 
   // Casos
-  casos: Caso[] = [  // ✅ Agregado
+  casos: Caso[] = [
+    // ✅ Agregado
     {
       id: 1,
       numero: '2024-001',
@@ -184,7 +235,7 @@ export class PanelAsesorComponent implements OnInit {
       clienteNombre: 'Juan Pérez',
       tipo: 'Laboral',
       estado: 'activo',
-      fechaInicio: '2024-10-01'
+      fechaInicio: '2024-10-01',
     },
     {
       id: 2,
@@ -194,7 +245,7 @@ export class PanelAsesorComponent implements OnInit {
       clienteNombre: 'María González',
       tipo: 'Civil',
       estado: 'en_proceso',
-      fechaInicio: '2024-10-15'
+      fechaInicio: '2024-10-15',
     },
     {
       id: 3,
@@ -204,8 +255,8 @@ export class PanelAsesorComponent implements OnInit {
       clienteNombre: 'Carlos Ramírez',
       tipo: 'Familiar',
       estado: 'activo',
-      fechaInicio: '2024-11-01'
-    }
+      fechaInicio: '2024-11-01',
+    },
   ];
 
   // Clientes
@@ -216,7 +267,7 @@ export class PanelAsesorComponent implements OnInit {
       email: 'juan@email.com',
       telefono: '351-123-4567',
       casosActivos: 1,
-      ultimaConsulta: '2024-11-20'
+      ultimaConsulta: '2024-11-20',
     },
     {
       id: 2,
@@ -224,8 +275,8 @@ export class PanelAsesorComponent implements OnInit {
       email: 'maria@email.com',
       telefono: '351-987-6543',
       casosActivos: 1,
-      ultimaConsulta: '2024-11-18'
-    }
+      ultimaConsulta: '2024-11-18',
+    },
   ];
 
   // Modal de consulta
@@ -246,42 +297,82 @@ export class PanelAsesorComponent implements OnInit {
       this.router.navigate(['/inicio']);
       return;
     }
-
+    this.cargarTurnosDesdeLocalStorage();
+    this.generarDiasSemanaActual();
     this.generarAgendaSemanal();
     this.generarFechasConTurnos();
   }
 
-  generarAgendaSemanal(): void {
-    const horarios = ['19:00', '19:30', '20:00', '20:30', '21:00', '21:30'];
-    
-    this.agendaSemanal = horarios.map(hora => {
-      const slots = this.dias.map(dia => {
-        const turno = this.proximosTurnos.find(
-          t => t.fecha === dia.fecha && t.hora === hora
-        );
-        
-        return {
+  private generarDiasSemanaActual(): void {
+    const hoy = new Date();
+
+    // aplicamos el offset de semanas (0 = actual, 1 = próxima, etc.)
+    hoy.setDate(hoy.getDate() + this.semanaOffset * 7);
+
+    const diaSemana = hoy.getDay(); // 0=Dom,1=Lun,...,6=Sab
+
+    // buscamos el lunes de esa semana
+    const diferencia = diaSemana === 0 ? -6 : 1 - diaSemana;
+    const lunes = new Date(hoy);
+    lunes.setDate(hoy.getDate() + diferencia);
+
+    const nombres = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+    this.dias = [];
+
+    for (let i = 0; i < 6; i++) {
+      const d = new Date(lunes);
+      d.setDate(lunes.getDate() + i);
+
+      const dia = d.getDate().toString().padStart(2, '0');
+      const mes = (d.getMonth() + 1).toString().padStart(2, '0');
+
+      this.dias.push({
+        nombre: `${nombres[i]} ${dia}/${mes}`,
+        fecha: this.formatearFechaISO(d),
+      });
+    }
+  }
+
+  private formatearFechaISO(fecha: Date): string {
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private generarAgendaSemanal(): void {
+    this.agendaSemanal = [];
+
+    for (const hora of this.horarios) {
+      const fila: FilaAgenda = {
+        hora,
+        slots: [],
+      };
+
+      for (const dia of this.dias) {
+        // buscamos si hay turno en ese día/hora
+        const turno = this.turnosAgendados.find((t) => t.fecha === dia.fecha && t.hora === hora);
+
+        fila.slots.push({
+          fecha: dia.fecha,
           disponible: !turno,
           turno: turno,
-          fecha: dia.fecha
-        };
-      });
+        });
+      }
 
-      return {
-        hora: hora,
-        slots: slots
-      };
-    });
+      this.agendaSemanal.push(fila);
+    }
   }
 
   generarFechasConTurnos(): void {
     this.fechasConTurnos = [];
     const hoy = new Date();
-    
+
     for (let i = 0; i < 30; i++) {
       const fecha = new Date(hoy);
       fecha.setDate(hoy.getDate() + i);
-      
+
       if (fecha.getDay() !== 0) {
         const fechaISO = this.formatearFechaISO(fecha);
         this.fechasConTurnos.push(fechaISO);
@@ -289,11 +380,18 @@ export class PanelAsesorComponent implements OnInit {
     }
   }
 
-  formatearFechaISO(fecha: Date): string {
-    const year = fecha.getFullYear();
-    const month = String(fecha.getMonth() + 1).padStart(2, '0');
-    const day = String(fecha.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  siguienteSemana(): void {
+    this.semanaOffset++;
+    this.generarDiasSemanaActual();
+    this.generarAgendaSemanal();
+  }
+
+  anteriorSemana(): void {
+    if (this.semanaOffset === 0) return; // no ir antes de la semana actual
+
+    this.semanaOffset--;
+    this.generarDiasSemanaActual();
+    this.generarAgendaSemanal();
   }
 
   cambiarVista(vista: 'dashboard' | 'agenda' | 'consultas' | 'casos' | 'clientes'): void {
@@ -302,16 +400,16 @@ export class PanelAsesorComponent implements OnInit {
     window.scrollTo(0, 0);
   }
 
-  onFechaSeleccionada(fecha: FechaSeleccionada): void {
-    this.fechaSeleccionadaCalendario = fecha;
-    
-    const turnosDelDia = this.proximosTurnos.filter(t => t.fecha === fecha.fecha);
-    
-    this.notificacionesService.mostrarNotificacion(
-      `📅 Mostrando turnos del ${fecha.fechaTexto}: ${turnosDelDia.length} turnos`,
-      'info'
-    );
-  }
+  // onFechaSeleccionada(fecha: FechaSeleccionada): void {
+  //   this.fechaSeleccionadaCalendario = fecha;
+
+  //   const turnosDelDia = this.proximosTurnos.filter((t) => t.fecha === fecha.fecha);
+
+  //   this.notificacionesService.mostrarNotificacion(
+  //     `📅 Mostrando turnos del ${fecha.fechaTexto}: ${turnosDelDia.length} turnos`,
+  //     'info'
+  //   );
+  // }
 
   verDetallesTurno(turno: Turno): void {
     alert(`Ver detalles del turno:\n${turno.clienteNombre}\n${turno.asunto}\n${turno.hora}`);
@@ -321,34 +419,33 @@ export class PanelAsesorComponent implements OnInit {
     if (confirm(`¿Confirmar turno de ${turno.clienteNombre}?`)) {
       turno.estado = 'confirmado';
       turno.fechaConfirmacion = new Date().toISOString().split('T')[0];
-      
-      this.notificacionesService.enviarConfirmacionTurno(
-        turno.clienteEmail,
-        turno.clienteNombre,
-        turno.fecha,
-        turno.hora,
-        turno.horaFin,
-        turno.motivo || turno.asunto,
-        this.usuario?.nombre || 'Asesor'
-      ).subscribe({
-        next: () => {
-          this.notificacionesService.mostrarNotificacion(
-            '✅ Turno confirmado y email enviado al cliente',
-            'success'
-          );
-        }
-      });
+
+      this.notificacionesService
+        .enviarConfirmacionTurno(
+          turno.clienteEmail,
+          turno.clienteNombre,
+          turno.fecha,
+          turno.hora,
+          turno.horaFin,
+          turno.motivo || turno.asunto,
+          this.usuario?.nombre || 'Asesor'
+        )
+        .subscribe({
+          next: () => {
+            this.notificacionesService.mostrarNotificacion(
+              '✅ Turno confirmado y email enviado al cliente',
+              'success'
+            );
+          },
+        });
     }
   }
 
   marcarTurnoCompletado(turno: Turno): void {
     if (confirm(`¿Marcar turno de ${turno.clienteNombre} como completado?`)) {
       turno.estado = 'completado';
-      this.notificacionesService.mostrarNotificacion(
-        '✅ Turno marcado como completado',
-        'success'
-      );
-      
+      this.notificacionesService.mostrarNotificacion('✅ Turno marcado como completado', 'success');
+
       this.estadisticas.turnosSemana--;
     }
   }
@@ -363,6 +460,12 @@ export class PanelAsesorComponent implements OnInit {
     this.mostrarModalConsulta = false;
     this.consultaSeleccionada = null;
     this.respuestaConsulta = '';
+  }
+  estoyEnRutaCasos(): boolean {
+    return (
+      this.router.url.includes('/panel-asesor/casos') ||
+      this.router.url.includes('/panel-asesor/caso/')
+    );
   }
 
   enviarRespuestaConsulta(): void {
@@ -384,11 +487,15 @@ export class PanelAsesorComponent implements OnInit {
   }
 
   verDetalleCaso(caso: Caso): void {
-    alert(`Caso ${caso.numero}\nCliente: ${caso.cliente}\nTipo: ${caso.tipo}\nEstado: ${caso.estado}`);
+    alert(
+      `Caso ${caso.numero}\nCliente: ${caso.cliente}\nTipo: ${caso.tipo}\nEstado: ${caso.estado}`
+    );
   }
 
   verDetalleCliente(cliente: any): void {
-    alert(`Cliente: ${cliente.nombre}\nEmail: ${cliente.email}\nTeléfono: ${cliente.telefono}\nCasos activos: ${cliente.casosActivos}`);
+    alert(
+      `Cliente: ${cliente.nombre}\nEmail: ${cliente.email}\nTeléfono: ${cliente.telefono}\nCasos activos: ${cliente.casosActivos}`
+    );
   }
 
   clickSlotAgenda(slot: any): void {
@@ -409,39 +516,41 @@ export class PanelAsesorComponent implements OnInit {
   // Métodos helper para el template
   getProximosTurnos(): Turno[] {
     const hoy = new Date().toISOString().split('T')[0];
-    return this.proximosTurnos.filter(t => t.fecha >= hoy).slice(0, 5);
+    return this.proximosTurnos.filter((t) => t.fecha >= hoy).slice(0, 5);
   }
 
   getConsultasPendientes(): Consulta[] {
-    return this.consultas.filter(c => !c.respondida);
+    return this.consultas.filter((c) => !c.respondida);
   }
 
   getTurnosDelDia(): Turno[] {
     if (!this.fechaSeleccionadaCalendario) return [];
-    return this.proximosTurnos.filter(t => t.fecha === this.fechaSeleccionadaCalendario!.fecha);
+    return this.proximosTurnos.filter(
+      (t) => t.fecha === this.fechaSeleccionadaCalendario!.fechaISO
+    );
   }
 
   getEstadoClass(estado: string): string {
     const clases: { [key: string]: string } = {
-      'pendiente': 'status-pendiente',
-      'confirmado': 'status-confirmado',
-      'activo': 'status-proceso',
-      'en_proceso': 'status-proceso',
-      'cancelado': 'status-urgente',
-      'completado': 'bg-secondary'
+      pendiente: 'status-pendiente',
+      confirmado: 'status-confirmado',
+      activo: 'status-proceso',
+      en_proceso: 'status-proceso',
+      cancelado: 'status-urgente',
+      completado: 'bg-secondary',
     };
     return clases[estado] || '';
   }
 
   getEstadoTexto(estado: string): string {
     const textos: { [key: string]: string } = {
-      'pendiente': 'Pendiente',
-      'confirmado': 'Confirmado',
-      'activo': 'Activo',
-      'en_proceso': 'En Proceso',
-      'cancelado': 'Cancelado',
-      'finalizado': 'Finalizado',
-      'completado': 'Completado'
+      pendiente: 'Pendiente',
+      confirmado: 'Confirmado',
+      activo: 'Activo',
+      en_proceso: 'En Proceso',
+      cancelado: 'Cancelado',
+      finalizado: 'Finalizado',
+      completado: 'Completado',
     };
     return textos[estado] || estado;
   }
@@ -457,5 +566,46 @@ export class PanelAsesorComponent implements OnInit {
 
   irAHoy(): void {
     this.notificacionesService.mostrarNotificacion('Volviendo a la semana actual', 'info');
+  }
+
+  private cargarTurnosDesdeLocalStorage(): void {
+    const data = localStorage.getItem(LS_TURNOS_KEY);
+    if (!data) {
+      return;
+    }
+
+    // Esto es lo que guarda el front del cliente:
+    // [{ fecha: "2025-12-11", hora: "19:00" }, ...]
+    const reservas: { fecha: string; hora: string }[] = JSON.parse(data);
+
+    const ahora = new Date().toISOString().substring(0, 16).replace('T', ' ');
+
+    const turnosDesdeLocal: TurnoAgenda[] = reservas.map((r, index) => ({
+      fecha: r.fecha,
+      hora: r.hora,
+      horaFin: this.calcularHoraFin(r.hora),
+      clienteNombre: 'Cliente de la plataforma',
+      asunto: 'Consulta agendada online',
+      estado: 'pendiente',
+      caso: 1000 + index, // número de caso de ejemplo
+      fechaCreacion: ahora,
+      fechaConfirmacion: '',
+    }));
+
+    // Si ya tenías turnosAgendados mock, los conservamos y sumamos estos
+    this.turnosAgendados = [...this.turnosAgendados, ...turnosDesdeLocal];
+  }
+
+  private calcularHoraFin(horaInicio: string): string {
+    const [h, m] = horaInicio.split(':').map(Number);
+    let minutos = m + 30;
+    let horas = h;
+
+    if (minutos >= 60) {
+      minutos -= 60;
+      horas += 1;
+    }
+
+    return `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
   }
 }

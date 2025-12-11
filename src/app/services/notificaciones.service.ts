@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
 
 export interface NotificacionEmail {
   destinatario: string;
@@ -16,11 +17,36 @@ export interface ResultadoEmail {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NotificacionesService {
 
-  constructor() {}
+  constructor(private http: HttpClient) {}
+
+  private linkBackend = 'http://localhost:8080/consultations';
+
+  enviarConfirmacionTurnoBack(date: string, time: string) {
+    const body = {
+      clientId: 1, // podés cambiarlo luego si querés hacerlo dinámico
+      lawyerId: 1,
+      date: date,
+      time: time,
+    };
+
+    return this.http.post('http://localhost:8080/consultations/confirm', body);
+  }
+
+  enviarCancelacionTurno(date: string, time: string) {
+  const body = {
+    clientId: 1,
+    lawyerId: 1,
+    date: date,
+    time: time
+  };
+
+  return this.http.post(this.linkBackend+'/cancel', body);
+}
+
 
   /**
    * Envía un email de confirmación de turno
@@ -47,34 +73,29 @@ export class NotificacionesService {
       destinatario: email,
       asunto: '✅ Confirmación de Turno - Estudio Jurídico',
       mensaje: mensaje,
-      tipo: 'confirmacion'
+      tipo: 'confirmacion',
     });
   }
 
   /**
    * Envía un email de cancelación de turno
    */
-  enviarCancelacionTurno(
-    email: string,
-    nombreCliente: string,
-    fecha: string,
-    hora: string,
-    motivo: string
-  ): Observable<ResultadoEmail> {
-    const mensaje = this.generarMensajeCancelacion(
-      nombreCliente,
-      fecha,
-      hora,
-      motivo
-    );
+  // enviarCancelacionTurno(
+  //   email: string,
+  //   nombreCliente: string,
+  //   fecha: string,
+  //   hora: string,
+  //   motivo: string
+  // ): Observable<ResultadoEmail> {
+  //   const mensaje = this.generarMensajeCancelacion(nombreCliente, fecha, hora, motivo);
 
-    return this.enviarEmail({
-      destinatario: email,
-      asunto: '❌ Cancelación de Turno - Estudio Jurídico',
-      mensaje: mensaje,
-      tipo: 'cancelacion'
-    });
-  }
+  //   return this.enviarEmail({
+  //     destinatario: email,
+  //     asunto: '❌ Cancelación de Turno - Estudio Jurídico',
+  //     mensaje: mensaje,
+  //     tipo: 'cancelacion',
+  //   });
+  // }
 
   /**
    * Envía un email de recordatorio de turno
@@ -87,19 +108,13 @@ export class NotificacionesService {
     horaFin: string,
     asesor: string
   ): Observable<ResultadoEmail> {
-    const mensaje = this.generarMensajeRecordatorio(
-      nombreCliente,
-      fecha,
-      hora,
-      horaFin,
-      asesor
-    );
+    const mensaje = this.generarMensajeRecordatorio(nombreCliente, fecha, hora, horaFin, asesor);
 
     return this.enviarEmail({
       destinatario: email,
       asunto: '⏰ Recordatorio de Turno - Estudio Jurídico',
       mensaje: mensaje,
-      tipo: 'recordatorio'
+      tipo: 'recordatorio',
     });
   }
 
@@ -114,7 +129,7 @@ export class NotificacionesService {
     return of({
       exito: true,
       mensaje: `Email enviado exitosamente a ${notificacion.destinatario}`,
-      timestamp: new Date()
+      timestamp: new Date(),
     }).pipe(delay(1000));
 
     /* 
@@ -313,7 +328,7 @@ export class NotificacionesService {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     };
     return fechaObj.toLocaleDateString('es-AR', opciones);
   }
@@ -327,11 +342,11 @@ export class NotificacionesService {
     const iconos = {
       success: '✅',
       error: '❌',
-      info: 'ℹ️'
+      info: 'ℹ️',
     };
-    
+
     console.log(`${iconos[tipo]} ${mensaje}`);
-    
+
     // Opcional: Crear elemento toast en el DOM
     this.crearToast(mensaje, tipo);
   }
@@ -343,7 +358,7 @@ export class NotificacionesService {
     const colores = {
       success: '#198754',
       error: '#dc3545',
-      info: '#0dcaf0'
+      info: '#0dcaf0',
     };
 
     const toast = document.createElement('div');

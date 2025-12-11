@@ -1,0 +1,232 @@
+<!-- caso-detalle-cliente.component.html - 100% SIN ERRORES -->
+
+<div class="container-fluid bg-light min-vh-100 py-4">
+  <div class="container">
+    
+    <!-- Header del Caso -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="d-flex align-items-center gap-3 mb-2">
+              <h2 class="mb-0">{{ caso?.titulo || 'Cargando...' }}</h2>
+              <span *ngIf="caso" class="badge" [ngClass]="getEstadoBadgeClass()">
+                {{ getEstadoTexto() }}
+              </span>
+              <span *ngIf="caso?.prioridad" class="badge" [ngClass]="getPrioridadBadgeClass()">
+                {{ caso?.prioridad }}
+              </span>
+            </div>
+            <p class="text-muted mb-0">
+              <strong>Caso #{{ caso?.id || '...' }}</strong> • 
+              {{ caso?.tipoCaso || '...' }} • 
+              Iniciado: {{ caso && caso.fechaInicio ? formatearFecha(caso.fechaInicio) : 'N/A' }}
+            </p>
+          </div>
+          <button class="btn btn-outline-secondary" (click)="volverAMisCasos()">
+            ← Volver
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      
+      <!-- Columna Principal -->
+      <div class="col-lg-8">
+        
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-3">
+          <li class="nav-item">
+            <a class="nav-link" 
+               [class.active]="tabActiva === 'general'"
+               (click)="cambiarTab('general')"
+               style="cursor: pointer;">
+              Información General
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" 
+               [class.active]="tabActiva === 'documentos'"
+               (click)="cambiarTab('documentos')"
+               style="cursor: pointer;">
+              Documentos ({{ documentos.length }})
+            </a>
+          </li>
+        </ul>
+
+        <!-- Tab: Información General -->
+        <div *ngIf="tabActiva === 'general'" class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h5 class="card-title">Descripción del Caso</h5>
+            <p class="text-muted">{{ caso?.descripcion || 'Sin descripción disponible.' }}</p>
+
+            <hr>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="text-muted small">Estado</label>
+                <p class="fw-bold">{{ getEstadoTexto() }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="text-muted small">Tipo de Caso</label>
+                <p class="fw-bold">{{ caso?.tipoCaso || 'N/A' }}</p>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="text-muted small">Fecha de Inicio</label>
+                <p class="fw-bold">{{ caso && caso.fechaInicio ? formatearFecha(caso.fechaInicio) : 'N/A' }}</p>
+              </div>
+              <div class="col-md-6 mb-3" *ngIf="caso?.prioridad">
+                <label class="text-muted small">Prioridad</label>
+                <p class="fw-bold">{{ caso?.prioridad }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Documentos -->
+        <div *ngIf="tabActiva === 'documentos'" class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Documentos del Caso</h5>
+            
+            <div *ngIf="documentos.length === 0" class="text-center text-muted py-4">
+              <p>No hay documentos disponibles</p>
+            </div>
+
+            <div *ngFor="let doc of documentos" class="d-flex justify-content-between align-items-center border-bottom py-3">
+              <div class="d-flex align-items-center gap-3">
+                <div class="fs-3">{{ getIconoTipoArchivo(doc.tipo) }}</div>
+                <div>
+                  <p class="mb-0 fw-bold">{{ doc.nombre }}</p>
+                  <small class="text-muted">
+                    {{ doc.tamano }} • Subido por {{ doc.autor }} • {{ doc.fecha }}
+                  </small>
+                </div>
+              </div>
+              <button class="btn btn-sm btn-outline-primary" (click)="descargarDocumento(doc)">
+                📥 Descargar
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Columna Lateral -->
+      <div class="col-lg-4">
+        
+        <!-- Card Asesor Asignado -->
+        <div class="card shadow-sm mb-4" *ngIf="caso?.asesor">
+          <div class="card-body">
+            <h6 class="card-title text-muted mb-3">Asesor Asignado</h6>
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                   style="width: 50px; height: 50px; font-size: 1.2rem;">
+                {{ caso?.asesor?.name?.charAt(0) || 'A' }}{{ caso?.asesor?.lastName?.charAt(0) || 'A' }}
+              </div>
+              <div>
+                <p class="mb-0 fw-bold">{{ caso?.asesor?.name }} {{ caso?.asesor?.lastName }}</p>
+                <small class="text-muted">{{ caso?.asesor?.email }}</small>
+              </div>
+            </div>
+            <button class="btn btn-outline-primary w-100" (click)="contactarAsesor()">
+              📧 Contactar
+            </button>
+          </div>
+        </div>
+
+        <!-- Card Estado de Pago -->
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h6 class="card-title text-muted mb-3">💳 Estado de Pago</h6>
+            
+            <!-- Caso: Pago NO habilitado -->
+            <div *ngIf="!caso?.pagoHabilitado" class="text-center text-muted py-3">
+              <p class="mb-0">No hay pagos pendientes</p>
+              <small>El asesor habilitará el pago cuando sea necesario</small>
+            </div>
+
+            <!-- Caso: Pago habilitado pero NO pagado -->
+            <div *ngIf="caso?.pagoHabilitado && !caso?.pagado">
+              <div class="alert alert-warning mb-3">
+                <strong>⚠️ Pago Pendiente</strong>
+                <p class="mb-0 small">Debes realizar el pago para continuar</p>
+              </div>
+              
+              <div class="mb-3">
+                <label class="text-muted small">Concepto</label>
+                <p class="fw-bold mb-1">{{ caso?.conceptoPago || 'Honorarios' }}</p>
+              </div>
+
+              <div class="mb-3">
+                <label class="text-muted small">Monto</label>
+                <p class="fw-bold fs-4 mb-1">${{ caso?.montoPago || 0 }}</p>
+              </div>
+
+              <div class="mb-3" *ngIf="caso?.fechaHabilitacionPago">
+                <label class="text-muted small">Habilitado</label>
+                <p class="mb-0 small">{{ caso?.fechaHabilitacionPago ? formatearFecha(caso?.fechaHabilitacionPago) : 'N/A' }}</p>
+              </div>
+
+              <button 
+                class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
+                (click)="pagarConMercadoPago()"
+                [disabled]="procesandoPago || !caso?.initPoint">
+                <span *ngIf="!procesandoPago">💳 Pagar con Mercado Pago</span>
+                <span *ngIf="procesandoPago">
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Procesando...
+                </span>
+              </button>
+
+              <p class="text-center mt-2 mb-0">
+                <small class="text-muted">
+                  <img src="https://http2.mlstatic.com/storage/logos-api-admin/a5f047d0-9be0-11ec-aad4-c3381f368aaf-m.svg" 
+                       alt="Mercado Pago" 
+                       style="height: 20px; vertical-align: middle;">
+                  Pago seguro con Mercado Pago
+                </small>
+              </p>
+            </div>
+
+            <!-- Caso: Pago COMPLETADO -->
+            <div *ngIf="caso?.pagado" class="text-center">
+              <div class="alert alert-success mb-3">
+                <strong>✅ Pago Completado</strong>
+              </div>
+              
+              <div class="mb-2">
+                <label class="text-muted small">Monto Pagado</label>
+                <p class="fw-bold mb-0">${{ caso?.montoPagado || caso?.montoPago || 0 }}</p>
+              </div>
+
+              <div class="mb-2" *ngIf="caso?.fechaPago">
+                <label class="text-muted small">Fecha de Pago</label>
+                <p class="mb-0 small">{{ caso?.fechaPago ? formatearFecha(caso?.fechaPago) : 'N/A' }}</p>
+              </div>
+
+              <div class="mb-2" *ngIf="caso?.paymentId">
+                <label class="text-muted small">ID de Pago</label>
+                <p class="mb-0 small font-monospace">{{ caso?.paymentId }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Información del Cliente -->
+        <div class="card shadow-sm" *ngIf="caso?.cliente">
+          <div class="card-body">
+            <h6 class="card-title text-muted mb-3">Información del Cliente</h6>
+            <p class="mb-1"><strong>Nombre:</strong> {{ caso?.cliente?.name }} {{ caso?.cliente?.lastName }}</p>
+            <p class="mb-1"><strong>Email:</strong> {{ caso?.cliente?.email }}</p>
+            <p class="mb-0" *ngIf="caso?.cliente?.phoneNumber">
+              <strong>Teléfono:</strong> {{ caso?.cliente?.phoneNumber }}
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

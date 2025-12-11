@@ -1,28 +1,71 @@
-
-
 <div class="card shadow-lg">
-          <div class="card-body p-4">
-            <h4 class="card-title mb-4 text-center">Realizar Consulta</h4>
-            <form>
-              <div class="mb-3">
-                <label for="nombre" class="form-label">Nombre</label>
-                <input type="text" class="form-control" id="nombre" placeholder="Ingrese su nombre" required>
-              </div>
-              <div class="mb-3">
-                <label for="correo" class="form-label">Correo</label>
-                <input type="email" class="form-control" id="correo" placeholder="ejemplo@correo.com" required>
-              </div>
-              <div class="mb-3">
-                <label for="celular" class="form-label">Número Celular</label>
-                <input type="tel" class="form-control" id="celular" placeholder="351 123 4567" required>
-              </div>
-              <div class="mb-3">
-                <label for="consulta" class="form-label">Consulta</label>
-                <textarea class="form-control" id="consulta" rows="4" placeholder="Describa su consulta aquí..." required></textarea>
-              </div>
-              <div class="text-center">
-                <button type="submit" class="btn btn-primary btn-lg w-100">Enviar</button>
-              </div>
-            </form>
-          </div>
-        </div>
+  <div class="card-body p-4">
+    <h4 class="card-title mb-4 text-center">Realizar Consulta</h4>
+
+    <form #consultaForm="ngForm" (ngSubmit)="onSubmit(consultaForm)">
+      <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre</label>
+        <input
+          type="text"
+          class="form-control"
+          id="nombre"
+          name="nombre"
+          [(ngModel)]="form.nombre"
+          placeholder="Ingrese su nombre"
+          required>
+      </div>
+
+      <div class="mb-3">
+        <label for="correo" class="form-label">Correo</label>
+        <input
+          type="email"
+          class="form-control"
+          id="correo"
+          name="correo"
+          [(ngModel)]="form.correo"
+          placeholder="ejemplo@correo.com"
+          required>
+      </div>
+
+      <div class="mb-3">
+        <label for="celular" class="form-label">Número Celular</label>
+        <input
+          type="tel"
+          class="form-control"
+          id="celular"
+          name="celular"
+          [(ngModel)]="form.celular"
+          placeholder="351 123 4567"
+          required>
+      </div>
+
+      <div class="mb-3">
+        <label for="consulta" class="form-label">Consulta</label>
+        <textarea
+          class="form-control"
+          id="consulta"
+          name="consulta"
+          rows="4"
+          [(ngModel)]="form.consulta"
+          placeholder="Describa su consulta aquí..."
+          required></textarea>
+      </div>
+
+      <div class="text-center mb-2" *ngIf="mensajeExito">
+        <small class="text-success">{{ mensajeExito }}</small>
+      </div>
+      <div class="text-center mb-2" *ngIf="mensajeError">
+        <small class="text-danger">{{ mensajeError }}</small>
+      </div>
+
+      <div class="text-center">
+        <button
+          type="submit"
+          class="btn btn-primary btn-lg w-100"
+          [disabled]="enviando || consultaForm.invalid">
+          {{ enviando ? 'Enviando...' : 'Enviar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

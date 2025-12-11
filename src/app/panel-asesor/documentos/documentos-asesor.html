@@ -57,33 +57,7 @@
 <!-- Contenido Principal -->
 <div class="container">
 
-  <!-- Estadísticas -->
-  <div class="row mb-4">
-    <div class="col-md-3">
-      <div class="stat-card">
-        <div class="stat-value">{{ estadisticas.totalDocumentos }}</div>
-        <div class="stat-label">Total Documentos</div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="stat-card" style="border-left-color: #0d6efd;">
-        <div class="stat-value">{{ estadisticas.escritosCreados }}</div>
-        <div class="stat-label">Escritos Creados</div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="stat-card" style="border-left-color: #198754;">
-        <div class="stat-value">{{ estadisticas.clientesConDocs }}</div>
-        <div class="stat-label">Clientes con Docs</div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="stat-card" style="border-left-color: #ffc107;">
-        <div class="stat-value">{{ estadisticas.plantillasActivas }}</div>
-        <div class="stat-label">Plantillas Activas</div>
-      </div>
-    </div>
-  </div>
+  
 
   <!-- Acciones Rápidas -->
   <div class="quick-actions-docs">
@@ -658,13 +632,13 @@
         </div>
 
         <!-- Estadísticas de uso -->
-        <div class="content-card">
+        <!-- <div class="content-card">
           <h5>📊 Estadísticas de Uso</h5>
           <div *ngFor="let plantilla of getPlantillasMasUsadas()" class="d-flex justify-content-between mb-2">
             <span>{{ plantilla.nombre }}</span>
             <span class="badge bg-primary">{{ plantilla.vecesUsada || 0 }}</span>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -705,17 +679,3 @@
      *ngIf="mostrarModalPreview"
      (click)="cerrarModalPreview()"></div>
 
-<!-- Footer -->
-<footer class="bg-dark text-white py-4 mt-5">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-6">
-        <h5>Estudio Jurídico</h5>
-        <p class="small">Panel del Asesor - Gestión de Documentos</p>
-      </div>
-      <div class="col-md-6 text-md-end">
-        <p class="small mb-0">&copy; 2024 Estudio Jurídico. Todos los derechos reservados.</p>
-      </div>
-    </div>
-  </div>
-</footer>

@@ -1,147 +1,180 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CasosService } from '../../services/casos.service';
+import { TurnoService } from '../../services/turno.service';
 
 @Component({
   selector: 'app-payment-success',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="container mt-5">
-      <div class="row justify-content-center">
-        <div class="col-md-6">
-          <div class="card text-center payment-success-card">
-            <div class="card-body p-5">
-              <div class="success-icon mb-4">
-                ✅
-              </div>
-              <h1 class="text-success mb-3">¡Pago Exitoso!</h1>
-              <p class="lead mb-4">Su pago ha sido procesado correctamente</p>
-              
-              <div class="payment-details mb-4">
-                <div class="detail-item" *ngIf="paymentId">
-                  <span class="label">ID de Pago:</span>
-                  <span class="value">{{ paymentId }}</span>
-                </div>
-                <div class="detail-item" *ngIf="externalReference">
-                  <span class="label">Referencia:</span>
-                  <span class="value">{{ externalReference }}</span>
-                </div>
-                <div class="detail-item">
-                  <span class="label">Monto:</span>
-                  <span class="value text-success">$50.000</span>
-                </div>
-              </div>
-
-              <div class="alert alert-info">
-                <strong>📧 Confirmación enviada</strong>
-                <p class="mb-0 mt-2">Recibirá un email con los detalles del pago</p>
-              </div>
-
-              <button class="btn btn-primary btn-lg w-100 mt-3" (click)="volverAlCaso()">
-                Ver Mi Caso
-              </button>
-            </div>
+    <div class="container min-vh-100 d-flex align-items-center justify-content-center">
+      <div class="text-center">
+        <div class="mb-4">
+          <div class="success-icon">✅</div>
+        </div>
+        
+        <h1 class="mb-3 text-success">¡Pago Exitoso!</h1>
+        <p class="lead mb-4">Tu pago ha sido procesado correctamente.</p>
+        
+        <div class="card mb-4" style="max-width: 500px; margin: 0 auto;">
+          <div class="card-body">
+            <p class="mb-2" *ngIf="paymentId">
+              <strong>ID de Pago:</strong> {{ paymentId }}
+            </p>
+            <p class="mb-2" *ngIf="externalReference">
+              <strong>Referencia:</strong> {{ externalReference }}
+            </p>
+            <p class="mb-2" *ngIf="turnoId">
+              <strong>Turno ID:</strong> {{ turnoId }}
+            </p>
+            <p class="mb-0">
+              <strong>Estado:</strong> <span class="badge bg-success">Aprobado</span>
+            </p>
           </div>
         </div>
+        
+        <!-- Mensaje de actualización -->
+        <div class="alert alert-info mb-4" style="max-width: 500px; margin: 0 auto;" *ngIf="actualizando">
+          <div class="spinner-border spinner-border-sm me-2" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          Actualizando estado del turno...
+        </div>
+        
+        <div class="alert alert-success mb-4" style="max-width: 500px; margin: 0 auto;" *ngIf="actualizado">
+          ✅ Tu turno ha sido marcado como pagado correctamente.
+        </div>
+        
+        <div class="d-flex gap-3 justify-content-center">
+          <button class="btn btn-primary btn-lg" (click)="verMisTurnos()">
+            📅 Ver Mis Turnos
+          </button>
+          <button class="btn btn-outline-secondary btn-lg" (click)="volverAlInicio()">
+            🏠 Volver al Inicio
+          </button>
+        </div>
+        
+        <p class="text-muted mt-4 small">
+          Redirigiendo a Mis Turnos en {{ countdown }} segundos...
+        </p>
       </div>
     </div>
   `,
   styles: [`
-    .payment-success-card {
-      border: none;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      border-radius: 12px;
-    }
-
     .success-icon {
       font-size: 5rem;
       animation: scaleIn 0.5s ease-out;
     }
-
+    
     @keyframes scaleIn {
-      from {
-        transform: scale(0);
-      }
-      to {
-        transform: scale(1);
-      }
-    }
-
-    .payment-details {
-      background: #f8f9fa;
-      border-radius: 8px;
-      padding: 20px;
-    }
-
-    .detail-item {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #dee2e6;
-    }
-
-    .detail-item:last-child {
-      margin-bottom: 0;
-      padding-bottom: 0;
-      border-bottom: none;
-    }
-
-    .detail-item .label {
-      color: #6c757d;
-      font-weight: 500;
-    }
-
-    .detail-item .value {
-      font-weight: 700;
+      from { transform: scale(0); }
+      to { transform: scale(1); }
     }
   `]
 })
 export class PaymentSuccessComponent implements OnInit {
+  paymentId: string | null = null;
+  externalReference: string | null = null;
+  turnoId: string | null = null;
+  countdown: number = 10;
+  actualizando: boolean = false;
+  actualizado: boolean = false;
   
-  casoId: number = 0;
-  paymentId: string = '';
-  externalReference: string = '';
-
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private casosService: CasosService
+    private turnoService: TurnoService
   ) {}
-
+  
   ngOnInit() {
     // Obtener parámetros de la URL
     this.route.queryParams.subscribe(params => {
-      this.paymentId = params['payment_id'] || '';
-      this.externalReference = params['external_reference'] || '';
-      const preference_id = params['preference_id'];
-
-      // Extraer ID del caso desde external_reference: "CASO-1"
+      this.paymentId = params['payment_id'] || params['paymentId'];
+      this.externalReference = params['external_reference'] || params['externalReference'];
+      
+      console.log('✅ Pago exitoso recibido');
+      console.log('Payment ID:', this.paymentId);
+      console.log('External Reference:', this.externalReference);
+      
+      // Extraer el turno ID de la external reference
+      // Formato: "TURNO-001-20241207120000"
       if (this.externalReference) {
-        const match = this.externalReference.match(/CASO-(\d+)/);
-        if (match) {
-          this.casoId = parseInt(match[1]);
-          
-          // Marcar el caso como pagado
-          this.casosService.marcarComoPagado(this.casoId, this.paymentId);
+        this.turnoId = this.extractTurnoId(this.externalReference);
+        console.log('Turno ID extraído:', this.turnoId);
+        
+        // Marcar el turno como pagado
+        if (this.turnoId && this.paymentId) {
+          this.marcarTurnoPagado();
         }
       }
-
-      console.log('Pago exitoso:', {
-        paymentId: this.paymentId,
-        externalReference: this.externalReference,
-        casoId: this.casoId
-      });
+    });
+    
+    // Countdown para redirección automática
+    this.startCountdown();
+  }
+  
+  /**
+   * Extrae el ID del turno de la external reference
+   * Formato esperado: "TURNO-001-20241207120000" → "TURNO-001"
+   * O formato: "1-20241207120000" → "1"
+   */
+  extractTurnoId(externalReference: string): string {
+    // Si tiene formato con timestamp, extraer la primera parte
+    const parts = externalReference.split('-');
+    
+    if (parts.length >= 2) {
+      // Verificar si la primera parte es numérica (ID directo)
+      if (!isNaN(Number(parts[0]))) {
+        return parts[0];
+      }
+      // O devolver la primera y segunda parte (ej: "TURNO-001")
+      return `${parts[0]}-${parts[1]}`;
+    }
+    
+    // Si no tiene guiones, asumir que es el ID completo
+    return externalReference;
+  }
+  
+  /**
+   * Marca el turno como pagado en el backend
+   */
+  marcarTurnoPagado() {
+    this.actualizando = true;
+    
+    this.turnoService.marcarTurnoPagado(
+      this.turnoId!,
+      this.paymentId!,
+      this.externalReference!
+    ).subscribe({
+      next: (response) => {
+        console.log('✅ Turno marcado como pagado:', response);
+        this.actualizando = false;
+        this.actualizado = true;
+      },
+      error: (error) => {
+        console.error('❌ Error al marcar turno como pagado:', error);
+        this.actualizando = false;
+        // Continuar de todos modos, el webhook lo procesará
+      }
     });
   }
-
-  volverAlCaso() {
-    if (this.casoId) {
-      this.router.navigate(['/cliente/casos', this.casoId]);
-    } else {
-      this.router.navigate(['/cliente/casos']);
-    }
+  
+  startCountdown() {
+    const interval = setInterval(() => {
+      this.countdown--;
+      if (this.countdown <= 0) {
+        clearInterval(interval);
+        this.verMisTurnos();
+      }
+    }, 1000);
+  }
+  
+  volverAlInicio() {
+    this.router.navigate(['/']);
+  }
+  
+  verMisTurnos() {
+    this.router.navigate(['/panel-cliente/turnos']);
   }
 }

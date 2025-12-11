@@ -1,71 +1,73 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold" style="cursor: pointer;">⚖️ Panel del
-      Asesor</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-      data-bs-target="#navbarNav">
+    <a class="navbar-brand fw-bold" style="cursor: pointer;">⚖️ Panel del Asesor</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
-          <a class="nav-link"
-            [class.active]="vistaActiva === 'dashboard'"
-            (click)="cambiarVista('dashboard')"
-            style="cursor: pointer;">
+          <a class="nav-link" 
+             [class.active]="vistaActiva === 'dashboard'" 
+             (click)="cambiarVista('dashboard')" 
+             style="cursor: pointer;">
             Dashboard
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link"
-            [class.active]="vistaActiva === 'agenda'"
-            (click)="cambiarVista('agenda')"
-            style="cursor: pointer;">
+          <a class="nav-link" 
+             [class.active]="vistaActiva === 'agenda'" 
+             (click)="cambiarVista('agenda')" 
+             style="cursor: pointer;">
             Agenda
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link"
-            [class.active]="vistaActiva === 'consultas'"
-            (click)="cambiarVista('consultas')"
-            style="cursor: pointer;">
+          <a class="nav-link" 
+             [class.active]="vistaActiva === 'consultas'" 
+             (click)="cambiarVista('consultas')" 
+             style="cursor: pointer;">
             Consultas
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link"
-            [class.active]="vistaActiva === 'clientes'"
-            (click)="cambiarVista('clientes')"
-            style="cursor: pointer;">
+          <a class="nav-link" 
+             routerLink="/panel-asesor/casos" 
+             routerLinkActive="active"
+             style="cursor: pointer;">
+            📋 Mis Casos
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" 
+             [class.active]="vistaActiva === 'clientes'" 
+             (click)="cambiarVista('clientes')" 
+             style="cursor: pointer;">
             Clientes
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link"
-            [class.active]="vistaActiva === 'casos'"
-            (click)="cambiarVista('casos')"
-            style="cursor: pointer;">
-            Mis Casos
+          <a class="nav-link" 
+             routerLink="/panel-asesor/documentos" 
+             routerLinkActive="active"
+             style="cursor: pointer;">
+            Documentos
           </a>
         </li>
       </ul>
-
+      
       <div class="dropdown">
-        <button
-          class="btn btn-link dropdown-toggle text-white text-decoration-none"
-          type="button"
-          data-bs-toggle="dropdown">
+        <button class="btn btn-link dropdown-toggle text-white text-decoration-none" 
+                type="button" 
+                data-bs-toggle="dropdown">
           <span>{{ usuario?.nombre || 'Asesor' }}</span>
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" style="cursor: pointer;">Mi
-              Perfil</a></li>
-          <li><a class="dropdown-item"
-              style="cursor: pointer;">Configuración</a></li>
+          <li><a class="dropdown-item" style="cursor: pointer;">Mi Perfil</a></li>
+          <li><a class="dropdown-item" style="cursor: pointer;">Configuración</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item text-danger" (click)="cerrarSesion()"
-              style="cursor: pointer;">Cerrar Sesión</a></li>
+          <li><a class="dropdown-item text-danger" (click)="cerrarSesion()" style="cursor: pointer;">Cerrar Sesión</a></li>
         </ul>
       </div>
     </div>
@@ -73,7 +75,7 @@
 </nav>
 
 <!-- VISTA: DASHBOARD -->
-<div *ngIf="vistaActiva === 'dashboard'">
+<div *ngIf="vistaActiva === 'dashboard' && !estoyEnRutaCasos()">
 
   <!-- Hero Section -->
   <section class="panel-hero">
@@ -215,7 +217,7 @@
 </div>
 
 <!-- VISTA: AGENDA -->
-<div *ngIf="vistaActiva === 'agenda'">
+<div *ngIf="vistaActiva === 'agenda' && !estoyEnRutaCasos()">
 
   <!-- Hero Section -->
   <section class="panel-hero">
@@ -228,13 +230,13 @@
   <div class="container">
 
     <!-- Selector de Fechas -->
-    <div class="content-card" *ngIf="mostrarSelectorFecha">
+    <!-- <div class="content-card" *ngIf="mostrarSelectorFecha">
       <h5>Selecciona una fecha</h5>
       <app-selector-fecha
         [fechasDisponibles]="fechasConTurnos"
         (fechaSeleccionadaEvent)="onFechaSeleccionada($event)">
       </app-selector-fecha>
-    </div>
+    </div> -->
 
     <!-- Tabla de Agenda -->
     <div class="content-card">
@@ -242,14 +244,13 @@
         <h5 class="mb-0">Agenda Semanal</h5>
         <div class="btn-group">
           <button class="btn btn-sm btn-outline-primary"
-            (click)="semanaAnterior()">
+            (click)="anteriorSemana()"
+            [disabled]="semanaOffset === 0">
             ← Semana Anterior
           </button>
-          <button class="btn btn-sm btn-primary" (click)="irAHoy()">
-            Hoy
-          </button>
+          
           <button class="btn btn-sm btn-outline-primary"
-            (click)="semanaSiguiente()">
+            (click)="siguienteSemana()">
             Semana Siguiente →
           </button>
         </div>
@@ -363,7 +364,7 @@
 </div>
 
 <!-- VISTA: CONSULTAS -->
-<div *ngIf="vistaActiva === 'consultas'">
+<div *ngIf="vistaActiva === 'consultas' && !estoyEnRutaCasos()">
 
   <section class="panel-hero">
     <div class="container">
@@ -409,20 +410,9 @@
   </div>
 </div>
 
-<!-- VISTA: CASOS -->
-
-<!-- CASOS - NUEVA SECCIÓN -->
-<div *ngIf="vistaActiva === 'casos'">
-  <section class="panel-hero">
-    <div class="container">
-      <h1>📂 Casos</h1>
-      <p>Gestiona todos tus casos activos</p>
-    </div>
-  </section>
-</div>
 
 <!-- VISTA: CLIENTES -->
-<div *ngIf="vistaActiva === 'clientes'">
+<div *ngIf="vistaActiva === 'clientes' && !estoyEnRutaCasos()" class="flex-grow-1">
 
   <section class="panel-hero">
     <div class="container">
@@ -453,10 +443,8 @@
   </div>
 </div>
 
-<router-outlet></router-outlet>
-
 <!-- Modal Responder Consulta -->
-<div class="modal fade"
+<div class="modal fade" *ngIf="!estoyEnRutaCasos()"
   [class.show]="mostrarModalConsulta"
   [style.display]="mostrarModalConsulta ? 'block' : 'none'"
   tabindex="-1">
@@ -495,21 +483,7 @@
 <!-- Backdrop del modal -->
 <div class="modal-backdrop fade"
   [class.show]="mostrarModalConsulta"
-  *ngIf="mostrarModalConsulta"
+  *ngIf="mostrarModalConsulta && !estoyEnRutaCasos()"
   (click)="cerrarModalConsulta()"></div>
 
-<!-- Footer -->
-<footer class="bg-dark text-white py-4 mt-5">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-6">
-        <h5>Estudio Jurídico</h5>
-        <p class="small">Panel del Asesor</p>
-      </div>
-      <div class="col-md-6 text-md-end">
-        <p class="small mb-0">&copy; 2024 Estudio Jurídico. Todos los derechos
-          reservados.</p>
-      </div>
-    </div>
-  </div>
-</footer>
+<router-outlet></router-outlet>

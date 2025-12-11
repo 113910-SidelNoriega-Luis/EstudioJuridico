@@ -107,36 +107,94 @@ export class Login {
 }
 
   handleRegister(event: Event) {
-    event.preventDefault();
-    
-    if (this.registerData.password !== this.registerData.passwordConfirm) {
-      alert('❌ Las contraseñas no coinciden');
-      return;
-    }
+  event.preventDefault();
 
-    if (!this.registerData.acceptTerms) {
-      alert('❌ Debes aceptar los términos y condiciones');
-      return;
-    }
-
-    console.log('Registro:', this.registerData);
-    
-    alert('✅ ¡Registro exitoso!\n\nBienvenido ' + this.registerData.nombre);
-    
-    // Cambiar a login y pre-llenar el email
-    this.mostrarLogin();
-    this.loginData.email = this.registerData.email;
+  // Validaciones básicas del front
+  if (!this.registerData.acceptTerms) {
+    alert('Debes aceptar los términos y condiciones');
+    return;
   }
+
+  if (this.registerData.password !== this.registerData.passwordConfirm) {
+    alert('Las contraseñas no coinciden');
+    return;
+  }
+
+  if (!this.registerData.tipoUsuario) {
+    alert('Por favor selecciona el tipo de usuario');
+    return;
+  }
+
+  // Objeto que espera el AuthService.register
+  const payload = {
+    nombre: this.registerData.nombre,
+    email: this.registerData.email,
+    telefono: this.registerData.telefono,
+    tipoUsuario: this.registerData.tipoUsuario, // 'cliente' | 'asesor'
+    password: this.registerData.password
+  };
+
+  // Llamada al AuthService (que internamente hace mock + backend en paralelo)
+  this.authService.register(payload).subscribe({
+    next: (res) => {
+      console.log('Usuario registrado:', res);
+
+      alert(
+        '✅ Cuenta creada con éxito\n\n' +
+        'Ya podés iniciar sesión con tu correo y contraseña.'
+      );
+
+      // Opcional: limpiar formulario
+      this.registerData = {
+        nombre: '',
+        email: '',
+        telefono: '',
+        tipoUsuario: '',
+        password: '',
+        passwordConfirm: '',
+        acceptTerms: false
+      };
+
+      // Volver a la vista de login
+      this.mostrarLogin();
+    },
+    error: (err) => {
+      console.error('Error en registro:', err);
+      alert(err.message || 'Ocurrió un error al registrar el usuario');
+    }
+  });
+}
+
 
   handleRecuperar(event: Event) {
-    event.preventDefault();
-    
-    console.log('Recuperar password:', this.recuperarData);
-    
-    alert('✅ Enlace enviado\n\nSe ha enviado un enlace de recuperación a:\n' + this.recuperarData.email);
-    
-    this.mostrarLogin();
+  event.preventDefault();
+
+  const email = this.recuperarData.email;
+
+  if (!email) {
+    alert('Por favor ingresa tu correo electrónico');
+    return;
   }
+
+  this.authService.recuperarPassword(email).subscribe({
+    next: (res) => {
+      console.log('Recuperar password:', res);
+
+      alert(
+        '✅ Enlace enviado\n\n' +
+        'Si el correo existe en el sistema, te enviamos un email a:\n' + email
+      );
+
+      // Volver al login
+      this.mostrarLogin();
+    },
+    error: (err) => {
+      console.error('Error al recuperar contraseña:', err);
+      alert(err.message || 'No se pudo procesar la recuperación de contraseña');
+    }
+  });
+}
+
 
   volverInicio() {
     this.router.navigate(['/inicio']);

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router } from '@angular/router'; // ← IMPORTANTE
 import { FormsModule } from '@angular/forms';
 
 interface Caso {
@@ -33,14 +33,14 @@ export class CasosAsesorComponent implements OnInit {
   filtroEstado: string = 'todos';
   filtroPago: string = 'todos';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) {} // ← INYECTAR Router
 
   ngOnInit() {
     this.cargarCasos();
   }
 
   cargarCasos() {
-    // Simulación de datos - aquí conectarías con tu API
+    // Tus datos de casos (igual que antes)
     this.casos = [
       {
         id: 1,
@@ -128,7 +128,9 @@ export class CasosAsesorComponent implements OnInit {
     });
   }
 
+  // ✅ MÉTODO ACTUALIZADO CON ROUTER
   verDetalle(casoId: number) {
+    console.log('Navegando al caso:', casoId);
     this.router.navigate(['/panel-asesor/caso', casoId]);
   }
 

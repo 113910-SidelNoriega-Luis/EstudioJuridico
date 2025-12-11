@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { delay } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
 
 export interface Usuario {
   id: number;
@@ -11,10 +12,11 @@ export interface Usuario {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-  
+  private apiUrl = 'http://localhost:8080'; // o la URL de tu back
+
   private usuarioActual: Usuario | null = null;
   private isAuthenticated = false;
 
@@ -25,7 +27,7 @@ export class AuthService {
       email: 'asesor@estudio.com',
       password: '12345678',
       telefono: '351-123-4567',
-      tipoUsuario: 'asesor'
+      tipoUsuario: 'asesor',
     },
     {
       id: 2,
@@ -33,11 +35,11 @@ export class AuthService {
       email: 'cliente@email.com',
       password: '12345678',
       telefono: '351-987-6543',
-      tipoUsuario: 'cliente'
-    }
+      tipoUsuario: 'cliente',
+    },
   ];
 
-  constructor() {
+  constructor(private http: HttpClient) {
     const usuarioGuardado = localStorage.getItem('usuario');
     if (usuarioGuardado) {
       this.usuarioActual = JSON.parse(usuarioGuardado);
@@ -46,15 +48,13 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<any> {
-    const usuario = this.usuarios.find(
-      u => u.email === email && u.password === password
-    );
+    const usuario = this.usuarios.find((u) => u.email === email && u.password === password);
 
     if (usuario) {
       const { password, ...usuarioSinPassword } = usuario;
       this.usuarioActual = usuarioSinPassword;
       this.isAuthenticated = true;
-      
+
       localStorage.setItem('usuario', JSON.stringify(usuarioSinPassword));
       localStorage.setItem('token', 'fake-jwt-token-' + Date.now());
 
@@ -71,23 +71,55 @@ export class AuthService {
       email: data.email,
       password: data.password,
       telefono: data.telefono,
-      tipoUsuario: data.tipoUsuario
+      tipoUsuario: data.tipoUsuario,
     };
 
-    const emailExiste = this.usuarios.some(u => u.email === data.email);
+    const emailExiste = this.usuarios.some((u) => u.email === data.email);
     if (emailExiste) {
       return throwError(() => new Error('El email ya está registrado')).pipe(delay(500));
     }
 
+    // 👉 LÓGICA MOCK (seguís igual)
     this.usuarios.push(nuevoUsuario);
-    return of({ success: true, usuario: nuevoUsuario }).pipe(delay(500));
+    const respuestaMock$ = of({ success: true, usuario: nuevoUsuario }).pipe(delay(500));
+
+    // 👉 LLAMADA AL BACKEND EN PARALELO (fire & forget)
+    const body = {
+      nombreCompleto: data.nombre,
+      email: data.email,
+      telefono: data.telefono,
+      tipoUsuario: data.tipoUsuario, // "CLIENTE" / "ASESOR"
+      password: data.password,
+      confirmarPassword: data.password, // si tu form no tiene confirmación, mandamos lo mismo
+      aceptaTerminos: true, // o data.aceptaTerminos si lo tenés
+    };
+
+    this.http.post(`${this.apiUrl}/auth/register`, body).subscribe({
+      next: (res) => console.log('Registro enviado al backend:', res),
+      error: (err) => console.warn('Error registrando en backend (mock sigue ok):', err),
+    });
+
+    // 👉 lo que ve el front sigue siendo el mock
+    return respuestaMock$;
   }
 
   recuperarPassword(email: string): Observable<any> {
-    const usuario = this.usuarios.find(u => u.email === email);
-    
+    const usuario = this.usuarios.find((u) => u.email === email);
+
     if (usuario) {
-      return of({ success: true, message: 'Email enviado' }).pipe(delay(500));
+      // 👉 MOCK (lo que ve el front)
+      const respuestaMock$ = of({ success: true, message: 'Email enviado' }).pipe(delay(500));
+
+      // 👉 LLAMADA AL BACKEND EN PARALELO
+      const body = { email };
+
+      this.http.post(`${this.apiUrl}/auth/forgot-password`, body).subscribe({
+        next: (res) => console.log('Recuperación enviada al backend:', res),
+        error: (err) =>
+          console.warn('Error en backend al recuperar password (mock sigue ok):', err),
+      });
+
+      return respuestaMock$;
     } else {
       return throwError(() => new Error('Email no encontrado')).pipe(delay(500));
     }

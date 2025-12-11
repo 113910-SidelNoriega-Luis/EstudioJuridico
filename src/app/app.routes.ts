@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { App } from './app';
+import { CasoDetalleClienteComponent } from './panel-cliente/caso-detalle-cliente';
 import { Login } from './auth/login/login';
 import { Home } from './home/home';
 import { Turnos } from './cliente/turnos/turnos';
@@ -9,11 +10,13 @@ import { PanelAsesorComponent } from './panel-asesor/panel-asesor';
 import { Documentos } from './cliente/documentos/documentos';
 import { DocumentosAsesorComponent } from './panel-asesor/documentos/documentos-asesor';
 import { CasoDetalleComponent } from './components/caso-detalle/caso-detalle';
-import { PaymentSuccessComponent } from './components/payment-success/payment-success.component';
 import { SelectorUsuarioComponent } from './components/selector-usuario/selector-usuario.component';
 import { MisCasosComponent } from './cliente/mis-casos/mis-casos';
 import { CasosAsesorComponent } from './panel-asesor/casos-asesor/casos-asesor';
-import { CasosAsesorDetalleComponent } from './panel-asesor/caso-detalle-asesor/casos-asesor-detaller';
+import { CasoDetalleAsesorComponent } from './panel-asesor/caso-detalle-asesor/caso-detalle-asesor-actualizado';
+import { PaymentSuccessComponent } from './components/payment-success/payment-success.component';
+import { PaymentPendingComponent } from './components/payment-pending/payment-components';
+import { PaymentFailureComponent } from './components/payment-failure/payment-components';
 
 export const routes: Routes = [
   // Ruta raíz - redirige al inicio o login
@@ -29,13 +32,16 @@ export const routes: Routes = [
   { path: 'panel-cliente/dashboard', component: Home },
   { path: 'panel-cliente/turnos', component: Turnos },
   { path: 'panel-cliente/consultas', component: Consultas },
-  { path: 'panel-cliente/casos', component: MisCasosComponent },
+  { path: 'panel-cliente/caso/:id', component: CasoDetalleComponent }, // ✅ RUTA AGREGADA
   { path: 'panel-cliente/documentos', component: Documentos },
-  { path: 'panel-cliente/mis-casos', component: MisCasosComponent },
+  { path: 'panel-cliente/casos', component: CasoDetalleClienteComponent },
+  { path: 'panel-cliente/mis-casos', component: CasoDetalleClienteComponent },
 
-  // Rutas del Asesor (para más adelante)
-  { path: 'panel-asesor', component: PanelAsesorComponent },
-  { path: 'panel-asesor/documentos', component: DocumentosAsesorComponent },
+  // En el array de rutas:
+{ path: 'payment/success', component: PaymentSuccessComponent },
+{ path: 'payment/pending', component: PaymentPendingComponent },
+{ path: 'payment/failure', component: PaymentFailureComponent },
+
   // RUTAS DEL PANEL ASESOR
   {
     path: 'panel-asesor',
@@ -47,20 +53,13 @@ export const routes: Routes = [
       },
       {
         path: 'caso/:id',
-        component: CasosAsesorDetalleComponent,
+        component: CasoDetalleAsesorComponent,
       },
-      // Aquí puedes agregar más rutas hijas si necesitas
     ],
   },
 
-  // Ruta 404
-  { path: '**', redirectTo: '/inicio' },
-
-  // Pantalla inicial (selector de usuario)
-  {
-    path: '',
-    component: SelectorUsuarioComponent,
-  },
+  // Rutas del Asesor (para más adelante)
+  { path: 'panel-asesor/documentos', component: DocumentosAsesorComponent },
 
   // Rutas para asesor
   {
@@ -74,17 +73,14 @@ export const routes: Routes = [
     component: CasoDetalleComponent,
   },
 
-  // Confirmación de pago
+  // Pantalla inicial (selector de usuario)
   {
-    path: 'payment/success',
-    component: PaymentSuccessComponent,
+    path: 'selector',
+    component: SelectorUsuarioComponent,
   },
 
-  // Redirect default
-  {
-    path: '**',
-    redirectTo: '',
-  },
+  // Ruta 404
+  { path: '**', redirectTo: '/inicio' },
 ];
 
 export class AppComponent {}

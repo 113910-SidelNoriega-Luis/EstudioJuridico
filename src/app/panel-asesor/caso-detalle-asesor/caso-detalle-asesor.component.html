@@ -1,0 +1,290 @@
+<div class="caso-detalle-container" *ngIf="caso">
+  <!-- Navegación -->
+  <div class="navegacion-header">
+    <button class="btn btn-outline-secondary" (click)="volverALista()">
+      <i class="bi bi-arrow-left"></i> Volver a Mis Casos
+    </button>
+    <h2>{{ caso.titulo }}</h2>
+  </div>
+
+  <!-- Tabs de navegación -->
+  <ul class="nav nav-tabs mt-4">
+    <li class="nav-item">
+      <a class="nav-link"
+        [class.active]="tabActiva === 'general'"
+        (click)="cambiarTab('general')"
+        style="cursor: pointer;">
+        📊 Información General
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link"
+        [class.active]="tabActiva === 'documentos'"
+        (click)="cambiarTab('documentos')"
+        style="cursor: pointer;">
+        📁 Documentos ({{ documentos.length }})
+      </a>
+    </li>
+  </ul>
+
+  <!-- Contenido según la tab activa -->
+  <div class="tab-content-area">
+
+    <!-- TAB: INFORMACIÓN GENERAL -->
+    <div *ngIf="tabActiva === 'general'" class="tab-general">
+      <div class="row">
+        <div class="col-md-8">
+          <!-- Descripción del caso -->
+          <div class="card mb-3">
+            <div class="card-header">
+              <h5>📝 Descripción del Caso</h5>
+            </div>
+            <div class="card-body">
+              <p>{{ caso.descripcion }}</p>
+            </div>
+          </div>
+
+          <!-- Detalles del caso -->
+          <div class="card mb-3">
+            <div class="card-header">
+              <h5>📊 Detalles</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="text-muted small">Cliente</label>
+                  <p class="mb-0"><strong>{{ caso.cliente.name }}</strong></p>
+                  <p class="text-muted small mb-0">{{ caso.cliente.email }}</p>
+                  <p class="text-muted small">{{ caso.cliente.phoneNumber }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="text-muted small">Tipo de Caso</label>
+                  <p class="mb-0"><strong>{{ caso.tipoCaso }}</strong></p>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="text-muted small">Fecha de Inicio</label>
+                  <p class="mb-0"><strong>{{ caso.fechaInicio }}</strong></p>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="text-muted small">Prioridad</label>
+                  <p class="mb-0">
+                    <span class="badge" [ngClass]="getPrioridadBadgeClass()">
+                      {{ caso.prioridad }}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <!-- Estado -->
+          <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">⚡ Estado del Caso</h5>
+            </div>
+            <div class="card-body text-center">
+              <h2>
+                <span class="badge" [ngClass]="getEstadoBadgeClass()">
+                  {{ getEstadoTexto() }}
+                </span>
+              </h2>
+            </div>
+          </div>
+
+          <!-- Gestión de Pago -->
+          <div class="card">
+            <div class="card-header"
+              [class.bg-success]="caso.pagoHabilitado"
+              [class.bg-secondary]="!caso.pagoHabilitado"
+              class="text-white">
+              <h5 class="mb-0">💳 Gestión de Pago</h5>
+            </div>
+            <div class="card-body">
+              <div *ngIf="!caso.pagoHabilitado" class="text-center">
+                <p class="text-muted">El pago aún no ha sido habilitado para
+                  este cliente</p>
+                <button class="btn btn-success w-100"
+                  (click)="abrirModalPago()">
+                  Habilitar Pago
+                </button>
+              </div>
+
+              <div *ngIf="caso.pagoHabilitado && !caso.pagado">
+                <div class="alert alert-warning mb-3">
+                  <strong>⏳ Pago Pendiente</strong>
+                  <p class="mb-0 small">El cliente puede realizar el pago desde
+                    su panel</p>
+                </div>
+                <div class="info-pago mb-3">
+                  <p class="mb-1"><strong>Concepto:</strong> {{
+                    caso.conceptoPago }}</p>
+                  <p class="mb-0"><strong>Monto:</strong> ${{
+                    caso.montoPago?.toLocaleString() }}</p>
+                </div>
+                <button class="btn btn-danger btn-sm w-100"
+                  (click)="deshabilitarPago()">
+                  Deshabilitar Pago
+                </button>
+              </div>
+
+              <div *ngIf="caso.pagado" class="text-center">
+                <div class="alert alert-success">
+                  <strong>✅ Pagado</strong>
+                  <p class="mb-0 small">El cliente ha completado el pago</p>
+                </div>
+                <div class="info-pago">
+                  <p class="mb-1"><strong>Concepto:</strong> {{
+                    caso.conceptoPago }}</p>
+                  <p class="mb-0"><strong>Monto:</strong> ${{
+                    caso.montoPago?.toLocaleString() }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: DOCUMENTOS -->
+    <div *ngIf="tabActiva === 'documentos'" class="tab-documentos">
+      <div class="acciones-documentos mb-4">
+        <button class="btn btn-primary" (click)="abrirModalDocumento()">
+          <i class="bi bi-cloud-upload"></i> Subir Documento
+        </button>
+      </div>
+
+      <!-- Lista de documentos -->
+      <div class="documentos-lista">
+        <div class="documento-item" *ngFor="let doc of documentos">
+          <div class="documento-icon">
+            {{ getIconoTipoArchivo(doc.tipo) }}
+          </div>
+          <div class="documento-info">
+            <h6>{{ doc.nombre }}</h6>
+            <p class="text-muted small mb-1">
+              <span class="badge"
+                [class.bg-primary]="doc.tipoAutor === 'asesor'"
+                [class.bg-info]="doc.tipoAutor === 'cliente'">
+                {{ doc.tipoAutor === 'asesor' ? '👨‍💼 Asesor' : '👤 Cliente' }}
+              </span>
+              {{ doc.autor }}
+            </p>
+            <p class="text-muted small mb-0">
+              📅 {{ doc.fecha }} | 💾 {{ doc.tamano }}
+            </p>
+          </div>
+          <div class="documento-acciones">
+            <button class="btn btn-sm btn-outline-primary"
+              (click)="descargarDocumento(doc)">
+              <i class="bi bi-download"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger"
+              (click)="eliminarDocumento(doc.id)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="no-documentos" *ngIf="documentos.length === 0">
+          <i class="bi bi-folder-x"></i>
+          <p>No hay documentos cargados</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Subir Documento -->
+<div class="modal-overlay" *ngIf="mostrarModalDocumento"
+  (click)="cerrarModalDocumento()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h5>📤 Subir Documento</h5>
+      <button class="btn-close"
+        (click)="cerrarModalDocumento()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="mb-3">
+        <label class="form-label">Archivo</label>
+        <input
+          type="file"
+          class="form-control"
+          (change)="onFileSelected($event)"
+          accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+        <small class="text-muted">Formatos permitidos: PDF, DOC, DOCX, XLS,
+          XLSX, imágenes</small>
+      </div>
+      <div class="mb-3" *ngIf="archivoSeleccionado">
+        <label class="form-label">Nombre del archivo</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="nombreArchivo"
+          placeholder="Nombre descriptivo del documento">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Descripción (opcional)</label>
+        <textarea
+          class="form-control"
+          rows="3"
+          [(ngModel)]="descripcionArchivo"
+          placeholder="Agrega una descripción del documento..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary"
+        (click)="cerrarModalDocumento()">Cancelar</button>
+      <button class="btn btn-primary" (click)="subirDocumento()">Subir
+        Documento</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Habilitar Pago -->
+<div class="modal-overlay" *ngIf="mostrarModalPago" (click)="cerrarModalPago()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h5>💳 Habilitar Pago para el Cliente</h5>
+      <button class="btn-close" (click)="cerrarModalPago()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-info">
+        <strong>ℹ️ Información</strong>
+        <p class="mb-0 small">Una vez habilitado, el cliente podrá realizar el
+          pago desde su panel a través de Mercado Pago.</p>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Concepto del Pago</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="conceptoPago"
+          placeholder="Ej: Honorarios profesionales - Divorcio">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Monto (ARS)</label>
+        <input
+          type="number"
+          class="form-control"
+          [(ngModel)]="montoPago"
+          placeholder="Ej: 150000"
+          min="0"
+          step="1000">
+      </div>
+      <div class="preview-pago" *ngIf="montoPago > 0 && caso">
+        <p class="mb-1"><strong>Resumen:</strong></p>
+        <p class="mb-0">El cliente {{  caso.cliente.name }} podrá pagar
+          <strong>${{ montoPago.toLocaleString() }}</strong> por concepto de
+          "{{ conceptoPago }}"</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary"
+        (click)="cerrarModalPago()">Cancelar</button>
+      <button class="btn btn-success" (click)="habilitarPago()">Habilitar
+        Pago</button>
+    </div>
+  </div>
+</div>

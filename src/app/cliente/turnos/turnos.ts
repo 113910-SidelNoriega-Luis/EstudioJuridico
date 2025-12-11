@@ -4,7 +4,10 @@ import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService, Usuario } from '../../auth/auth.service';
 import { NotificacionesService } from '../../services/notificaciones.service';
-import { SelectorFechaComponent , FechaSeleccionada} from '../../components/selector-fecha.component';
+import {
+  SelectorFechaComponent,
+  FechaSeleccionada,
+} from '../../components/selector-fecha.component';
 
 interface Turno {
   id: number;
@@ -29,17 +32,22 @@ interface DiaAgenda {
   fecha: string;
 }
 
+// 💾 clave para localStorage
+const LS_TURNOS_KEY = 'turnos_ocupados';
+
 @Component({
   selector: 'app-turnos-cliente',
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, SelectorFechaComponent],
   templateUrl: './turnos.html',
-  styleUrls: ['./turnos.css']
+  styleUrls: ['./turnos.css'],
 })
 export class Turnos implements OnInit {
-  
+  // 🔹 NUEVO: cuántas semanas desde la actual (0 = semana actual, 1 = próxima, etc.)
+  semanaOffset: number = 0;
+
   usuario: Usuario | null = null;
-  
+
   // Tabs
   tabActivo: 'agendar' | 'misturnos' | 'historial' = 'agendar';
 
@@ -50,23 +58,14 @@ export class Turnos implements OnInit {
 
   // Datos de la agenda
   horarios: string[] = ['19:00', '19:30', '20:00', '20:30', '21:00', '21:30'];
-  
-  dias: DiaAgenda[] = [
-    { nombre: 'Lun 25/11', fecha: '2024-11-25' },
-    { nombre: 'Mar 26/11', fecha: '2024-11-26' },
-    { nombre: 'Mié 27/11', fecha: '2024-11-27' },
-    { nombre: 'Jue 28/11', fecha: '2024-11-28' },
-    { nombre: 'Vie 29/11', fecha: '2024-11-29' },
-    { nombre: 'Sáb 30/11', fecha: '2024-11-30' }
-  ];
+
+  // 🔁 AHORA se genera dinámicamente (semana actual)
+  dias: DiaAgenda[] = [];
 
   agendaSlots: { [hora: string]: SlotHorario[] } = {};
 
-  turnosOcupados: { fecha: string; hora: string }[] = [
-    { fecha: '2024-11-25', hora: '19:30' },
-    { fecha: '2024-11-26', hora: '20:00' },
-    { fecha: '2024-11-27', hora: '19:00' }
-  ];
+  // 🔁 Se cargarán desde localStorage
+  turnosOcupados: { fecha: string; hora: string }[] = [];
 
   // Turno seleccionado
   turnoSeleccionado: {
@@ -86,7 +85,7 @@ export class Turnos implements OnInit {
     { value: 'penal', label: 'Derecho Penal' },
     { value: 'familiar', label: 'Derecho Familiar' },
     { value: 'comercial', label: 'Derecho Comercial' },
-    { value: 'otro', label: 'Otro' }
+    { value: 'otro', label: 'Otro' },
   ];
 
   // Mis turnos
@@ -98,7 +97,7 @@ export class Turnos implements OnInit {
       horaFin: '19:30',
       motivo: 'Consulta Inicial - Derecho Laboral',
       asesor: 'Dra. María González',
-      estado: 'confirmado'
+      estado: 'confirmado',
     },
     {
       id: 2,
@@ -107,7 +106,7 @@ export class Turnos implements OnInit {
       horaFin: '21:00',
       motivo: 'Seguimiento - Caso Civil',
       asesor: 'Dr. Carlos Rodríguez',
-      estado: 'confirmado'
+      estado: 'confirmado',
     },
     {
       id: 3,
@@ -116,8 +115,8 @@ export class Turnos implements OnInit {
       horaFin: '20:00',
       motivo: 'Revisión de Documentos',
       asesor: 'Dra. María González',
-      estado: 'pendiente'
-    }
+      estado: 'pendiente',
+    },
   ];
 
   // Historial de turnos
@@ -129,7 +128,7 @@ export class Turnos implements OnInit {
       horaFin: '19:30',
       motivo: 'Consulta General',
       asesor: 'Dra. María González',
-      estado: 'completado'
+      estado: 'completado',
     },
     {
       id: 5,
@@ -139,8 +138,8 @@ export class Turnos implements OnInit {
       motivo: 'Primera Consulta',
       descripcion: 'Cancelado por el cliente',
       asesor: 'Dra. María González',
-      estado: 'cancelado'
-    }
+      estado: 'cancelado',
+    },
   ];
 
   // Modal
@@ -154,12 +153,72 @@ export class Turnos implements OnInit {
 
   ngOnInit(): void {
     this.usuario = this.authService.getUsuarioActual();
-    
+
     if (!this.usuario || !this.authService.esCliente()) {
       this.router.navigate(['/inicio']);
       return;
     }
 
+    // 🔁 NUEVO: generar semana actual y cargar turnos desde localStorage
+    this.generarDiasSemanaActual();
+    this.cargarTurnosDesdeLocalStorage();
+
+    this.generarAgenda();
+    this.generarFechasDisponibles();
+  }
+
+  /**
+   * 🔁 Genera lunes a sábado de la semana en curso,
+   *     desplazada por semanaOffset (0 = actual, 1 = próxima, etc.)
+   */
+  private generarDiasSemanaActual(): void {
+    const hoy = new Date();
+
+    // aplicamos el offset de semanas hacia adelante
+    hoy.setDate(hoy.getDate() + this.semanaOffset * 7);
+
+    const diaSemana = hoy.getDay(); // 0=Dom,1=Lun,...6=Sab
+
+    // Calcular lunes de esa semana
+    const diferencia = diaSemana === 0 ? -6 : 1 - diaSemana;
+    const lunes = new Date(hoy);
+    lunes.setDate(hoy.getDate() + diferencia);
+
+    const nombres = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+    this.dias = [];
+
+    for (let i = 0; i < 6; i++) {
+      const d = new Date(lunes);
+      d.setDate(lunes.getDate() + i);
+
+      const dia = d.getDate().toString().padStart(2, '0');
+      const mes = (d.getMonth() + 1).toString().padStart(2, '0');
+
+      this.dias.push({
+        nombre: `${nombres[i]} ${dia}/${mes}`,
+        fecha: this.formatearFechaISO(d),
+      });
+    }
+  }
+
+  /**
+   * Avanza a la siguiente semana (no hay opción de volver atrás)
+   */
+  siguienteSemana(): void {
+    this.semanaOffset++; // avanzamos una semana
+    this.generarDiasSemanaActual(); // recalculamos los días
+    this.generarAgenda(); // regeneramos la matriz horario/día
+    this.generarFechasDisponibles(); // opcional: recalcular fechas disponibles
+  }
+
+  anteriorSemana(): void {
+    if (this.semanaOffset === 0) {
+      return; // no dejo ir a semanas anteriores a la actual
+    }
+
+    this.semanaOffset--; // retrocedemos una semana
+    this.generarDiasSemanaActual();
     this.generarAgenda();
     this.generarFechasDisponibles();
   }
@@ -171,17 +230,19 @@ export class Turnos implements OnInit {
     // Generar fechas para los próximos 30 días
     this.fechasConTurnos = [];
     const hoy = new Date();
-    
+
     for (let i = 0; i < 30; i++) {
       const fecha = new Date(hoy);
       fecha.setDate(hoy.getDate() + i);
-      
+
       // Excluir domingos (día 0)
       if (fecha.getDay() !== 0) {
         const fechaISO = this.formatearFechaISO(fecha);
-        
+
         // Verificar que no sea un día completamente ocupado
-        const turnosOcupadosEnFecha = this.turnosOcupados.filter(t => t.fecha === fechaISO).length;
+        const turnosOcupadosEnFecha = this.turnosOcupados.filter(
+          (t) => t.fecha === fechaISO
+        ).length;
         if (turnosOcupadosEnFecha < this.horarios.length) {
           this.fechasConTurnos.push(fechaISO);
         }
@@ -199,20 +260,33 @@ export class Turnos implements OnInit {
   generarAgenda(): void {
     this.agendaSlots = {};
 
-    this.horarios.forEach(hora => {
-      this.agendaSlots[hora] = this.dias.map(dia => {
-        const ocupado = this.turnosOcupados.find(
-          t => t.fecha === dia.fecha && t.hora === hora
-        );
+    this.horarios.forEach((hora) => {
+      this.agendaSlots[hora] = this.dias.map((dia) => {
+        const ocupado = this.turnosOcupados.find((t) => t.fecha === dia.fecha && t.hora === hora);
 
         return {
           fecha: dia.fecha,
           fechaTexto: dia.nombre,
           hora: hora,
-          disponible: !ocupado
+          disponible: !ocupado,
         };
       });
     });
+  }
+
+  // 🔁 LOCALSTORAGE: cargar y guardar turnos ocupados
+
+  private cargarTurnosDesdeLocalStorage(): void {
+    const data = localStorage.getItem(LS_TURNOS_KEY);
+    if (data) {
+      this.turnosOcupados = JSON.parse(data);
+    } else {
+      this.turnosOcupados = [];
+    }
+  }
+
+  private guardarTurnosEnLocalStorage(): void {
+    localStorage.setItem(LS_TURNOS_KEY, JSON.stringify(this.turnosOcupados));
   }
 
   cambiarTab(tab: 'agendar' | 'misturnos' | 'historial'): void {
@@ -232,7 +306,7 @@ export class Turnos implements OnInit {
       fechaTexto: slot.fechaTexto,
       fecha: slot.fecha,
       hora: slot.hora,
-      horaFin: this.calcularHoraFin(slot.hora)
+      horaFin: this.calcularHoraFin(slot.hora),
     };
   }
 
@@ -270,8 +344,11 @@ export class Turnos implements OnInit {
     // Agregar a turnos ocupados
     this.turnosOcupados.push({
       fecha: this.turnoSeleccionado.fecha,
-      hora: this.turnoSeleccionado.hora
+      hora: this.turnoSeleccionado.hora,
     });
+
+    // 🔁 guardar en localStorage
+    this.guardarTurnosEnLocalStorage();
 
     // Crear objeto del turno
     const nuevoTurno: Turno = {
@@ -279,41 +356,61 @@ export class Turnos implements OnInit {
       fecha: this.turnoSeleccionado.fecha,
       hora: this.turnoSeleccionado.hora,
       horaFin: this.turnoSeleccionado.horaFin,
-      motivo: this.motivosDisponibles.find(m => m.value === this.motivoSeleccionado)?.label || '',
+      motivo: this.motivosDisponibles.find((m) => m.value === this.motivoSeleccionado)?.label || '',
       descripcion: this.descripcionTurno,
       asesor: 'Por asignar',
-      estado: 'pendiente'
+      estado: 'pendiente',
     };
 
     this.proximosTurnos.push(nuevoTurno);
 
     // Enviar email de confirmación
-    if (this.usuario?.email) {
-      this.notificacionesService.enviarConfirmacionTurno(
-        this.usuario.email,
-        this.usuario.nombre,
-        this.turnoSeleccionado.fecha,
-        this.turnoSeleccionado.hora,
-        this.turnoSeleccionado.horaFin,
-        nuevoTurno.motivo,
-        nuevoTurno.asesor
-      ).subscribe({
-        next: (resultado) => {
-          console.log('Email enviado:', resultado);
+    // if (this.usuario?.email) {
+    //   this.notificacionesService
+    //     .enviarConfirmacionTurno(
+    //       this.usuario.email,
+    //       this.usuario.nombre,
+    //       this.turnoSeleccionado.fecha,
+    //       this.turnoSeleccionado.hora,
+    //       this.turnoSeleccionado.horaFin,
+    //       nuevoTurno.motivo,
+    //       nuevoTurno.asesor
+    //     )
+    //     .subscribe({
+    //       next: (resultado) => {
+    //         console.log('Email enviado:', resultado);
+    //         this.notificacionesService.mostrarNotificacion(
+    //           '✅ ¡Turno confirmado! Revisa tu email para más detalles.',
+    //           'success'
+    //         );
+    //       },
+    //       error: (error) => {
+    //         console.error('Error al enviar email:', error);
+    //         this.notificacionesService.mostrarNotificacion(
+    //           '⚠️ Turno confirmado, pero hubo un error al enviar el email.',
+    //           'info'
+    //         );
+    //       },
+    //     });
+    // }
+    // Enviar email real al backend
+    this.notificacionesService
+      .enviarConfirmacionTurnoBack(this.turnoSeleccionado.fecha, this.turnoSeleccionado.hora)
+      .subscribe({
+        next: () => {
           this.notificacionesService.mostrarNotificacion(
-            '✅ ¡Turno confirmado! Revisa tu email para más detalles.',
+            '📧 Correo enviado correctamente',
             'success'
           );
         },
         error: (error) => {
           console.error('Error al enviar email:', error);
           this.notificacionesService.mostrarNotificacion(
-            '⚠️ Turno confirmado, pero hubo un error al enviar el email.',
-            'info'
+            '⚠️ Turno creado, pero no se pudo enviar el email',
+            'error'
           );
-        }
+        },
       });
-    }
 
     alert('✅ ¡Turno confirmado exitosamente!\n\nRecibirás un email de confirmación.');
 
@@ -332,42 +429,59 @@ export class Turnos implements OnInit {
   cancelarTurno(turno: Turno): void {
     if (confirm('¿Estás seguro que deseas cancelar este turno?')) {
       // Remover de próximos turnos
-      this.proximosTurnos = this.proximosTurnos.filter(t => t.id !== turno.id);
-      
+      this.proximosTurnos = this.proximosTurnos.filter((t) => t.id !== turno.id);
+
       // Agregar al historial como cancelado
       turno.estado = 'cancelado';
       this.historialTurnos.unshift(turno);
 
       // Liberar el horario
       this.turnosOcupados = this.turnosOcupados.filter(
-        t => !(t.fecha === turno.fecha && t.hora === turno.hora)
+        (t) => !(t.fecha === turno.fecha && t.hora === turno.hora)
       );
+
+      // 🔁 actualizar localStorage
+      this.guardarTurnosEnLocalStorage();
 
       this.generarAgenda();
       this.generarFechasDisponibles();
-      
+
       // Enviar email de cancelación
-      if (this.usuario?.email) {
-        this.notificacionesService.enviarCancelacionTurno(
-          this.usuario.email,
-          this.usuario.nombre,
-          turno.fecha,
-          turno.hora,
-          turno.motivo
-        ).subscribe({
-          next: (resultado) => {
-            console.log('Email de cancelación enviado:', resultado);
-            this.notificacionesService.mostrarNotificacion(
-              '✅ Turno cancelado. Te hemos enviado un email de confirmación.',
-              'success'
-            );
-          },
-          error: (error) => {
-            console.error('Error al enviar email:', error);
-          }
-        });
-      }
-      
+      // if (this.usuario?.email) {
+      //   this.notificacionesService
+      //     .enviarCancelacionTurno(
+      //       this.usuario.email,
+      //       this.usuario.nombre,
+      //       turno.fecha,
+      //       turno.hora,
+      //       turno.motivo
+      //     )
+      //     .subscribe({
+      //       next: (resultado) => {
+      //         console.log('Email de cancelación enviado:', resultado);
+      //         this.notificacionesService.mostrarNotificacion(
+      //           '✅ Turno cancelado. Te hemos enviado un email de confirmación.',
+      //           'success'
+      //         );
+      //       },
+      //       error: (error) => {
+      //         console.error('Error al enviar email:', error);
+      //       },
+      //     });
+      // }
+
+      this.notificacionesService.enviarCancelacionTurno(turno.fecha, turno.hora).subscribe({
+        next: () => {
+          this.notificacionesService.mostrarNotificacion(
+            '📧 Te enviamos un correo con la cancelación del turno.',
+            'success'
+          );
+        },
+        error: (error) => {
+          console.error('Error al enviar email de cancelación:', error);
+        },
+      });
+
       alert('Turno cancelado exitosamente');
     }
   }
@@ -378,17 +492,23 @@ export class Turnos implements OnInit {
   }
 
   verDetallesTurno(turno: Turno): void {
-    alert(`Detalles del Turno:\n\nFecha: ${this.formatearFecha(turno.fecha)}\nHorario: ${turno.hora} - ${turno.horaFin}\nMotivo: ${turno.motivo}\nAsesor: ${turno.asesor}\nEstado: ${this.getEstadoTexto(turno.estado)}`);
+    alert(
+      `Detalles del Turno:\n\nFecha: ${this.formatearFecha(turno.fecha)}\nHorario: ${
+        turno.hora
+      } - ${turno.horaFin}\nMotivo: ${turno.motivo}\nAsesor: ${
+        turno.asesor
+      }\nEstado: ${this.getEstadoTexto(turno.estado)}`
+    );
   }
 
   // Helpers
   formatearFecha(fecha: string): string {
     const fechaObj = new Date(fecha);
-    const opciones: Intl.DateTimeFormatOptions = { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    const opciones: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
     };
     return fechaObj.toLocaleDateString('es-AR', opciones);
   }
@@ -400,44 +520,56 @@ export class Turnos implements OnInit {
 
   getMesCorto(fecha: string): string {
     const fechaObj = new Date(fecha);
-    const meses = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+    const meses = [
+      'ENE',
+      'FEB',
+      'MAR',
+      'ABR',
+      'MAY',
+      'JUN',
+      'JUL',
+      'AGO',
+      'SEP',
+      'OCT',
+      'NOV',
+      'DIC',
+    ];
     return meses[fechaObj.getMonth()];
   }
 
   getEstadoBadgeClass(estado: string): string {
     const clases: { [key: string]: string } = {
-      'confirmado': 'status-confirmado',
-      'pendiente': 'status-pendiente',
-      'cancelado': 'status-cancelado',
-      'completado': 'bg-secondary'
+      confirmado: 'status-confirmado',
+      pendiente: 'status-pendiente',
+      cancelado: 'status-cancelado',
+      completado: 'bg-secondary',
     };
     return clases[estado] || '';
   }
 
   getEstadoTexto(estado: string): string {
     const textos: { [key: string]: string } = {
-      'confirmado': 'Confirmado',
-      'pendiente': 'Pendiente Confirmación',
-      'cancelado': 'Cancelado',
-      'completado': 'Completado'
+      confirmado: 'Confirmado',
+      pendiente: 'Pendiente Confirmación',
+      cancelado: 'Cancelado',
+      completado: 'Completado',
     };
     return textos[estado] || estado;
   }
 
   getCalendarIconColor(estado: string): string {
     const colores: { [key: string]: string } = {
-      'confirmado': '#198754',
-      'pendiente': '#ffc107',
-      'cancelado': '#dc3545',
-      'completado': '#6c757d'
+      confirmado: '#198754',
+      pendiente: '#ffc107',
+      cancelado: '#dc3545',
+      completado: '#6c757d',
     };
     return colores[estado] || '#198754';
   }
 
   isSlotSeleccionado(slot: SlotHorario): boolean {
     if (!this.turnoSeleccionado) return false;
-    return this.turnoSeleccionado.fecha === slot.fecha && 
-           this.turnoSeleccionado.hora === slot.hora;
+    return this.turnoSeleccionado.fecha === slot.fecha && this.turnoSeleccionado.hora === slot.hora;
   }
 
   /**
@@ -445,12 +577,9 @@ export class Turnos implements OnInit {
    */
   onFechaSeleccionada(fecha: FechaSeleccionada): void {
     this.fechaSeleccionadaCalendario = fecha;
-    
-    // Actualizar la agenda para mostrar solo la fecha seleccionada
-    // O aplicar filtros según la fecha
+
     console.log('Fecha seleccionada:', fecha);
-    
-    // Mostrar notificación
+
     this.notificacionesService.mostrarNotificacion(
       `📅 Fecha seleccionada: ${fecha.fechaTexto}`,
       'info'
