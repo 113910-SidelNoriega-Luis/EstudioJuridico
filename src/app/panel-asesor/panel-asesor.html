@@ -1,73 +1,88 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold" style="cursor: pointer;">⚖️ Panel del Asesor</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+    <a class="navbar-brand fw-bold" style="cursor: pointer;">⚖️ Panel del
+      Asesor</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+      data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
-          <a class="nav-link" 
-             [class.active]="vistaActiva === 'dashboard'" 
-             (click)="cambiarVista('dashboard')" 
-             style="cursor: pointer;">
+          <a class="nav-link"
+            [class.active]="vistaActiva === 'dashboard'"
+            (click)="cambiarVista('dashboard')"
+            style="cursor: pointer;">
             Dashboard
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" 
-             [class.active]="vistaActiva === 'agenda'" 
-             (click)="cambiarVista('agenda')" 
-             style="cursor: pointer;">
+          <a class="nav-link"
+            [class.active]="vistaActiva === 'agenda'"
+            (click)="cambiarVista('agenda')"
+            style="cursor: pointer;">
             Agenda
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" 
-             [class.active]="vistaActiva === 'consultas'" 
-             (click)="cambiarVista('consultas')" 
-             style="cursor: pointer;">
+          <a class="nav-link"
+            [class.active]="vistaActiva === 'consultas'"
+            (click)="cambiarVista('consultas')"
+            style="cursor: pointer;">
             Consultas
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" 
-             routerLink="/panel-asesor/casos" 
-             routerLinkActive="active"
-             style="cursor: pointer;">
+          <a class="nav-link"
+            routerLink="/panel-asesor/casos"
+            routerLinkActive="active"
+            (click)="irAMisCasos()"
+            style="cursor: pointer;">
             📋 Mis Casos
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" 
-             [class.active]="vistaActiva === 'clientes'" 
-             (click)="cambiarVista('clientes')" 
-             style="cursor: pointer;">
+          <a class="nav-link"
+            [class.active]="vistaActiva === 'clientes'"
+            (click)="cambiarVista('clientes')"
+            style="cursor: pointer;">
             Clientes
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" 
-             routerLink="/panel-asesor/documentos" 
-             routerLinkActive="active"
-             style="cursor: pointer;">
+          <a class="nav-link"
+            [class.active]="vistaActiva === 'documentos'"
+            (click)="cambiarVista('documentos')"
+            style="cursor: pointer;">
             Documentos
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link"
+            [class.active]="vistaActiva === 'reportes'"
+            (click)="cambiarVista('reportes')"
+            style="cursor: pointer;">
+            📊 Reportes
+          </a>
+        </li>
       </ul>
-      
+
       <div class="dropdown">
-        <button class="btn btn-link dropdown-toggle text-white text-decoration-none" 
-                type="button" 
-                data-bs-toggle="dropdown">
+        <button
+          class="btn btn-link dropdown-toggle text-white text-decoration-none"
+          type="button"
+          data-bs-toggle="dropdown">
           <span>{{ usuario?.nombre || 'Asesor' }}</span>
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" style="cursor: pointer;">Mi Perfil</a></li>
-          <li><a class="dropdown-item" style="cursor: pointer;">Configuración</a></li>
+          <li><a class="dropdown-item" style="cursor: pointer;">Mi
+              Perfil</a></li>
+          <li><a class="dropdown-item"
+              style="cursor: pointer;">Configuración</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item text-danger" (click)="cerrarSesion()" style="cursor: pointer;">Cerrar Sesión</a></li>
+          <li><a class="dropdown-item text-danger" (click)="cerrarSesion()"
+              style="cursor: pointer;">Cerrar Sesión</a></li>
         </ul>
       </div>
     </div>
@@ -248,7 +263,7 @@
             [disabled]="semanaOffset === 0">
             ← Semana Anterior
           </button>
-          
+
           <button class="btn btn-sm btn-outline-primary"
             (click)="siguienteSemana()">
             Semana Siguiente →
@@ -410,9 +425,9 @@
   </div>
 </div>
 
-
 <!-- VISTA: CLIENTES -->
-<div *ngIf="vistaActiva === 'clientes' && !estoyEnRutaCasos()" class="flex-grow-1">
+<div *ngIf="vistaActiva === 'clientes' && !estoyEnRutaCasos()"
+  class="flex-grow-1">
 
   <section class="panel-hero">
     <div class="container">
@@ -435,12 +450,23 @@
                 Última consulta: {{ cliente.ultimaConsulta }}</small></p>
           </div>
           <div>
-            <button class="btn btn-sm btn-outline-primary">Ver Perfil</button>
+            <button class="btn btn-sm btn-outline-primary"
+              (click)="verDetalleCliente(cliente)">Ver Perfil</button>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
+
+<!-- VISTA: DOCUMENTOS -->
+<div *ngIf="vistaActiva === 'documentos' && !estoyEnRutaCasos()">
+  <app-documentos-asesor></app-documentos-asesor>
+</div>
+
+<!-- VISTA: REPORTES -->
+<div *ngIf="vistaActiva === 'reportes' && !estoyEnRutaCasos()">
+  <app-reportes></app-reportes>
 </div>
 
 <!-- Modal Responder Consulta -->
@@ -485,5 +511,122 @@
   [class.show]="mostrarModalConsulta"
   *ngIf="mostrarModalConsulta && !estoyEnRutaCasos()"
   (click)="cerrarModalConsulta()"></div>
+
+<!-- Modal Ver Perfil Cliente -->
+<div class="modal fade" *ngIf="!estoyEnRutaCasos()"
+  [class.show]="mostrarModalCliente"
+  [style.display]="mostrarModalCliente ? 'block' : 'none'"
+  tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content" *ngIf="clienteSeleccionado">
+      <div class="modal-header">
+        <h5 class="modal-title">Perfil del Cliente</h5>
+        <button type="button" class="btn-close"
+          (click)="cerrarModalCliente()"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-2"><strong>Nombre:</strong> {{ clienteSeleccionado.nombre
+          }}</p>
+        <p class="mb-2"><strong>Email:</strong> {{ clienteSeleccionado.email
+          }}</p>
+        <p class="mb-2"><strong>Teléfono:</strong> {{
+          clienteSeleccionado.telefono }}</p>
+        <p class="mb-2"><strong>Casos Activos:</strong> {{
+          clienteSeleccionado.casosActivos }}</p>
+        <p class="mb-0"><strong>Última Consulta:</strong> {{
+          clienteSeleccionado.ultimaConsulta }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary"
+          (click)="cerrarModalCliente()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop modal cliente -->
+<div class="modal-backdrop fade"
+  [class.show]="mostrarModalCliente"
+  *ngIf="mostrarModalCliente && !estoyEnRutaCasos()"
+  (click)="cerrarModalCliente()"></div>
+
+<!-- Modal Detalle de Turno -->
+<div class="modal fade" *ngIf="!estoyEnRutaCasos()"
+  [class.show]="mostrarModalTurno"
+  [style.display]="mostrarModalTurno ? 'block' : 'none'"
+  tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" *ngIf="turnoSeleccionado">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">📋 Detalle del Turno</h5>
+        <button type="button" class="btn-close btn-close-white"
+          (click)="cerrarModalTurno()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="text-muted small">Cliente</label>
+            <p class="fw-bold mb-0">{{ turnoSeleccionado.clienteNombre }}</p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="text-muted small">Estado</label>
+            <p class="mb-0">
+              <span class="badge"
+                [ngClass]="getEstadoClass(turnoSeleccionado.estado)">
+                {{ getEstadoTexto(turnoSeleccionado.estado) }}
+              </span>
+            </p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="text-muted small">Fecha</label>
+            <p class="mb-0">{{ turnoSeleccionado.fecha }}</p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="text-muted small">Horario</label>
+            <p class="mb-0">{{ turnoSeleccionado.hora }} - {{
+              turnoSeleccionado.horaFin }}</p>
+          </div>
+          <div class="col-12 mb-3">
+            <label class="text-muted small">Asunto</label>
+            <p class="mb-0">{{ turnoSeleccionado.asunto }}</p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="text-muted small">Caso #</label>
+            <p class="mb-0">{{ turnoSeleccionado.caso }}</p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="text-muted small">Fecha de Creación</label>
+            <p class="mb-0">{{ turnoSeleccionado.fechaCreacion }}</p>
+          </div>
+          <div class="col-md-6 mb-3"
+            *ngIf="turnoSeleccionado.fechaConfirmacion">
+            <label class="text-muted small">Fecha de Confirmación</label>
+            <p class="mb-0">{{ turnoSeleccionado.fechaConfirmacion }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary"
+          (click)="cerrarModalTurno()">Cerrar</button>
+        <button type="button" class="btn btn-danger"
+          *ngIf="turnoSeleccionado.estado !== 'cancelado'"
+          (click)="cancelarTurno(turnoSeleccionado)">
+          ❌ Cancelar Turno
+        </button>
+        <button type="button" class="btn btn-success"
+          *ngIf="turnoSeleccionado.estado === 'pendiente'"
+          (click)="aceptarTurno(turnoSeleccionado)">
+          ✅ Aceptar Turno
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop modal turno -->
+<div class="modal-backdrop fade"
+  [class.show]="mostrarModalTurno"
+  *ngIf="mostrarModalTurno && !estoyEnRutaCasos()"
+  (click)="cerrarModalTurno()"></div>
 
 <router-outlet></router-outlet>

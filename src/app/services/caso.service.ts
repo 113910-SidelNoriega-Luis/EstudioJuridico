@@ -60,7 +60,7 @@ export interface Caso {
   fechaInicio?: number[] | string; // ✅ Puede ser array o string
   cliente: Cliente;
   asesor: Asesor;
-  
+
   // ✅ CAMPOS DE PAGO - TODOS OPCIONALES
   pagoHabilitado?: boolean;
   pagado?: boolean;
@@ -107,7 +107,7 @@ export class CasoService {
   habilitarPago(casoId: number, data: HabilitarPagoRequest): Observable<PaymentResponseDTO> {
     return this.http.post<PaymentResponseDTO>(
       `${this.apiUrl}/casos/${casoId}/habilitar-pago`,
-      data
+      data,
     );
   }
 
@@ -121,5 +121,20 @@ export class CasoService {
 
   obtenerDatosPago(casoId: number): Observable<DatosPago> {
     return this.http.get<DatosPago>(`${this.apiUrl}/casos/${casoId}/pago`);
+  }
+
+  // ============================================
+  // CONFIRMAR PAGO (CALLBACK DE MERCADO PAGO)
+  // ============================================
+
+  marcarCasoPagado(casoId: number, paymentId: string, externalReference: string): Observable<any> {
+    const payload = {
+      paymentId: paymentId,
+      externalReference: externalReference,
+    };
+
+    console.log('💳 Marcando caso como pagado:', casoId, payload);
+
+    return this.http.put(`${this.apiUrl}/casos/${casoId}/marcar-pagado`, payload);
   }
 }

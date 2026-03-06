@@ -1,385 +1,352 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold" routerLink="/panel-cliente">Estudio Jurídico</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+    <a class="navbar-brand fw-bold" routerLink="/panel-cliente">Estudio
+      Jurídico</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+      data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
-          <a class="nav-link" routerLink="/panel-cliente/dashboard" routerLinkActive="active">Dashboard</a>
+          <a class="nav-link" routerLink="/panel-cliente/dashboard"
+            routerLinkActive="active">Dashboard</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/panel-cliente/turnos" routerLinkActive="active">Mis Turnos</a>
+          <a class="nav-link" routerLink="/panel-cliente/turnos"
+            routerLinkActive="active">Mis Turnos</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/panel-cliente/consultas" routerLinkActive="active">Consultas</a>
+          <a class="nav-link" routerLink="/panel-cliente/consultas"
+            routerLinkActive="active">Consultas</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/panel-cliente/casos" routerLinkActive="active">Mis Casos</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/panel-cliente/documentos" routerLinkActive="active">Documentos</a>
+          <a class="nav-link" routerLink="/panel-cliente/casos"
+            routerLinkActive="active">Mis Casos</a>
         </li>
       </ul>
-      
+
       <div class="user-menu">
-        <span class="text-white">{{usuario?.nombre || 'Usuario'}}</span>
+        <div class="dropdown">
+          <button
+            class="btn btn-link dropdown-toggle text-white text-decoration-none d-flex align-items-center gap-2"
+            type="button" data-bs-toggle="dropdown">
+            <div class="user-avatar">{{getIniciales(usuario?.nombre ||
+              'Usuario')}}</div>
+            <span class="d-none d-md-inline">{{usuario?.nombre ||
+              'Usuario'}}</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#">Mi Perfil</a></li>
+            <li><a class="dropdown-item" href="#">Configuración</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" (click)="cerrarSesion()"
+                style="cursor: pointer;">Cerrar Sesión</a></li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 </nav>
 
-  <!-- Hero Section -->
-  <section class="panel-hero">
-    <div class="container">
-      <h1>💬 Mis Consultas</h1>
-      <p>Revisa el estado de tus consultas y respuestas de nuestros asesores</p>
-    </div>
-  </section>
-
-  <!-- Contenido Principal -->
+<!-- Hero Section -->
+<section class="panel-hero">
   <div class="container">
-    
-    <!-- Botón Nueva Consulta -->
-    <div class="mb-4">
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaConsultaModal">
-        ✉️ Nueva Consulta
-      </button>
-    </div>
+    <h1>💬 Mis Consultas</h1>
+    <p>Revisa el estado de tus consultas y respuestas de nuestros asesores</p>
+  </div>
+</section>
 
-    <!-- Estadísticas -->
-    <div class="stat-inline">
-      <div class="stat-item">
-        <div class="stat-item-value">8</div>
-        <div class="stat-item-label">Total Consultas</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-item-value" style="color: #ffc107;">3</div>
-        <div class="stat-item-label">Pendientes</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-item-value" style="color: #198754;">5</div>
-        <div class="stat-item-label">Respondidas</div>
-      </div>
-    </div>
+<!-- Contenido Principal -->
+<div class="container">
 
-    <!-- Filtros -->
-    <div class="filtros-section">
-      <div class="row align-items-center">
-        <div class="col-md-4 mb-3 mb-md-0">
-          <input type="text" class="form-control" placeholder="🔍 Buscar consulta..." id="buscarConsulta">
-        </div>
-        <div class="col-md-3 mb-3 mb-md-0">
-          <select class="form-select" id="filtroEstado">
-            <option value="todos">Todos los estados</option>
-            <option value="pendiente">Pendientes</option>
-            <option value="respondida">Respondidas</option>
-            <option value="cerrada">Cerradas</option>
-          </select>
-        </div>
-        <div class="col-md-3 mb-3 mb-md-0">
-          <select class="form-select" id="filtroCategoria">
-            <option value="todos">Todas las categorías</option>
-            <option value="laboral">Derecho Laboral</option>
-            <option value="civil">Derecho Civil</option>
-            <option value="penal">Derecho Penal</option>
-            <option value="familiar">Derecho Familiar</option>
-            <option value="comercial">Derecho Comercial</option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <button class="btn btn-outline-primary w-100" onclick="aplicarFiltros()">Filtrar</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Lista de Consultas -->
-    <div id="listaConsultas">
-      
-      <!-- Consulta Pendiente -->
-      <div class="consulta-card">
-        <div class="consulta-header">
-          <div>
-            <div class="consulta-titulo">¿Cómo proceder ante un despido injustificado?</div>
-            <div class="consulta-fecha">
-              <span>📅</span> 20 de Noviembre, 2024 - 14:30 hs
-            </div>
-            <div class="mt-2">
-              <span class="categoria-badge cat-laboral">Derecho Laboral</span>
-            </div>
-          </div>
-          <span class="badge status-pendiente">Pendiente</span>
-        </div>
-        <div class="consulta-contenido">
-          Fui despedido sin previo aviso después de 5 años trabajando en la empresa. Mi empleador alega bajo rendimiento pero nunca recibí ninguna advertencia escrita. ¿Qué acciones legales puedo tomar? ¿Tengo derecho a alguna indemnización?
-        </div>
-        <div class="consulta-footer">
-          <small class="text-muted">Consulta #2024-008</small>
-          <button class="btn btn-sm btn-outline-primary" onclick="verDetalles(8)">Ver Detalles</button>
-        </div>
-      </div>
-
-      <!-- Consulta Respondida -->
-      <div class="consulta-card respondida">
-        <div class="consulta-header">
-          <div>
-            <div class="consulta-titulo">Trámites para divorcio de mutuo acuerdo</div>
-            <div class="consulta-fecha">
-              <span>📅</span> 18 de Noviembre, 2024 - 10:15 hs
-            </div>
-            <div class="mt-2">
-              <span class="categoria-badge cat-familiar">Derecho Familiar</span>
-            </div>
-          </div>
-          <span class="badge status-respondida">Respondida</span>
-        </div>
-        <div class="consulta-contenido">
-          Mi esposa y yo hemos decidido divorciarnos de común acuerdo. No tenemos hijos menores y ya acordamos la división de bienes. ¿Qué documentación necesitamos presentar? ¿Cuánto tiempo demora el trámite?
-        </div>
-        
-        <!-- Respuesta -->
-        <div class="respuesta-box">
-          <div class="respuesta-header">
-            <span>✅</span> Respuesta del Asesor
-          </div>
-          <div class="respuesta-contenido">
-            Para un divorcio de mutuo acuerdo sin hijos menores, necesitarán: certificado de matrimonio original, DNI de ambas partes, convenio regulador firmado por ambos, y certificados de domicilio. El trámite suele demorar entre 2 a 4 meses. Les recomiendo agendar un turno para revisar la documentación en detalle.
-          </div>
-          <div class="respuesta-autor">
-            <strong>Dr. Carlos Rodríguez</strong> - 18 de Noviembre, 2024 - 16:45 hs
-          </div>
-        </div>
-
-        <div class="consulta-footer">
-          <small class="text-muted">Consulta #2024-007</small>
-          <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-outline-primary" onclick="verDetalles(7)">Ver Detalles</button>
-            <button class="btn btn-sm btn-primary" onclick="agendarTurno()">Agendar Turno</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Consulta Pendiente -->
-      <div class="consulta-card">
-        <div class="consulta-header">
-          <div>
-            <div class="consulta-titulo">Contrato de alquiler - cláusulas abusivas</div>
-            <div class="consulta-fecha">
-              <span>📅</span> 15 de Noviembre, 2024 - 09:20 hs
-            </div>
-            <div class="mt-2">
-              <span class="categoria-badge cat-civil">Derecho Civil</span>
-            </div>
-          </div>
-          <span class="badge status-pendiente">Pendiente</span>
-        </div>
-        <div class="consulta-contenido">
-          Mi contrato de alquiler incluye una cláusula que me prohíbe recibir visitas después de las 22hs. ¿Es esto legal? También me cobran un depósito equivalente a 4 meses de alquiler.
-        </div>
-        <div class="consulta-footer">
-          <small class="text-muted">Consulta #2024-006</small>
-          <button class="btn btn-sm btn-outline-primary" onclick="verDetalles(6)">Ver Detalles</button>
-        </div>
-      </div>
-
-      <!-- Consulta Respondida -->
-      <div class="consulta-card respondida">
-        <div class="consulta-header">
-          <div>
-            <div class="consulta-titulo">Deuda de tarjeta de crédito - asesoramiento</div>
-            <div class="consulta-fecha">
-              <span>📅</span> 12 de Noviembre, 2024 - 11:30 hs
-            </div>
-            <div class="mt-2">
-              <span class="categoria-badge cat-comercial">Derecho Comercial</span>
-            </div>
-          </div>
-          <span class="badge status-respondida">Respondida</span>
-        </div>
-        <div class="consulta-contenido">
-          Tengo una deuda de tarjeta de crédito acumulada que no puedo pagar. El banco me amenaza con juicio. ¿Qué opciones tengo?
-        </div>
-        
-        <div class="respuesta-box">
-          <div class="respuesta-header">
-            <span>✅</span> Respuesta del Asesor
-          </div>
-          <div class="respuesta-contenido">
-            Tiene varias opciones: negociar un plan de pagos, solicitar una quita o refinanciación. No se recomienda ignorar la situación. Le sugiero agendar una consulta presencial para analizar su caso específico y preparar una propuesta de pago al banco.
-          </div>
-          <div class="respuesta-autor">
-            <strong>Dra. María González</strong> - 13 de Noviembre, 2024 - 09:15 hs
-          </div>
-        </div>
-
-        <div class="consulta-footer">
-          <small class="text-muted">Consulta #2024-005</small>
-          <button class="btn btn-sm btn-outline-primary" onclick="verDetalles(5)">Ver Detalles</button>
-        </div>
-      </div>
-
-      <!-- Consulta Cerrada -->
-      <div class="consulta-card cerrada">
-        <div class="consulta-header">
-          <div>
-            <div class="consulta-titulo">Asesoramiento sobre herencia</div>
-            <div class="consulta-fecha">
-              <span>📅</span> 05 de Noviembre, 2024 - 16:00 hs
-            </div>
-            <div class="mt-2">
-              <span class="categoria-badge cat-civil">Derecho Civil</span>
-            </div>
-          </div>
-          <span class="badge status-cerrada">Cerrada</span>
-        </div>
-        <div class="consulta-contenido">
-          Necesito información sobre el proceso de sucesión tras el fallecimiento de mi padre.
-        </div>
-        <div class="respuesta-box">
-          <div class="respuesta-header">
-            <span>✅</span> Respuesta del Asesor
-          </div>
-          <div class="respuesta-contenido">
-            El proceso incluye obtener certificado de defunción, declaratoria de herederos, inventario de bienes, y pago de impuestos sucesorios. Caso resuelto satisfactoriamente en consulta presencial.
-          </div>
-          <div class="respuesta-autor">
-            <strong>Dr. Carlos Rodríguez</strong> - 06 de Noviembre, 2024 - 10:00 hs
-          </div>
-        </div>
-        <div class="consulta-footer">
-          <small class="text-muted">Consulta #2024-004 - Caso Cerrado</small>
-          <button class="btn btn-sm btn-outline-secondary" onclick="verDetalles(4)">Ver Detalles</button>
-        </div>
-      </div>
-
-    </div>
-
+  <!-- Botón Nueva Consulta -->
+  <div class="mb-4">
+    <button class="btn btn-primary" data-bs-toggle="modal"
+      data-bs-target="#nuevaConsultaModal">
+      ✉️ Nueva Consulta
+    </button>
   </div>
 
-  <!-- Modal Nueva Consulta -->
-  <div class="modal fade" id="nuevaConsultaModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">✉️ Nueva Consulta</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <form id="formConsulta">
-            <div class="mb-3">
-              <label for="categoria" class="form-label">Categoría</label>
-              <select class="form-select" id="categoria" required>
-                <option value="">Seleccione una categoría...</option>
-                <option value="laboral">Derecho Laboral</option>
-                <option value="civil">Derecho Civil</option>
-                <option value="penal">Derecho Penal</option>
-                <option value="familiar">Derecho Familiar</option>
-                <option value="comercial">Derecho Comercial</option>
-                <option value="otro">Otro</option>
-              </select>
-            </div>
+  <!-- Estadísticas -->
+  <div class="stat-inline">
+    <div class="stat-item">
+      <div class="stat-item-value">{{ stats.total }}</div>
+      <div class="stat-item-label">Total Consultas</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-item-value" style="color: #ffc107;">{{ stats.pendientes
+        }}</div>
+      <div class="stat-item-label">Pendientes</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-item-value" style="color: #198754;">{{ stats.respondidas
+        }}</div>
+      <div class="stat-item-label">Respondidas</div>
+    </div>
+  </div>
 
-            <div class="mb-3">
-              <label for="asunto" class="form-label">Asunto</label>
-              <input type="text" class="form-control" id="asunto" placeholder="Título breve de tu consulta" required>
-            </div>
-
-            <div class="mb-3">
-              <label for="descripcion" class="form-label">Descripción Detallada</label>
-              <textarea class="form-control" id="descripcion" rows="6" placeholder="Describe tu situación con el mayor detalle posible..." required></textarea>
-              <small class="text-muted">Incluye fechas, documentos disponibles y cualquier información relevante</small>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Urgencia</label>
-              <div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="urgencia" id="urgenciaBaja" value="baja" checked>
-                  <label class="form-check-label" for="urgenciaBaja">Baja</label>
-                </div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="urgencia" id="urgenciaMedia" value="media">
-                  <label class="form-check-label" for="urgenciaMedia">Media</label>
-                </div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="urgencia" id="urgenciaAlta" value="alta">
-                  <label class="form-check-label" for="urgenciaAlta">Alta</label>
-                </div>
-              </div>
-            </div>
-
-            <div class="alert alert-info mb-0">
-              <small>
-                <strong>📌 Nota:</strong> Tu consulta será respondida por uno de nuestros asesores en un plazo de 24 a 48 horas hábiles.
-              </small>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-primary" onclick="enviarConsulta()">Enviar Consulta</button>
-        </div>
+  <!-- Filtros -->
+  <div class="filtros-section">
+    <div class="row align-items-center">
+      <div class="col-md-4 mb-3 mb-md-0">
+        <input type="text" class="form-control"
+          placeholder="🔍 Buscar consulta..."
+          [(ngModel)]="filtros.busqueda">
+      </div>
+      <div class="col-md-3 mb-3 mb-md-0">
+        <select class="form-select" [(ngModel)]="filtros.estado">
+          <option value="todos">Todos los estados</option>
+          <option value="pendiente">Pendientes</option>
+          <option value="respondida">Respondidas</option>
+          <option value="cerrada">Cerradas</option>
+        </select>
+      </div>
+      <div class="col-md-3 mb-3 mb-md-0">
+        <select class="form-select" [(ngModel)]="filtros.categoria">
+          <option value="todos">Todas las categorías</option>
+          <option value="laboral">Derecho Laboral</option>
+          <option value="civil">Derecho Civil</option>
+          <option value="penal">Derecho Penal</option>
+          <option value="familiar">Derecho Familiar</option>
+          <option value="comercial">Derecho Comercial</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-outline-primary w-100"
+          (click)="aplicarFiltros()">Filtrar</button>
       </div>
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="bg-dark text-white py-4 mt-5">
-    <div class="container">
-      <div class="row">
-        <div class="col-md-6">
-          <h5>Estudio Jurídico</h5>
-          <p class="small">Soluciones legales profesionales desde 2003</p>
+  <!-- Lista de Consultas -->
+  <div id="listaConsultas">
+    @if (getConsultasFiltradas().length === 0) {
+    <div class="empty-state">
+      <div class="empty-state-icon">💬</div>
+      <h5>No hay consultas para mostrar</h5>
+      <p class="mb-0">Prueba con otros filtros o crea una nueva consulta.</p>
+    </div>
+    }
+
+    @for (consulta of getConsultasFiltradas(); track consulta.id) {
+    <div
+      class="consulta-card"
+      [class.respondida]="consulta.estado === 'respondida'"
+      [class.cerrada]="consulta.estado === 'cerrada'">
+      <div class="consulta-header">
+        <div>
+          <div class="consulta-titulo">{{ consulta.asunto }}</div>
+          <div class="consulta-fecha"><span>📅</span> {{ consulta.fecha }}</div>
+          <div class="mt-2">
+            <span class="categoria-badge"
+              [class]="'categoria-badge ' + getCategoriaClass(consulta.categoria)">
+              {{ getCategoriaNombre(consulta.categoria) }}
+            </span>
+          </div>
         </div>
-        <div class="col-md-6 text-md-end">
-          <p class="small mb-0">&copy; 2024 Estudio Jurídico. Todos los derechos reservados.</p>
+        <span class="badge"
+          [class]="'badge ' + getEstadoClass(consulta.estado)">
+          {{ consulta.estado | titlecase }}
+        </span>
+      </div>
+
+      <div class="consulta-contenido">{{ consulta.descripcion }}</div>
+
+      @if (consulta.respuesta) {
+      <div class="respuesta-box">
+        <div class="respuesta-header"><span>✅</span> Respuesta del Asesor</div>
+        <div class="respuesta-contenido">{{ consulta.respuesta.contenido
+          }}</div>
+        <div class="respuesta-autor">
+          <strong>{{ consulta.respuesta.asesor }}</strong> - {{
+          consulta.respuesta.fecha }}
         </div>
       </div>
-    </div>
-  </footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    function enviarConsulta() {
-      const categoria = document.getElementById('categoria').value;
-      const asunto = document.getElementById('asunto').value;
-      const descripcion = document.getElementById('descripcion').value;
-
-      if (!categoria || !asunto || !descripcion) {
-        alert('Por favor completa todos los campos requeridos');
-        return;
       }
 
-      alert('✅ ¡Consulta enviada exitosamente!\n\nRecibirás una respuesta en un plazo de 24 a 48 horas hábiles.');
-
-      // Cerrar modal
-      const modal = bootstrap.Modal.getInstance(document.getElementById('nuevaConsultaModal'));
-      modal.hide();
-
-      // Limpiar formulario
-      document.getElementById('formConsulta').reset();
-
-      // Aquí iría la lógica para enviar al backend
+      <div class="consulta-footer">
+        <small class="text-muted">Consulta #2024-{{
+          consulta.id.toString().padStart(3, '0') }}</small>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-primary"
+            (click)="verDetalles(consulta.id)">Ver Detalles</button>
+          @if (consulta.estado === 'respondida') {
+          <button class="btn btn-sm btn-primary"
+            (click)="agendarTurno()">Agendar Turno</button>
+          }
+        </div>
+      </div>
+    </div>
     }
 
-    function verDetalles(id) {
-      alert('Ver detalles de la consulta #2024-00' + id);
-      // Aquí iría la navegación a vista detallada
-    }
+  </div>
 
-    function agendarTurno() {
-      alert('Redirigiendo a agendar turno...');
-      // window.location.href = '/turnos';
-    }
+</div>
 
-    function aplicarFiltros() {
-      const estado = document.getElementById('filtroEstado').value;
-      const categoria = document.getElementById('filtroCategoria').value;
-      const busqueda = document.getElementById('buscarConsulta').value;
+<!-- Modal Nueva Consulta -->
+<div class="modal fade" id="nuevaConsultaModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">✉️ Nueva Consulta</h5>
+        <button type="button" class="btn-close"
+          data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formConsulta">
+          <div class="mb-3">
+            <label for="categoria" class="form-label">Categoría</label>
+            <select class="form-select" id="categoria"
+              [(ngModel)]="nuevaConsulta.categoria" name="categoria" required>
+              <option value>Seleccione una categoría...</option>
+              <option value="laboral">Derecho Laboral</option>
+              <option value="civil">Derecho Civil</option>
+              <option value="penal">Derecho Penal</option>
+              <option value="familiar">Derecho Familiar</option>
+              <option value="comercial">Derecho Comercial</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
 
-      console.log('Filtros:', { estado, categoria, busqueda });
-      // Aquí iría la lógica de filtrado
-    }
-  </script>
+          <div class="mb-3">
+            <label for="asunto" class="form-label">Asunto</label>
+            <input type="text" class="form-control" id="asunto" name="asunto"
+              [(ngModel)]="nuevaConsulta.asunto"
+              placeholder="Título breve de tu consulta" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="descripcion" class="form-label">Descripción
+              Detallada</label>
+            <textarea class="form-control" id="descripcion" rows="6"
+              name="descripcion"
+              [(ngModel)]="nuevaConsulta.descripcion"
+              placeholder="Describe tu situación con el mayor detalle posible..."
+              required></textarea>
+            <small class="text-muted">Incluye fechas, documentos disponibles y
+              cualquier información relevante</small>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Urgencia</label>
+            <div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="urgencia"
+                  id="urgenciaBaja" value="baja"
+                  [(ngModel)]="nuevaConsulta.urgencia">
+                <label class="form-check-label" for="urgenciaBaja">Baja</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="urgencia"
+                  id="urgenciaMedia" value="media"
+                  [(ngModel)]="nuevaConsulta.urgencia">
+                <label class="form-check-label"
+                  for="urgenciaMedia">Media</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="urgencia"
+                  id="urgenciaAlta" value="alta"
+                  [(ngModel)]="nuevaConsulta.urgencia">
+                <label class="form-check-label" for="urgenciaAlta">Alta</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-info mb-0">
+            <small>
+              <strong>📌 Nota:</strong> Tu consulta será respondida por uno de
+              nuestros asesores en un plazo de 24 a 48 horas hábiles.
+            </small>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary"
+          data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary"
+          (click)="enviarConsulta()">Enviar Consulta</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalle de Consulta -->
+<div class="modal fade" id="detalleConsultaModal" tabindex="-1"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">📄 Detalle de Consulta</h5>
+        <button type="button" class="btn-close"
+          data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        @if (consultaDetalleSeleccionada) {
+        <div class="mb-3">
+          <div class="d-flex justify-content-between align-items-start gap-3">
+            <div>
+              <h6 class="mb-1">{{ consultaDetalleSeleccionada.asunto }}</h6>
+              <small class="text-muted">{{ consultaDetalleSeleccionada.fecha
+                }}</small>
+            </div>
+            <span class="badge"
+              [class]="'badge ' + getEstadoClass(consultaDetalleSeleccionada.estado)">
+              {{ consultaDetalleSeleccionada.estado | titlecase }}
+            </span>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <span class="categoria-badge"
+            [class]="'categoria-badge ' + getCategoriaClass(consultaDetalleSeleccionada.categoria)">
+            {{ getCategoriaNombre(consultaDetalleSeleccionada.categoria) }}
+          </span>
+          <span class="badge bg-light text-dark ms-2">
+            Urgencia: {{ consultaDetalleSeleccionada.urgencia | titlecase }}
+          </span>
+        </div>
+
+        <div class="content-card p-3 mb-0">
+          <h6 class="mb-2">Descripción</h6>
+          <p class="mb-0">{{ consultaDetalleSeleccionada.descripcion }}</p>
+        </div>
+
+        @if (consultaDetalleSeleccionada.respuesta) {
+        <div class="respuesta-box mt-3">
+          <div class="respuesta-header"><span>✅</span> Respuesta del
+            Asesor</div>
+          <div class="respuesta-contenido">{{
+            consultaDetalleSeleccionada.respuesta.contenido }}</div>
+          <div class="respuesta-autor">
+            <strong>{{ consultaDetalleSeleccionada.respuesta.asesor }}</strong>
+            - {{ consultaDetalleSeleccionada.respuesta.fecha }}
+          </div>
+        </div>
+        }
+        }
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary"
+          data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-dark text-white py-4 mt-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <h5>Estudio Jurídico</h5>
+        <p class="small">Soluciones legales profesionales desde 2003</p>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <p class="small mb-0">&copy; 2024 Estudio Jurídico. Todos los derechos
+          reservados.</p>
+      </div>
+    </div>
+  </div>
+</footer>

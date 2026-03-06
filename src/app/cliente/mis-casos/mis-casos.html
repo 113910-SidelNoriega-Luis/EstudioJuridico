@@ -1,31 +1,51 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold" routerLink="/panel-cliente">⚖️ Estudio Jurídico</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+    <a class="navbar-brand fw-bold" routerLink="/panel-cliente">Estudio
+      Jurídico</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+      data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
-          <a class="nav-link" routerLink="/panel-cliente/dashboard" routerLinkActive="active">Dashboard</a>
+          <a class="nav-link" routerLink="/panel-cliente/dashboard"
+            routerLinkActive="active">Dashboard</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/panel-cliente/turnos" routerLinkActive="active">Mis Turnos</a>
+          <a class="nav-link" routerLink="/panel-cliente/turnos"
+            routerLinkActive="active">Mis Turnos</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/panel-cliente/consultas" routerLinkActive="active">Consultas</a>
+          <a class="nav-link" routerLink="/panel-cliente/consultas"
+            routerLinkActive="active">Consultas</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/panel-cliente/casos" routerLinkActive="active">Mis Casos</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" routerLink="/panel-cliente/documentos" routerLinkActive="active">Documentos</a>
+          <a class="nav-link" routerLink="/panel-cliente/casos"
+            routerLinkActive="active">Mis Casos</a>
         </li>
       </ul>
-      
+
+      <!-- User menu -->
       <div class="user-menu">
-        <span class="text-white">👤 {{ usuario?.nombre || 'Usuario' }}</span>
+        <div class="dropdown">
+          <button
+            class="btn btn-link dropdown-toggle text-white text-decoration-none d-flex align-items-center gap-2"
+            type="button" data-bs-toggle="dropdown">
+            <div class="user-avatar">{{getIniciales(usuario?.nombre ||
+              'Usuario')}}</div>
+            <span class="d-none d-md-inline">{{usuario?.nombre ||
+              'Usuario'}}</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#">Mi Perfil</a></li>
+            <li><a class="dropdown-item" href="#">Configuración</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" (click)="cerrarSesion()"
+                style="cursor: pointer;">Cerrar Sesión</a></li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
@@ -35,9 +55,12 @@
 <section class="hero">
   <div class="hero-content">
     <div class="hero-icon">📁</div>
-    <h1>{{ vistaActual === 'lista' ? 'Mis Casos' : casoSeleccionado?.titulo }}</h1>
-    <p *ngIf="vistaActual === 'lista'">Seguimiento detallado de tus casos legales</p>
-    <p *ngIf="vistaActual === 'detalle'">Caso #{{ casoSeleccionado?.numero }}</p>
+    <h1>{{ vistaActual === 'lista' ? 'Mis Casos' : casoSeleccionado?.titulo
+      }}</h1>
+    <p *ngIf="vistaActual === 'lista'">Seguimiento detallado de tus casos
+      legales</p>
+    <p *ngIf="vistaActual === 'detalle'">Caso #{{ casoSeleccionado?.numero
+      }}</p>
   </div>
 </section>
 
@@ -61,11 +84,18 @@
     </div>
 
     <!-- Tabs -->
-    <div class="tabs-container">
-      <div class="tabs">
-        <button class="tab-btn" [class.active]="tabListaActivo === 'activos'" (click)="cambiarTabLista('activos')">Casos Activos</button>
-        <button class="tab-btn" [class.active]="tabListaActivo === 'completados'" (click)="cambiarTabLista('completados')">Casos Completados</button>
+    <div class="tabs-header">
+      <div class="tabs-container">
+        <div class="tabs">
+          <button class="tab-btn" [class.active]="tabListaActivo === 'activos'"
+            (click)="cambiarTabLista('activos')">Casos Activos</button>
+          <button class="tab-btn"
+            [class.active]="tabListaActivo === 'completados'"
+            (click)="cambiarTabLista('completados')">Casos Completados</button>
+        </div>
       </div>
+      <button class="btn-nuevo-caso" (click)="abrirModalNuevoCaso()">+ Nuevo
+        Caso</button>
     </div>
 
     <!-- Lista de Casos Activos -->
@@ -75,54 +105,80 @@
           <div class="caso-info">
             <span class="caso-numero">Caso #{{ caso.numero }}</span>
             <h3 class="caso-titulo">{{ caso.titulo }}</h3>
-            <span class="tipo-badge" [style.backgroundColor]="caso.tipoBadgeColor">{{ caso.tipo }}</span>
+            <span class="tipo-badge"
+              [style.backgroundColor]="caso.tipoBadgeColor">{{ caso.tipo
+              }}</span>
           </div>
-          <span class="estado-badge" [ngClass]="getEstadoClase(caso.estado)">{{ getEstadoTexto(caso.estado) }}</span>
+          <span class="estado-badge" [ngClass]="getEstadoClase(caso.estado)">{{
+            getEstadoTexto(caso.estado) }}</span>
         </div>
-        
+
         <div class="caso-progreso">
-          <span class="progreso-label">Progreso del caso: {{ caso.progreso }}%</span>
-          <div class="progreso-bar"><div class="progreso-fill" [style.width.%]="caso.progreso"></div></div>
+          <span class="progreso-label">Progreso del caso: {{ caso.progreso
+            }}%</span>
+          <div class="progreso-bar"><div class="progreso-fill"
+              [style.width.%]="caso.progreso"></div></div>
         </div>
 
         <div class="caso-meta">
-          <div class="meta-item"><span class="meta-label">ASESOR ASIGNADO</span><span class="meta-value">{{ caso.asesor?.nombre || 'Por asignar' }}</span></div>
-          <div class="meta-item"><span class="meta-label">FECHA DE INICIO</span><span class="meta-value">{{ caso.fechaInicio }}</span></div>
-          <div class="meta-item"><span class="meta-label">ÚLTIMA ACTUALIZACIÓN</span><span class="meta-value">{{ caso.ultimaActualizacion }}</span></div>
-          <div class="meta-item"><span class="meta-label">DOCUMENTOS</span><span class="meta-value">{{ caso.documentos.length }} archivos</span></div>
+          <div class="meta-item"><span class="meta-label">ASESOR
+              ASIGNADO</span><span class="meta-value">{{ caso.asesor?.nombre ||
+              'Por asignar' }}</span></div>
+          <div class="meta-item"><span class="meta-label">FECHA DE
+              INICIO</span><span class="meta-value">{{ caso.fechaInicio
+              }}</span></div>
+          <div class="meta-item"><span class="meta-label">ÚLTIMA
+              ACTUALIZACIÓN</span><span class="meta-value">{{
+              caso.ultimaActualizacion }}</span></div>
+          <div class="meta-item"><span class="meta-label">DOCUMENTOS</span><span
+              class="meta-value">{{ caso.documentos.length }}
+              archivos</span></div>
         </div>
 
         <div class="pagos-alert" *ngIf="tienePagosHabilitados(caso)">
           <span class="alert-icon">💳</span>
-          <span class="alert-text">Tienes {{ contarPagosHabilitados(caso) }} pago(s) habilitado(s)</span>
+          <span class="alert-text">Tienes {{ contarPagosHabilitados(caso) }}
+            pago(s) habilitado(s)</span>
           <span class="alert-arrow">→</span>
         </div>
 
         <div class="caso-footer">
-          <button type="button" class="btn-ver-detalle" (click)="verDetalleCaso(caso)">Ver detalle del caso →</button>
+          <button type="button" class="btn-ver-detalle"
+            (click)="verDetalleCaso(caso)">Ver detalle del caso →</button>
         </div>
       </div>
     </div>
 
     <!-- Lista de Casos Completados -->
     <div class="casos-list" *ngIf="tabListaActivo === 'completados'">
-      <div class="caso-card completado" *ngFor="let caso of getCasosCompletados()">
+      <div class="caso-card completado"
+        *ngFor="let caso of getCasosCompletados()">
         <div class="caso-header">
           <div class="caso-info">
             <span class="caso-numero">Caso #{{ caso.numero }}</span>
             <h3 class="caso-titulo">{{ caso.titulo }}</h3>
-            <span class="tipo-badge" [style.backgroundColor]="caso.tipoBadgeColor">{{ caso.tipo }}</span>
+            <span class="tipo-badge"
+              [style.backgroundColor]="caso.tipoBadgeColor">{{ caso.tipo
+              }}</span>
           </div>
           <span class="estado-badge estado-completado">✓ Completado</span>
         </div>
         <div class="caso-meta">
-          <div class="meta-item"><span class="meta-label">ASESOR</span><span class="meta-value">{{ caso.asesor?.nombre }}</span></div>
-          <div class="meta-item"><span class="meta-label">FECHA DE INICIO</span><span class="meta-value">{{ caso.fechaInicio }}</span></div>
-          <div class="meta-item"><span class="meta-label">FECHA CIERRE</span><span class="meta-value">{{ caso.ultimaActualizacion }}</span></div>
-          <div class="meta-item"><span class="meta-label">DOCUMENTOS</span><span class="meta-value">{{ caso.documentos.length }} archivos</span></div>
+          <div class="meta-item"><span class="meta-label">ASESOR</span><span
+              class="meta-value">{{ caso.asesor?.nombre }}</span></div>
+          <div class="meta-item"><span class="meta-label">FECHA DE
+              INICIO</span><span class="meta-value">{{ caso.fechaInicio
+              }}</span></div>
+          <div class="meta-item"><span class="meta-label">FECHA
+              CIERRE</span><span class="meta-value">{{ caso.ultimaActualizacion
+              }}</span></div>
+          <div class="meta-item"><span class="meta-label">DOCUMENTOS</span><span
+              class="meta-value">{{ caso.documentos.length }}
+              archivos</span></div>
         </div>
         <div class="caso-footer">
-          <button type="button" class="btn-ver-detalle" (click)="verDetalleCaso(caso)">Ver historial del caso →</button>
+          <button type="button" class="btn-ver-detalle"
+            (click)="verDetalleCaso(caso)">Ver historial del caso →</button>
         </div>
       </div>
     </div>
@@ -130,30 +186,43 @@
 
   <!-- Vista Detalle -->
   <ng-container *ngIf="vistaActual === 'detalle' && casoSeleccionado">
-    <button class="btn-volver" (click)="volverALista()">← Volver a Mis Casos</button>
+    <button class="btn-volver" (click)="volverALista()">← Volver a Mis
+      Casos</button>
 
     <!-- Info Header -->
     <div class="detalle-header">
       <div class="detalle-info">
         <div class="info-principal">
-          <span class="tipo-badge grande" [style.backgroundColor]="casoSeleccionado.tipoBadgeColor">{{ casoSeleccionado.tipo }}</span>
-          <span class="estado-badge" [ngClass]="getEstadoClase(casoSeleccionado.estado)">{{ getEstadoTexto(casoSeleccionado.estado) }}</span>
+          <span class="tipo-badge grande"
+            [style.backgroundColor]="casoSeleccionado.tipoBadgeColor">{{
+            casoSeleccionado.tipo }}</span>
+          <span class="estado-badge"
+            [ngClass]="getEstadoClase(casoSeleccionado.estado)">{{
+            getEstadoTexto(casoSeleccionado.estado) }}</span>
         </div>
         <p class="detalle-descripcion">{{ casoSeleccionado.descripcion }}</p>
         <div class="progreso-grande">
-          <div class="progreso-header"><span>Progreso del caso</span><span class="progreso-porcentaje">{{ casoSeleccionado.progreso }}%</span></div>
-          <div class="progreso-bar grande"><div class="progreso-fill" [style.width.%]="casoSeleccionado.progreso"></div></div>
+          <div class="progreso-header"><span>Progreso del caso</span><span
+              class="progreso-porcentaje">{{ casoSeleccionado.progreso
+              }}%</span></div>
+          <div class="progreso-bar grande"><div class="progreso-fill"
+              [style.width.%]="casoSeleccionado.progreso"></div></div>
         </div>
       </div>
 
       <div class="asesor-card" *ngIf="casoSeleccionado.asesor">
         <h4>Asesor Asignado</h4>
         <div class="asesor-info">
-          <div class="asesor-avatar">{{ getIniciales(casoSeleccionado.asesor.nombre) }}</div>
-          <div class="asesor-datos"><span class="asesor-nombre">{{ casoSeleccionado.asesor.nombre }}</span><span class="asesor-email">{{ casoSeleccionado.asesor.email }}</span></div>
+          <div class="asesor-avatar">{{
+            getIniciales(casoSeleccionado.asesor.nombre) }}</div>
+          <div class="asesor-datos"><span class="asesor-nombre">{{
+              casoSeleccionado.asesor.nombre }}</span><span
+              class="asesor-email">{{ casoSeleccionado.asesor.email
+              }}</span></div>
         </div>
         <div class="asesor-acciones">
-          <button class="btn-asesor" (click)="contactarAsesor()">✉️ Email</button>
+          <button class="btn-asesor" (click)="contactarAsesor()">✉️
+            Email</button>
           <button class="btn-asesor" (click)="llamarAsesor()">📞 Llamar</button>
         </div>
       </div>
@@ -168,32 +237,47 @@
       <div class="audiencia-icon">🏛️</div>
       <div class="audiencia-info">
         <h4>Próxima Audiencia</h4>
-        <p class="audiencia-tipo">{{ casoSeleccionado.proximaAudiencia.tipo }}</p>
+        <p class="audiencia-tipo">{{ casoSeleccionado.proximaAudiencia.tipo
+          }}</p>
         <div class="audiencia-detalles">
-          <span>📅 {{ casoSeleccionado.proximaAudiencia.fecha }} - {{ casoSeleccionado.proximaAudiencia.hora }} hs</span>
+          <span>📅 {{ casoSeleccionado.proximaAudiencia.fecha }} - {{
+            casoSeleccionado.proximaAudiencia.hora }} hs</span>
           <span>📍 {{ casoSeleccionado.proximaAudiencia.lugar }}</span>
         </div>
       </div>
     </div>
 
     <!-- Alerta Pagos Habilitados -->
-    <div class="pagos-habilitados-alert" *ngIf="getPagosHabilitados().length > 0">
+    <div class="pagos-habilitados-alert"
+      *ngIf="getPagosHabilitados().length > 0">
       <div class="alert-content">
         <span class="alert-icon-grande">💳</span>
         <div class="alert-texto">
-          <h4>Tienes {{ getPagosHabilitados().length }} pago(s) habilitado(s)</h4>
-          <p>Tu asesor ha habilitado pagos pendientes que puedes realizar ahora con Mercado Pago.</p>
+          <h4>Tienes {{ getPagosHabilitados().length }} pago(s)
+            habilitado(s)</h4>
+          <p>Tu asesor ha habilitado pagos pendientes que puedes realizar ahora
+            con Mercado Pago.</p>
         </div>
       </div>
-      <button class="btn-ver-pagos" (click)="cambiarTabDetalle('pagos')">Ver Pagos →</button>
+      <button class="btn-ver-pagos" (click)="cambiarTabDetalle('pagos')">Ver
+        Pagos →</button>
     </div>
 
     <!-- Tabs Detalle -->
     <div class="detalle-tabs">
-      <button class="tab-btn" [class.active]="tabDetalleActivo === 'resumen'" (click)="cambiarTabDetalle('resumen')">📋 Resumen</button>
-      <button class="tab-btn" [class.active]="tabDetalleActivo === 'documentos'" (click)="cambiarTabDetalle('documentos')">📁 Documentos ({{ casoSeleccionado.documentos.length }})</button>
-      <button class="tab-btn" [class.active]="tabDetalleActivo === 'movimientos'" (click)="cambiarTabDetalle('movimientos')">📜 Movimientos ({{ casoSeleccionado.movimientos.length }})</button>
-      <button class="tab-btn" [class.active]="tabDetalleActivo === 'pagos'" (click)="cambiarTabDetalle('pagos')">💰 Pagos<span class="badge-pagos" *ngIf="getPagosHabilitados().length > 0">{{ getPagosHabilitados().length }}</span></button>
+      <button class="tab-btn" [class.active]="tabDetalleActivo === 'resumen'"
+        (click)="cambiarTabDetalle('resumen')">📋 Resumen</button>
+      <button class="tab-btn" [class.active]="tabDetalleActivo === 'documentos'"
+        (click)="cambiarTabDetalle('documentos')">📁 Documentos ({{
+        casoSeleccionado.documentos.length }})</button>
+      <button class="tab-btn"
+        [class.active]="tabDetalleActivo === 'movimientos'"
+        (click)="cambiarTabDetalle('movimientos')">📜 Movimientos ({{
+        casoSeleccionado.movimientos.length }})</button>
+      <button class="tab-btn" [class.active]="tabDetalleActivo === 'pagos'"
+        (click)="cambiarTabDetalle('pagos')">💰 Pagos<span class="badge-pagos"
+          *ngIf="getPagosHabilitados().length > 0">{{
+          getPagosHabilitados().length }}</span></button>
     </div>
 
     <!-- Tab Resumen -->
@@ -202,16 +286,28 @@
         <div class="resumen-card">
           <h4>📅 Fechas Importantes</h4>
           <div class="info-list">
-            <div class="info-row"><span class="info-label">Fecha de Inicio:</span><span class="info-value">{{ casoSeleccionado.fechaInicio }}</span></div>
-            <div class="info-row"><span class="info-label">Última Actualización:</span><span class="info-value">{{ casoSeleccionado.ultimaActualizacion }}</span></div>
-            <div class="info-row" *ngIf="casoSeleccionado.proximaAudiencia"><span class="info-label">Próxima Audiencia:</span><span class="info-value">{{ casoSeleccionado.proximaAudiencia.fecha }}</span></div>
+            <div class="info-row"><span class="info-label">Fecha de
+                Inicio:</span><span class="info-value">{{
+                casoSeleccionado.fechaInicio }}</span></div>
+            <div class="info-row"><span class="info-label">Última
+                Actualización:</span><span class="info-value">{{
+                casoSeleccionado.ultimaActualizacion }}</span></div>
+            <div class="info-row"
+              *ngIf="casoSeleccionado.proximaAudiencia"><span
+                class="info-label">Próxima Audiencia:</span><span
+                class="info-value">{{ casoSeleccionado.proximaAudiencia.fecha
+                }}</span></div>
           </div>
         </div>
         <div class="resumen-card">
           <h4>📊 Estado Financiero</h4>
           <div class="financiero-stats">
-            <div class="fin-stat"><span class="fin-label">Total Pagado</span><span class="fin-value verde">{{ formatearMonto(getTotalPagado()) }}</span></div>
-            <div class="fin-stat"><span class="fin-label">Total Pendiente</span><span class="fin-value naranja">{{ formatearMonto(getTotalPendiente()) }}</span></div>
+            <div class="fin-stat"><span class="fin-label">Total
+                Pagado</span><span class="fin-value verde">{{
+                formatearMonto(getTotalPagado()) }}</span></div>
+            <div class="fin-stat"><span class="fin-label">Total
+                Pendiente</span><span class="fin-value naranja">{{
+                formatearMonto(getTotalPendiente()) }}</span></div>
           </div>
         </div>
         <div class="resumen-card full-width" *ngIf="casoSeleccionado.notas">
@@ -221,15 +317,29 @@
         <div class="resumen-card">
           <h4>📁 Documentos Recientes</h4>
           <div class="docs-preview">
-            <div class="doc-mini" *ngFor="let doc of casoSeleccionado.documentos.slice(0, 3)"><span class="doc-icon">{{ getIconoDocumento(doc.tipo) }}</span><span class="doc-nombre">{{ doc.nombre }}</span></div>
-            <button class="btn-ver-todos" (click)="cambiarTabDetalle('documentos')" *ngIf="casoSeleccionado.documentos.length > 3">Ver todos ({{ casoSeleccionado.documentos.length }})</button>
+            <div class="doc-mini"
+              *ngFor="let doc of casoSeleccionado.documentos.slice(0, 3)"><span
+                class="doc-icon">{{ getIconoDocumento(doc.tipo) }}</span><span
+                class="doc-nombre">{{ doc.nombre }}</span></div>
+            <button class="btn-ver-todos"
+              (click)="cambiarTabDetalle('documentos')"
+              *ngIf="casoSeleccionado.documentos.length > 3">Ver todos ({{
+              casoSeleccionado.documentos.length }})</button>
           </div>
         </div>
         <div class="resumen-card">
           <h4>📜 Últimos Movimientos</h4>
           <div class="movs-preview">
-            <div class="mov-mini" *ngFor="let mov of casoSeleccionado.movimientos.slice(0, 3)"><span class="mov-icon">{{ mov.icono }}</span><div class="mov-info"><span class="mov-titulo">{{ mov.titulo }}</span><span class="mov-fecha">{{ mov.fecha }}</span></div></div>
-            <button class="btn-ver-todos" (click)="cambiarTabDetalle('movimientos')" *ngIf="casoSeleccionado.movimientos.length > 3">Ver todos ({{ casoSeleccionado.movimientos.length }})</button>
+            <div class="mov-mini"
+              *ngFor="let mov of casoSeleccionado.movimientos.slice(0, 3)"><span
+                class="mov-icon">{{ mov.icono }}</span><div
+                class="mov-info"><span class="mov-titulo">{{ mov.titulo
+                  }}</span><span class="mov-fecha">{{ mov.fecha
+                  }}</span></div></div>
+            <button class="btn-ver-todos"
+              (click)="cambiarTabDetalle('movimientos')"
+              *ngIf="casoSeleccionado.movimientos.length > 3">Ver todos ({{
+              casoSeleccionado.movimientos.length }})</button>
           </div>
         </div>
       </div>
@@ -237,18 +347,27 @@
 
     <!-- Tab Documentos -->
     <div class="tab-content" *ngIf="tabDetalleActivo === 'documentos'">
-      <div class="documentos-header"><h3>Documentos del Caso</h3><button class="btn-subir" (click)="irADocumentos()">+ Subir Documento</button></div>
+      <div class="documentos-header"><h3>Documentos del Caso</h3><button
+          class="btn-subir" (click)="irADocumentos()">+ Subir
+          Documento</button></div>
       <div class="documentos-grid">
-        <div class="documento-card" *ngFor="let doc of casoSeleccionado.documentos">
+        <div class="documento-card"
+          *ngFor="let doc of casoSeleccionado.documentos">
           <div class="doc-icono">{{ getIconoDocumento(doc.tipo) }}</div>
           <div class="doc-info">
             <h4>{{ doc.nombre }}</h4>
-            <p class="doc-descripcion" *ngIf="doc.descripcion">{{ doc.descripcion }}</p>
-            <div class="doc-meta"><span>{{ doc.extension }}</span><span>{{ doc.tamanio }}</span><span>{{ doc.fecha }}</span></div>
+            <p class="doc-descripcion" *ngIf="doc.descripcion">{{
+              doc.descripcion }}</p>
+            <div class="doc-meta"><span>{{ doc.extension }}</span><span>{{
+                doc.tamanio }}</span><span>{{ doc.fecha }}</span></div>
           </div>
           <div class="doc-acciones">
-            <button class="btn-doc" (click)="verDocumento(doc); $event.stopPropagation()">👁️ Ver</button>
-            <button class="btn-doc" (click)="descargarDocumento(doc); $event.stopPropagation()">⬇️ Descargar</button>
+            <button class="btn-doc"
+              (click)="verDocumento(doc); $event.stopPropagation()">👁️
+              Ver</button>
+            <button class="btn-doc"
+              (click)="descargarDocumento(doc); $event.stopPropagation()">⬇️
+              Descargar</button>
           </div>
         </div>
       </div>
@@ -258,10 +377,14 @@
     <div class="tab-content" *ngIf="tabDetalleActivo === 'movimientos'">
       <h3>Historial de Movimientos</h3>
       <div class="timeline">
-        <div class="timeline-item" *ngFor="let mov of casoSeleccionado.movimientos" [ngClass]="getClaseMovimiento(mov.tipo)">
-          <div class="timeline-marker"><span class="marker-icon">{{ mov.icono }}</span></div>
+        <div class="timeline-item"
+          *ngFor="let mov of casoSeleccionado.movimientos"
+          [ngClass]="getClaseMovimiento(mov.tipo)">
+          <div class="timeline-marker"><span class="marker-icon">{{ mov.icono
+              }}</span></div>
           <div class="timeline-content">
-            <div class="timeline-header"><h4>{{ mov.titulo }}</h4><span class="timeline-fecha">{{ mov.fecha }}</span></div>
+            <div class="timeline-header"><h4>{{ mov.titulo }}</h4><span
+                class="timeline-fecha">{{ mov.fecha }}</span></div>
             <p>{{ mov.descripcion }}</p>
           </div>
         </div>
@@ -271,35 +394,33 @@
     <!-- Tab Pagos -->
     <div class="tab-content" *ngIf="tabDetalleActivo === 'pagos'">
       <div class="pagos-resumen">
-        <div class="pago-stat"><span class="pago-stat-label">Total Pagado</span><span class="pago-stat-value verde">{{ formatearMonto(getTotalPagado()) }}</span></div>
-        <div class="pago-stat"><span class="pago-stat-label">Total Pendiente</span><span class="pago-stat-value naranja">{{ formatearMonto(getTotalPendiente()) }}</span></div>
+        <div class="pago-stat"><span class="pago-stat-label">Total
+            Pagado</span><span class="pago-stat-value verde">{{
+            formatearMonto(getTotalPagado()) }}</span></div>
+        <div class="pago-stat"><span class="pago-stat-label">Total
+            Pendiente</span><span class="pago-stat-value naranja">{{
+            formatearMonto(getTotalPendiente()) }}</span></div>
       </div>
 
       <!-- Pagos Habilitados -->
       <div class="pagos-seccion" *ngIf="getPagosHabilitados().length > 0">
-        <h3 class="seccion-titulo habilitado">💳 Pagos Habilitados para Pagar</h3>
+        <h3 class="seccion-titulo habilitado">💳 Pagos Habilitados para
+          Pagar</h3>
         <div class="pagos-list">
-          <div class="pago-card habilitado" *ngFor="let pago of getPagosHabilitados()">
-            <div class="pago-info"><h4>{{ pago.concepto }}</h4><p class="pago-vencimiento">Vence: {{ pago.fechaVencimiento }}</p></div>
+          <div class="pago-card habilitado"
+            *ngFor="let pago of getPagosHabilitados()">
+            <div class="pago-info"><h4>{{ pago.concepto }}</h4><p
+                class="pago-vencimiento">Vence: {{ pago.fechaVencimiento
+                }}</p></div>
             <div class="pago-monto">
               <span class="monto">{{ formatearMonto(pago.monto) }}</span>
               <button class="btn-pagar-mp" (click)="abrirModalPago(pago)">
-                <img src="https://http2.mlstatic.com/frontend-assets/mp-web-navigation/ui-navigation/6.6.92/mercadopago/logo__small@2x.png" alt="MP" class="mp-logo">
+                <img
+                  src="https://http2.mlstatic.com/frontend-assets/mp-web-navigation/ui-navigation/6.6.92/mercadopago/logo__small@2x.png"
+                  alt="MP" class="mp-logo">
                 Pagar con Mercado Pago
               </button>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Pagos Pendientes -->
-      <div class="pagos-seccion" *ngIf="getPagosPendientes().length > 0">
-        <h3 class="seccion-titulo pendiente">⏳ Pendientes de Habilitar</h3>
-        <p class="seccion-desc">Estos pagos serán habilitados por tu asesor cuando corresponda.</p>
-        <div class="pagos-list">
-          <div class="pago-card pendiente" *ngFor="let pago of getPagosPendientes()">
-            <div class="pago-info"><h4>{{ pago.concepto }}</h4><p class="pago-vencimiento" *ngIf="pago.fechaVencimiento">Fecha estimada: {{ pago.fechaVencimiento }}</p></div>
-            <div class="pago-monto"><span class="monto">{{ formatearMonto(pago.monto) }}</span><span class="estado-pago pendiente">Pendiente</span></div>
           </div>
         </div>
       </div>
@@ -309,8 +430,12 @@
         <h3 class="seccion-titulo pagado">✅ Pagos Realizados</h3>
         <div class="pagos-list">
           <div class="pago-card pagado" *ngFor="let pago of getPagosPagados()">
-            <div class="pago-info"><h4>{{ pago.concepto }}</h4><p class="pago-fecha">Pagado: {{ pago.fechaPago }} - {{ pago.metodoPago }}</p></div>
-            <div class="pago-monto"><span class="monto">{{ formatearMonto(pago.monto) }}</span><span class="estado-pago pagado">✓ Pagado</span></div>
+            <div class="pago-info"><h4>{{ pago.concepto }}</h4><p
+                class="pago-fecha">Pagado: {{ pago.fechaPago }} - {{
+                pago.metodoPago }}</p></div>
+            <div class="pago-monto"><span class="monto">{{
+                formatearMonto(pago.monto) }}</span><span
+                class="estado-pago pagado">✓ Pagado</span></div>
           </div>
         </div>
       </div>
@@ -323,16 +448,27 @@
   <div class="modal-pago" (click)="$event.stopPropagation()">
     <button class="modal-cerrar" (click)="cerrarModalPago()">×</button>
     <div class="modal-header-mp">
-      <img src="https://http2.mlstatic.com/frontend-assets/mp-web-navigation/ui-navigation/6.6.92/mercadopago/logo__large@2x.png" alt="Mercado Pago" class="mp-logo-grande">
+      <img
+        src="https://http2.mlstatic.com/frontend-assets/mp-web-navigation/ui-navigation/6.6.92/mercadopago/logo__large@2x.png"
+        alt="Mercado Pago" class="mp-logo-grande">
     </div>
     <div class="modal-body-mp" *ngIf="pagoSeleccionado">
       <h3>Confirmar Pago</h3>
       <div class="pago-detalle">
-        <div class="detalle-row"><span class="detalle-label">Concepto:</span><span class="detalle-valor">{{ pagoSeleccionado.concepto }}</span></div>
-        <div class="detalle-row"><span class="detalle-label">Caso:</span><span class="detalle-valor">#{{ casoSeleccionado?.numero }} - {{ casoSeleccionado?.titulo }}</span></div>
-        <div class="detalle-row"><span class="detalle-label">Vencimiento:</span><span class="detalle-valor">{{ pagoSeleccionado.fechaVencimiento }}</span></div>
+        <div class="detalle-row"><span
+            class="detalle-label">Concepto:</span><span class="detalle-valor">{{
+            pagoSeleccionado.concepto }}</span></div>
+        <div class="detalle-row"><span class="detalle-label">Caso:</span><span
+            class="detalle-valor">#{{ casoSeleccionado?.numero }} - {{
+            casoSeleccionado?.titulo }}</span></div>
+        <div class="detalle-row"><span
+            class="detalle-label">Vencimiento:</span><span
+            class="detalle-valor">{{ pagoSeleccionado.fechaVencimiento
+            }}</span></div>
       </div>
-      <div class="monto-total"><span class="monto-label">Total a Pagar</span><span class="monto-valor">{{ formatearMonto(pagoSeleccionado.monto) }}</span></div>
+      <div class="monto-total"><span class="monto-label">Total a
+          Pagar</span><span class="monto-valor">{{
+          formatearMonto(pagoSeleccionado.monto) }}</span></div>
       <div class="metodos-pago">
         <p>Podés pagar con:</p>
         <div class="metodos-iconos">
@@ -342,37 +478,92 @@
           <span class="metodo">📱 Dinero en cuenta MP</span>
         </div>
       </div>
-      <button class="btn-confirmar-mp" (click)="pagarConMercadoPago()" [disabled]="procesandoPago">
+      <button class="btn-confirmar-mp" (click)="pagarConMercadoPago()"
+        [disabled]="procesandoPago">
         <span *ngIf="!procesandoPago">Ir a Mercado Pago →</span>
         <span *ngIf="procesandoPago">Redirigiendo...</span>
       </button>
-      <p class="seguridad-texto">🔒 Pago 100% seguro procesado por Mercado Pago</p>
+      <p class="seguridad-texto">🔒 Pago 100% seguro procesado por Mercado
+        Pago</p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Nuevo Caso -->
+<div class="modal-overlay" *ngIf="mostrarModalNuevoCaso"
+  (click)="cerrarModalNuevoCaso()">
+  <div class="modal-nuevo-caso" (click)="$event.stopPropagation()">
+    <button class="modal-cerrar" (click)="cerrarModalNuevoCaso()">×</button>
+    <div class="modal-nuevo-header">
+      <h3>Crear Nuevo Caso</h3>
+      <p>Completa la información para iniciar un nuevo caso legal.</p>
+    </div>
+    <div class="modal-nuevo-body">
+      <div class="form-group">
+        <label for="tituloCaso">Título del caso</label>
+        <input id="tituloCaso" type="text" [(ngModel)]="nuevoCaso.titulo"
+          placeholder="Ej: Incumplimiento de contrato" />
+      </div>
+      <div class="form-group">
+        <label for="tipoCaso">Tipo de caso</label>
+        <select id="tipoCaso" [(ngModel)]="nuevoCaso.tipo">
+          <option value>Selecciona un tipo</option>
+          <option value="Derecho Familiar">Derecho Familiar</option>
+          <option value="Derecho Laboral">Derecho Laboral</option>
+          <option value="Derecho Civil">Derecho Civil</option>
+          <option value="Derecho Penal">Derecho Penal</option>
+          <option value="Derecho Comercial">Derecho Comercial</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="descripcionCaso">Descripción</label>
+        <textarea id="descripcionCaso" rows="4"
+          [(ngModel)]="nuevoCaso.descripcion"
+          placeholder="Describe brevemente tu situación y qué necesitas resolver."></textarea>
+      </div>
+      <div class="modal-nuevo-actions">
+        <button class="btn-cancelar-caso"
+          (click)="cerrarModalNuevoCaso()">Cancelar</button>
+        <button class="btn-crear-caso" (click)="crearNuevoCaso()">Crear
+          Caso</button>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- Modal Documento -->
-<div class="modal-overlay" *ngIf="mostrarModalDocumento" (click)="cerrarModalDocumento()">
+<div class="modal-overlay" *ngIf="mostrarModalDocumento"
+  (click)="cerrarModalDocumento()">
   <div class="modal-documento" (click)="$event.stopPropagation()">
     <button class="modal-cerrar" (click)="cerrarModalDocumento()">×</button>
     <div class="modal-doc-header">
-      <span class="doc-icono-grande">{{ documentoSeleccionado ? getIconoDocumento(documentoSeleccionado.tipo) : '' }}</span>
+      <span class="doc-icono-grande">{{ documentoSeleccionado ?
+        getIconoDocumento(documentoSeleccionado.tipo) : '' }}</span>
       <h3>{{ documentoSeleccionado?.nombre }}</h3>
     </div>
     <div class="modal-doc-body" *ngIf="documentoSeleccionado">
       <div class="doc-preview">
         <div class="preview-placeholder">
-          <span class="preview-icon">{{ getIconoDocumento(documentoSeleccionado.tipo) }}</span>
+          <span class="preview-icon">{{
+            getIconoDocumento(documentoSeleccionado.tipo) }}</span>
           <p>Vista previa del documento</p>
-          <span class="preview-meta">{{ documentoSeleccionado.extension }} | {{ documentoSeleccionado.tamanio }}</span>
+          <span class="preview-meta">{{ documentoSeleccionado.extension }} | {{
+            documentoSeleccionado.tamanio }}</span>
         </div>
       </div>
       <div class="doc-info-completa">
-        <div class="info-row" *ngIf="documentoSeleccionado.descripcion"><span class="info-label">Descripción:</span><span class="info-value">{{ documentoSeleccionado.descripcion }}</span></div>
-        <div class="info-row"><span class="info-label">Fecha:</span><span class="info-value">{{ documentoSeleccionado.fecha }}</span></div>
-        <div class="info-row"><span class="info-label">Tamaño:</span><span class="info-value">{{ documentoSeleccionado.tamanio }}</span></div>
+        <div class="info-row" *ngIf="documentoSeleccionado.descripcion"><span
+            class="info-label">Descripción:</span><span class="info-value">{{
+            documentoSeleccionado.descripcion }}</span></div>
+        <div class="info-row"><span class="info-label">Fecha:</span><span
+            class="info-value">{{ documentoSeleccionado.fecha }}</span></div>
+        <div class="info-row"><span class="info-label">Tamaño:</span><span
+            class="info-value">{{ documentoSeleccionado.tamanio }}</span></div>
       </div>
-      <div class="modal-doc-acciones"><button class="btn-descargar" (click)="descargarDocumento(documentoSeleccionado)">⬇️ Descargar Documento</button></div>
+      <div class="modal-doc-acciones"><button class="btn-descargar"
+          (click)="descargarDocumento(documentoSeleccionado)">⬇️ Descargar
+          Documento</button></div>
     </div>
   </div>
 </div>

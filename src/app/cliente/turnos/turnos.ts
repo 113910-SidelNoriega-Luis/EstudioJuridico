@@ -4,10 +4,7 @@ import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService, Usuario } from '../../auth/auth.service';
 import { NotificacionesService } from '../../services/notificaciones.service';
-import {
-  SelectorFechaComponent,
-  FechaSeleccionada,
-} from '../../components/selector-fecha.component';
+import { FechaSeleccionada } from '../../components/selector-fecha.component';
 
 interface Turno {
   id: number;
@@ -32,18 +29,22 @@ interface DiaAgenda {
   fecha: string;
 }
 
-// 💾 clave para localStorage
+interface TurnoOcupado {
+  fecha: string;
+  hora: string;
+}
+
+// clave para localStorage
 const LS_TURNOS_KEY = 'turnos_ocupados';
 
 @Component({
   selector: 'app-turnos-cliente',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, SelectorFechaComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule],
   templateUrl: './turnos.html',
   styleUrls: ['./turnos.css'],
 })
 export class Turnos implements OnInit {
-  // 🔹 NUEVO: cuántas semanas desde la actual (0 = semana actual, 1 = próxima, etc.)
   semanaOffset: number = 0;
 
   usuario: Usuario | null = null;
@@ -53,19 +54,17 @@ export class Turnos implements OnInit {
 
   // Selector de fechas
   fechaSeleccionadaCalendario: FechaSeleccionada | null = null;
-  fechasConTurnos: string[] = []; // Fechas que tienen turnos disponibles
+  fechasConTurnos: string[] = [];
   mostrarSelectorFecha: boolean = true;
 
   // Datos de la agenda
   horarios: string[] = ['19:00', '19:30', '20:00', '20:30', '21:00', '21:30'];
 
-  // 🔁 AHORA se genera dinámicamente (semana actual)
   dias: DiaAgenda[] = [];
 
   agendaSlots: { [hora: string]: SlotHorario[] } = {};
 
-  // 🔁 Se cargarán desde localStorage
-  turnosOcupados: { fecha: string; hora: string }[] = [];
+  turnosOcupados: TurnoOcupado[] = [];
 
   // Turno seleccionado
   turnoSeleccionado: {
@@ -148,7 +147,7 @@ export class Turnos implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private notificacionesService: NotificacionesService
+    private notificacionesService: NotificacionesService,
   ) {}
 
   ngOnInit(): void {
@@ -159,27 +158,31 @@ export class Turnos implements OnInit {
       return;
     }
 
-    // 🔁 NUEVO: generar semana actual y cargar turnos desde localStorage
     this.generarDiasSemanaActual();
     this.cargarTurnosDesdeLocalStorage();
 
     this.generarAgenda();
     this.generarFechasDisponibles();
+    this.ordenarProximosTurnosMasNuevosPrimero();
   }
 
-  /**
-   * 🔁 Genera lunes a sábado de la semana en curso,
-   *     desplazada por semanaOffset (0 = actual, 1 = próxima, etc.)
-   */
+  private ordenarProximosTurnosMasNuevosPrimero(): void {
+    this.proximosTurnos.sort((a, b) => this.getTurnoTimestamp(b) - this.getTurnoTimestamp(a));
+  }
+
+  private getTurnoTimestamp(turno: Turno): number {
+    const [anio, mes, dia] = turno.fecha.split('-').map(Number);
+    const [hora, minuto] = turno.hora.split(':').map(Number);
+    return new Date(anio, (mes || 1) - 1, dia || 1, hora || 0, minuto || 0, 0, 0).getTime();
+  }
+
   private generarDiasSemanaActual(): void {
     const hoy = new Date();
 
-    // aplicamos el offset de semanas hacia adelante
     hoy.setDate(hoy.getDate() + this.semanaOffset * 7);
 
-    const diaSemana = hoy.getDay(); // 0=Dom,1=Lun,...6=Sab
+    const diaSemana = hoy.getDay();
 
-    // Calcular lunes de esa semana
     const diferencia = diaSemana === 0 ? -6 : 1 - diaSemana;
     const lunes = new Date(hoy);
     lunes.setDate(hoy.getDate() + diferencia);
@@ -202,32 +205,25 @@ export class Turnos implements OnInit {
     }
   }
 
-  /**
-   * Avanza a la siguiente semana (no hay opción de volver atrás)
-   */
   siguienteSemana(): void {
-    this.semanaOffset++; // avanzamos una semana
-    this.generarDiasSemanaActual(); // recalculamos los días
-    this.generarAgenda(); // regeneramos la matriz horario/día
-    this.generarFechasDisponibles(); // opcional: recalcular fechas disponibles
-  }
-
-  anteriorSemana(): void {
-    if (this.semanaOffset === 0) {
-      return; // no dejo ir a semanas anteriores a la actual
-    }
-
-    this.semanaOffset--; // retrocedemos una semana
+    this.semanaOffset++;
     this.generarDiasSemanaActual();
     this.generarAgenda();
     this.generarFechasDisponibles();
   }
 
-  /**
-   * Genera la lista de fechas que tienen turnos disponibles
-   */
+  anteriorSemana(): void {
+    if (this.semanaOffset === 0) {
+      return;
+    }
+
+    this.semanaOffset--;
+    this.generarDiasSemanaActual();
+    this.generarAgenda();
+    this.generarFechasDisponibles();
+  }
+
   generarFechasDisponibles(): void {
-    // Generar fechas para los próximos 30 días
     this.fechasConTurnos = [];
     const hoy = new Date();
 
@@ -235,13 +231,11 @@ export class Turnos implements OnInit {
       const fecha = new Date(hoy);
       fecha.setDate(hoy.getDate() + i);
 
-      // Excluir domingos (día 0)
       if (fecha.getDay() !== 0) {
         const fechaISO = this.formatearFechaISO(fecha);
 
-        // Verificar que no sea un día completamente ocupado
         const turnosOcupadosEnFecha = this.turnosOcupados.filter(
-          (t) => t.fecha === fechaISO
+          (t) => t.fecha === fechaISO,
         ).length;
         if (turnosOcupadosEnFecha < this.horarios.length) {
           this.fechasConTurnos.push(fechaISO);
@@ -274,15 +268,39 @@ export class Turnos implements OnInit {
     });
   }
 
-  // 🔁 LOCALSTORAGE: cargar y guardar turnos ocupados
-
   private cargarTurnosDesdeLocalStorage(): void {
     const data = localStorage.getItem(LS_TURNOS_KEY);
     if (data) {
-      this.turnosOcupados = JSON.parse(data);
+      const turnosGuardados = JSON.parse(data) as Array<{ fecha?: string; hora?: string }>;
+      this.turnosOcupados = turnosGuardados
+        .filter((t) => !!t.fecha && !!t.hora)
+        .map((t) => ({
+          fecha: this.normalizarFecha(t.fecha as string),
+          hora: this.normalizarHora(t.hora as string),
+        }));
     } else {
       this.turnosOcupados = [];
     }
+  }
+  private normalizarFecha(fecha: string): string {
+    // Acepta formatos tipo yyyy-mm-dd o yyyy-mm-ddTHH:mm:ss
+    return fecha.slice(0, 10);
+  }
+
+  private normalizarHora(hora: string): string {
+    // Acepta formatos tipo HH:mm o HH:mm:ss
+    return hora.slice(0, 5);
+  }
+
+  private liberarReservaAgenda(turno: Turno): void {
+    const fechaTurno = this.normalizarFecha(turno.fecha);
+    const horaTurno = this.normalizarHora(turno.hora);
+
+    this.turnosOcupados = this.turnosOcupados.filter((t) => {
+      const fechaOcupada = this.normalizarFecha(t.fecha);
+      const horaOcupada = this.normalizarHora(t.hora);
+      return !(fechaOcupada === fechaTurno && horaOcupada === horaTurno);
+    });
   }
 
   private guardarTurnosEnLocalStorage(): void {
@@ -298,10 +316,6 @@ export class Turnos implements OnInit {
       return;
     }
 
-    // Limpiar selección anterior
-    this.turnoSeleccionado = null;
-
-    // Seleccionar nuevo turno
     this.turnoSeleccionado = {
       fechaTexto: slot.fechaTexto,
       fecha: slot.fecha,
@@ -341,16 +355,13 @@ export class Turnos implements OnInit {
       return;
     }
 
-    // Agregar a turnos ocupados
     this.turnosOcupados.push({
       fecha: this.turnoSeleccionado.fecha,
       hora: this.turnoSeleccionado.hora,
     });
 
-    // 🔁 guardar en localStorage
     this.guardarTurnosEnLocalStorage();
 
-    // Crear objeto del turno
     const nuevoTurno: Turno = {
       id: Date.now(),
       fecha: this.turnoSeleccionado.fecha,
@@ -363,118 +374,56 @@ export class Turnos implements OnInit {
     };
 
     this.proximosTurnos.push(nuevoTurno);
+    this.ordenarProximosTurnosMasNuevosPrimero();
 
-    // Enviar email de confirmación
-    // if (this.usuario?.email) {
-    //   this.notificacionesService
-    //     .enviarConfirmacionTurno(
-    //       this.usuario.email,
-    //       this.usuario.nombre,
-    //       this.turnoSeleccionado.fecha,
-    //       this.turnoSeleccionado.hora,
-    //       this.turnoSeleccionado.horaFin,
-    //       nuevoTurno.motivo,
-    //       nuevoTurno.asesor
-    //     )
-    //     .subscribe({
-    //       next: (resultado) => {
-    //         console.log('Email enviado:', resultado);
-    //         this.notificacionesService.mostrarNotificacion(
-    //           '✅ ¡Turno confirmado! Revisa tu email para más detalles.',
-    //           'success'
-    //         );
-    //       },
-    //       error: (error) => {
-    //         console.error('Error al enviar email:', error);
-    //         this.notificacionesService.mostrarNotificacion(
-    //           '⚠️ Turno confirmado, pero hubo un error al enviar el email.',
-    //           'info'
-    //         );
-    //       },
-    //     });
-    // }
-    // Enviar email real al backend
     this.notificacionesService
       .enviarConfirmacionTurnoBack(this.turnoSeleccionado.fecha, this.turnoSeleccionado.hora)
       .subscribe({
         next: () => {
           this.notificacionesService.mostrarNotificacion(
             '📧 Correo enviado correctamente',
-            'success'
+            'success',
           );
         },
         error: (error) => {
           console.error('Error al enviar email:', error);
           this.notificacionesService.mostrarNotificacion(
             '⚠️ Turno creado, pero no se pudo enviar el email',
-            'error'
+            'error',
           );
         },
       });
 
     alert('✅ ¡Turno confirmado exitosamente!\n\nRecibirás un email de confirmación.');
 
-    // Limpiar y cerrar
     this.cerrarModal();
     this.turnoSeleccionado = null;
 
-    // Regenerar agenda y fechas disponibles
     this.generarAgenda();
     this.generarFechasDisponibles();
 
-    // Cambiar a tab "Mis Turnos"
     this.cambiarTab('misturnos');
   }
 
   cancelarTurno(turno: Turno): void {
     if (confirm('¿Estás seguro que deseas cancelar este turno?')) {
-      // Remover de próximos turnos
       this.proximosTurnos = this.proximosTurnos.filter((t) => t.id !== turno.id);
 
-      // Agregar al historial como cancelado
       turno.estado = 'cancelado';
       this.historialTurnos.unshift(turno);
 
-      // Liberar el horario
-      this.turnosOcupados = this.turnosOcupados.filter(
-        (t) => !(t.fecha === turno.fecha && t.hora === turno.hora)
-      );
+      this.liberarReservaAgenda(turno);
 
-      // 🔁 actualizar localStorage
       this.guardarTurnosEnLocalStorage();
 
       this.generarAgenda();
       this.generarFechasDisponibles();
 
-      // Enviar email de cancelación
-      // if (this.usuario?.email) {
-      //   this.notificacionesService
-      //     .enviarCancelacionTurno(
-      //       this.usuario.email,
-      //       this.usuario.nombre,
-      //       turno.fecha,
-      //       turno.hora,
-      //       turno.motivo
-      //     )
-      //     .subscribe({
-      //       next: (resultado) => {
-      //         console.log('Email de cancelación enviado:', resultado);
-      //         this.notificacionesService.mostrarNotificacion(
-      //           '✅ Turno cancelado. Te hemos enviado un email de confirmación.',
-      //           'success'
-      //         );
-      //       },
-      //       error: (error) => {
-      //         console.error('Error al enviar email:', error);
-      //       },
-      //     });
-      // }
-
       this.notificacionesService.enviarCancelacionTurno(turno.fecha, turno.hora).subscribe({
         next: () => {
           this.notificacionesService.mostrarNotificacion(
             '📧 Te enviamos un correo con la cancelación del turno.',
-            'success'
+            'success',
           );
         },
         error: (error) => {
@@ -497,11 +446,10 @@ export class Turnos implements OnInit {
         turno.hora
       } - ${turno.horaFin}\nMotivo: ${turno.motivo}\nAsesor: ${
         turno.asesor
-      }\nEstado: ${this.getEstadoTexto(turno.estado)}`
+      }\nEstado: ${this.getEstadoTexto(turno.estado)}`,
     );
   }
 
-  // Helpers
   formatearFecha(fecha: string): string {
     const fechaObj = new Date(fecha);
     const opciones: Intl.DateTimeFormatOptions = {
@@ -572,17 +520,29 @@ export class Turnos implements OnInit {
     return this.turnoSeleccionado.fecha === slot.fecha && this.turnoSeleccionado.hora === slot.hora;
   }
 
-  /**
-   * Maneja la selección de fecha desde el selector de fechas
-   */
   onFechaSeleccionada(fecha: FechaSeleccionada): void {
     this.fechaSeleccionadaCalendario = fecha;
 
-    console.log('Fecha seleccionada:', fecha);
-
     this.notificacionesService.mostrarNotificacion(
       `📅 Fecha seleccionada: ${fecha.fechaTexto}`,
-      'info'
+      'info',
     );
+  }
+
+  getIniciales(nombre: string): string {
+    const palabras = nombre.trim().split(' ').filter(Boolean);
+    if (palabras.length >= 2) {
+      return (palabras[0][0] + palabras[1][0]).toUpperCase();
+    }
+
+    const primera = palabras[0] ?? 'U';
+    return (primera[0] + (primera[1] || '')).toUpperCase();
+  }
+
+  cerrarSesion(): void {
+    if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
+      this.authService.logout();
+      this.router.navigate(['/login']);
+    }
   }
 }

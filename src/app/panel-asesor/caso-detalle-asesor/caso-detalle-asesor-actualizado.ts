@@ -3,7 +3,7 @@
 // ============================================
 // Archivo: caso-detalle-asesor.component.ts
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -27,10 +27,11 @@ interface Documento {
   templateUrl: './caso-detalle-asesor.component.html',
   styleUrls: ['./caso-detalle-asesor.component.css'],
 })
-export class CasoDetalleAsesorComponent implements OnInit {
+export class CasoDetalleAsesorComponent implements OnInit, OnDestroy {
   caso: Caso | null = null;
   documentos: Documento[] = [];
   tabActiva: 'general' | 'documentos' = 'general';
+  private refreshPagoInterval: ReturnType<typeof setInterval> | null = null;
 
   // Modal de documento
   mostrarModalDocumento: boolean = false;
@@ -47,24 +48,66 @@ export class CasoDetalleAsesorComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private casoService: CasoService
+    private casoService: CasoService,
   ) {}
 
   ngOnInit() {
     const casoId = Number(this.route.snapshot.params['id']);
     this.cargarCaso(casoId);
     this.cargarDocumentos(casoId);
+    this.iniciarRefreshEstadoPago(casoId);
+  }
+
+  ngOnDestroy(): void {
+    if (this.refreshPagoInterval) {
+      clearInterval(this.refreshPagoInterval);
+      this.refreshPagoInterval = null;
+    }
   }
 
   cargarCaso(id: number) {
     this.casoService.obtenerCasoPorId(id).subscribe({
       next: (caso) => {
         this.caso = caso;
+        this.sincronizarEstadoPago(id);
         console.log('✅ Caso cargado:', caso);
       },
       error: (error) => {
         console.error('❌ Error al cargar caso:', error);
         alert('Error al cargar el caso');
+      },
+    });
+  }
+
+  private iniciarRefreshEstadoPago(casoId: number): void {
+    // Refresca el estado para reflejar pagos confirmados por webhook/callback.
+    this.refreshPagoInterval = setInterval(() => {
+      this.sincronizarEstadoPago(casoId);
+    }, 8000);
+  }
+
+  private sincronizarEstadoPago(casoId: number): void {
+    this.casoService.obtenerDatosPago(casoId).subscribe({
+      next: (datosPago) => {
+        if (!this.caso) {
+          return;
+        }
+
+        const estadoPago = (datosPago.estadoPago || '').toLowerCase();
+        const pagadoPorEstado =
+          estadoPago === 'approved' ||
+          estadoPago === 'paid' ||
+          estadoPago === 'pagado' ||
+          estadoPago === 'completed';
+
+        this.caso.pagoHabilitado = !!datosPago.pagoHabilitado;
+        this.caso.pagado = !!datosPago.pagado || pagadoPorEstado;
+        this.caso.montoPago = datosPago.montoPago || this.caso.montoPago;
+        this.caso.conceptoPago = datosPago.conceptoPago || this.caso.conceptoPago;
+        this.caso.estadoPago = datosPago.estadoPago || this.caso.estadoPago;
+      },
+      error: () => {
+        // Si falla esta consulta, mantenemos el estado actual sin romper la vista.
       },
     });
   }
@@ -200,7 +243,6 @@ export class CasoDetalleAsesorComponent implements OnInit {
         this.procesandoPago = false;
 
         alert('✅ Pago habilitado exitosamente. El cliente podrá realizar el pago desde su panel.');
-        
       },
       error: (error) => {
         console.error('❌ Error al habilitar pago:', error);

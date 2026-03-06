@@ -47,10 +47,9 @@ interface NuevoEscrito {
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
   templateUrl: './documentos.html',
-  styleUrls: ['./documentos.css']
+  styleUrls: ['./documentos.css'],
 })
 export class Documentos implements OnInit {
-
   @ViewChild('editorContent') editorContent!: ElementRef;
 
   usuario: Usuario | null = null;
@@ -62,14 +61,14 @@ export class Documentos implements OnInit {
   estadisticas = {
     totalDocumentos: 12,
     plantillasUsadas: 5,
-    documentosSubidos: 7
+    documentosSubidos: 7,
   };
 
   // Filtros
   filtros = {
     busqueda: '',
     tipo: 'todos',
-    caso: 'todos'
+    caso: 'todos',
   };
 
   // Documentos
@@ -82,7 +81,7 @@ export class Documentos implements OnInit {
       tamanio: '2.5 MB',
       fecha: '20/11/2024',
       caso: '2024-001',
-      descripcion: 'Documento de identidad'
+      descripcion: 'Documento de identidad',
     },
     {
       id: 2,
@@ -92,7 +91,7 @@ export class Documentos implements OnInit {
       tamanio: '1.2 MB',
       fecha: '18/11/2024',
       caso: '2024-001',
-      descripcion: 'Contrato laboral original'
+      descripcion: 'Contrato laboral original',
     },
     {
       id: 3,
@@ -101,7 +100,7 @@ export class Documentos implements OnInit {
       extension: 'DOCX',
       tamanio: '350 KB',
       fecha: '15/11/2024',
-      caso: '2024-001'
+      caso: '2024-001',
     },
     {
       id: 4,
@@ -110,7 +109,7 @@ export class Documentos implements OnInit {
       extension: 'PDF',
       tamanio: '180 KB',
       fecha: '10/11/2024',
-      caso: '2024-001'
+      caso: '2024-001',
     },
     {
       id: 5,
@@ -120,7 +119,7 @@ export class Documentos implements OnInit {
       tamanio: '3.8 MB',
       fecha: '08/11/2024',
       caso: '2024-001',
-      descripcion: 'Últimos 6 meses'
+      descripcion: 'Últimos 6 meses',
     },
     {
       id: 6,
@@ -129,8 +128,8 @@ export class Documentos implements OnInit {
       extension: 'DOC',
       tamanio: '45 KB',
       fecha: '05/11/2024',
-      caso: '2024-002'
-    }
+      caso: '2024-002',
+    },
   ];
 
   documentosFiltrados: Documento[] = [];
@@ -139,7 +138,7 @@ export class Documentos implements OnInit {
   casosDisponibles: Caso[] = [
     { id: '2024-001', numero: '2024-001', titulo: 'Despido Injustificado' },
     { id: '2024-002', numero: '2024-002', titulo: 'Divorcio Mutuo Acuerdo' },
-    { id: '2024-003', numero: '2024-003', titulo: 'Contrato Alquiler' }
+    { id: '2024-003', numero: '2024-003', titulo: 'Contrato Alquiler' },
   ];
 
   // Upload
@@ -154,7 +153,7 @@ export class Documentos implements OnInit {
     plantilla: 'generica',
     caso: '',
     caratula: '',
-    contenido: ''
+    contenido: '',
   };
 
   tiposEscrito = [
@@ -167,7 +166,7 @@ export class Documentos implements OnInit {
     { value: 'ofrece', label: 'OFRECE PRUEBA' },
     { value: 'desiste', label: 'DESISTE' },
     { value: 'alega', label: 'ALEGA' },
-    { value: 'denuncia', label: 'DENUNCIA HECHO NUEVO' }
+    { value: 'denuncia', label: 'DENUNCIA HECHO NUEVO' },
   ];
 
   variablesDisponibles = [
@@ -180,13 +179,13 @@ export class Documentos implements OnInit {
     '[DEMANDANTE]',
     '[DEMANDADO]',
     '[DOMICILIO]',
-    '[DNI]'
+    '[DNI]',
   ];
 
   plantillasDisponibles = [
     { id: 'generica', nombre: 'Plantilla Genérica' },
     { id: 'agrega-simple', nombre: 'Agrega Documentación Simple' },
-    { id: 'agrega-completo', nombre: 'Agrega con Fundamentación' }
+    { id: 'agrega-completo', nombre: 'Agrega con Fundamentación' },
   ];
 
   // Plantillas predeterminadas
@@ -206,7 +205,7 @@ export class Documentos implements OnInit {
 </ul>
 <p>Por lo expuesto solicito:</p>
 <p>Agréguese lo acompañado.</p>
-<p><strong>Es justicia.</strong></p>`
+<p><strong>Es justicia.</strong></p>`,
     },
     {
       id: 'solicita',
@@ -225,7 +224,7 @@ export class Documentos implements OnInit {
 <p>Por lo expuesto, solicito a V.S.:</p>
 <p>1. Tenga por presentado el presente escrito.</p>
 <p>2. Haga lugar a lo peticionado.</p>
-<p><strong>Provea V.S. de conformidad que será justicia.</strong></p>`
+<p><strong>Provea V.S. de conformidad que será justicia.</strong></p>`,
     },
     {
       id: 'acredita',
@@ -240,7 +239,7 @@ export class Documentos implements OnInit {
 <p>Por lo expuesto, solicito:</p>
 <p>1. Me tenga por presentado, parte y por constituido el domicilio procesal indicado.</p>
 <p>2. Se tenga por acreditada la personería invocada.</p>
-<p><strong>Provea V.S. de conformidad que será justicia.</strong></p>`
+<p><strong>Provea V.S. de conformidad que será justicia.</strong></p>`,
     },
     {
       id: 'apela',
@@ -257,7 +256,7 @@ export class Documentos implements OnInit {
 <p>Por lo expuesto, solicito:</p>
 <p>1. Tenga por interpuesto el recurso de apelación.</p>
 <p>2. Se conceda el mismo y se eleven las actuaciones al Superior.</p>
-<p><strong>Provea V.S. de conformidad que será justicia.</strong></p>`
+<p><strong>Provea V.S. de conformidad que será justicia.</strong></p>`,
     },
     {
       id: 'ofrece-prueba',
@@ -281,7 +280,7 @@ export class Documentos implements OnInit {
 <p>Se cite a absolver posiciones a la contraria.</p>
 <p><strong>PETITORIO:</strong></p>
 <p>Solicito se tenga por ofrecida la prueba y se provea de conformidad.</p>
-<p><strong>Será justicia.</strong></p>`
+<p><strong>Será justicia.</strong></p>`,
     },
     {
       id: 'contesta',
@@ -298,8 +297,8 @@ export class Documentos implements OnInit {
 <p>Por lo expuesto, solicito:</p>
 <p>1. Se tenga por contestado el traslado en tiempo y forma.</p>
 <p>2. Se continúe con el trámite de la causa según su estado.</p>
-<p><strong>Provea V.S. de conformidad que será justicia.</strong></p>`
-    }
+<p><strong>Provea V.S. de conformidad que será justicia.</strong></p>`,
+    },
   ];
 
   plantillaSeleccionada: Plantilla | null = null;
@@ -311,12 +310,12 @@ export class Documentos implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private notificacionesService: NotificacionesService
+    private notificacionesService: NotificacionesService,
   ) {}
 
   ngOnInit(): void {
     this.usuario = this.authService.getUsuarioActual();
-    
+
     if (!this.usuario || !this.authService.esCliente()) {
       this.router.navigate(['/inicio']);
       return;
@@ -334,14 +333,15 @@ export class Documentos implements OnInit {
 
   // ========== FILTROS ==========
   filtrarDocumentos(): void {
-    this.documentosFiltrados = this.documentos.filter(doc => {
-      const matchBusqueda = this.filtros.busqueda === '' || 
+    this.documentosFiltrados = this.documentos.filter((doc) => {
+      const matchBusqueda =
+        this.filtros.busqueda === '' ||
         doc.nombre.toLowerCase().includes(this.filtros.busqueda.toLowerCase());
-      
+
       const matchTipo = this.filtros.tipo === 'todos' || doc.tipo === this.filtros.tipo;
-      
+
       const matchCaso = this.filtros.caso === 'todos' || doc.caso === this.filtros.caso;
-      
+
       return matchBusqueda && matchTipo && matchCaso;
     });
   }
@@ -350,7 +350,7 @@ export class Documentos implements OnInit {
     this.filtros = {
       busqueda: '',
       tipo: 'todos',
-      caso: 'todos'
+      caso: 'todos',
     };
     this.filtrarDocumentos();
   }
@@ -358,10 +358,10 @@ export class Documentos implements OnInit {
   // ========== DOCUMENTOS ==========
   getIconoTipo(tipo: string): string {
     const iconos: { [key: string]: string } = {
-      'pdf': '📕',
-      'doc': '📘',
-      'img': '🖼️',
-      'escrito': '📝'
+      pdf: '📕',
+      doc: '📘',
+      img: '🖼️',
+      escrito: '📝',
     };
     return iconos[tipo] || '📄';
   }
@@ -385,23 +385,20 @@ export class Documentos implements OnInit {
   }
 
   descargarDocumento(doc: Documento): void {
-    this.notificacionesService.mostrarNotificacion(
-      `⬇️ Descargando ${doc.nombre}...`,
-      'info'
-    );
+    this.notificacionesService.mostrarNotificacion(`⬇️ Descargando ${doc.nombre}...`, 'info');
     // Aquí iría la lógica real de descarga
   }
 
   eliminarDocumento(doc: Documento): void {
     if (confirm(`¿Estás seguro de eliminar "${doc.nombre}"?`)) {
-      this.documentos = this.documentos.filter(d => d.id !== doc.id);
+      this.documentos = this.documentos.filter((d) => d.id !== doc.id);
       this.filtrarDocumentos();
       this.estadisticas.totalDocumentos--;
       this.estadisticas.documentosSubidos--;
-      
+
       this.notificacionesService.mostrarNotificacion(
         `🗑️ Documento "${doc.nombre}" eliminado`,
-        'success'
+        'success',
       );
     }
   }
@@ -440,25 +437,29 @@ export class Documentos implements OnInit {
   procesarArchivos(files: FileList): void {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      
+
       // Validar tamaño (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
         this.notificacionesService.mostrarNotificacion(
           `❌ ${file.name} excede el tamaño máximo de 10MB`,
-          'error'
+          'error',
         );
         continue;
       }
 
       // Validar tipo
-      const tiposPermitidos = ['application/pdf', 'application/msword', 
+      const tiposPermitidos = [
+        'application/pdf',
+        'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'image/jpeg', 'image/png'];
-      
+        'image/jpeg',
+        'image/png',
+      ];
+
       if (!tiposPermitidos.includes(file.type)) {
         this.notificacionesService.mostrarNotificacion(
           `❌ ${file.name} no es un tipo de archivo permitido`,
-          'error'
+          'error',
         );
         continue;
       }
@@ -487,10 +488,7 @@ export class Documentos implements OnInit {
 
   subirArchivos(): void {
     if (this.archivosSeleccionados.length === 0) {
-      this.notificacionesService.mostrarNotificacion(
-        '❌ No hay archivos seleccionados',
-        'error'
-      );
+      this.notificacionesService.mostrarNotificacion('❌ No hay archivos seleccionados', 'error');
       return;
     }
 
@@ -504,7 +502,7 @@ export class Documentos implements OnInit {
         tamanio: this.formatearTamanio(archivo.size),
         fecha: new Date().toLocaleDateString('es-AR'),
         caso: this.casoSeleccionado || undefined,
-        descripcion: this.descripcionArchivo || undefined
+        descripcion: this.descripcionArchivo || undefined,
       };
       this.documentos.unshift(nuevoDoc);
     });
@@ -514,7 +512,7 @@ export class Documentos implements OnInit {
 
     this.notificacionesService.mostrarNotificacion(
       `✅ ${this.archivosSeleccionados.length} archivo(s) subido(s) exitosamente`,
-      'success'
+      'success',
     );
 
     // Limpiar
@@ -527,21 +525,21 @@ export class Documentos implements OnInit {
 
   // ========== EDITOR DE ESCRITOS ==========
   cargarPlantillaInicial(): void {
-    const plantillaGenerica = this.plantillas.find(p => p.id === 'agrega');
+    const plantillaGenerica = this.plantillas.find((p) => p.id === 'agrega');
     if (plantillaGenerica) {
       this.nuevoEscrito.contenido = plantillaGenerica.contenido;
     }
   }
 
   onTipoEscritoChange(): void {
-    const plantilla = this.plantillas.find(p => p.tipo === this.nuevoEscrito.tipo);
+    const plantilla = this.plantillas.find((p) => p.tipo === this.nuevoEscrito.tipo);
     if (plantilla) {
       this.nuevoEscrito.contenido = plantilla.contenido;
     }
   }
 
   cargarPlantilla(): void {
-    const plantilla = this.plantillas.find(p => p.id === this.nuevoEscrito.plantilla);
+    const plantilla = this.plantillas.find((p) => p.id === this.nuevoEscrito.plantilla);
     if (plantilla) {
       this.nuevoEscrito.contenido = plantilla.contenido;
     }
@@ -558,7 +556,7 @@ export class Documentos implements OnInit {
       selection.removeAllRanges();
       selection.addRange(range);
     }
-    
+
     // Actualizar el contenido
     if (this.editorContent) {
       this.nuevoEscrito.contenido = this.editorContent.nativeElement.innerHTML;
@@ -596,7 +594,7 @@ export class Documentos implements OnInit {
         plantilla: 'generica',
         caso: '',
         caratula: '',
-        contenido: ''
+        contenido: '',
       };
       this.cargarPlantillaInicial();
     }
@@ -604,12 +602,15 @@ export class Documentos implements OnInit {
 
   previsualizarEscrito(): void {
     let contenido = this.nuevoEscrito.contenido;
-    
+
     // Reemplazar variables con valores de ejemplo
     contenido = contenido.replace(/\[Quien_Suscribe\]/g, this.usuario?.nombre || 'NOMBRE APELLIDO');
-    contenido = contenido.replace(/\[CARATULA\]/g, this.nuevoEscrito.caratula || 'CARATULA DEL EXPEDIENTE');
+    contenido = contenido.replace(
+      /\[CARATULA\]/g,
+      this.nuevoEscrito.caratula || 'CARATULA DEL EXPEDIENTE',
+    );
     contenido = contenido.replace(/\[FECHA\]/g, new Date().toLocaleDateString('es-AR'));
-    
+
     this.documentoPreview = `
       <div style="font-family: 'Times New Roman', serif; padding: 20px;">
         <div style="text-align: right; margin-bottom: 20px;">
@@ -626,19 +627,13 @@ export class Documentos implements OnInit {
   }
 
   guardarBorrador(): void {
-    this.notificacionesService.mostrarNotificacion(
-      '💾 Borrador guardado correctamente',
-      'success'
-    );
+    this.notificacionesService.mostrarNotificacion('💾 Borrador guardado correctamente', 'success');
     // Aquí iría la lógica para guardar en localStorage o backend
   }
 
   guardarEscrito(): void {
     if (!this.nuevoEscrito.tipo) {
-      this.notificacionesService.mostrarNotificacion(
-        '❌ Selecciona un tipo de escrito',
-        'error'
-      );
+      this.notificacionesService.mostrarNotificacion('❌ Selecciona un tipo de escrito', 'error');
       return;
     }
 
@@ -650,17 +645,14 @@ export class Documentos implements OnInit {
       tamanio: '45 KB',
       fecha: new Date().toLocaleDateString('es-AR'),
       caso: this.nuevoEscrito.caso || undefined,
-      contenido: this.nuevoEscrito.contenido
+      contenido: this.nuevoEscrito.contenido,
     };
 
     this.documentos.unshift(nuevoDoc);
     this.estadisticas.totalDocumentos++;
     this.estadisticas.plantillasUsadas++;
 
-    this.notificacionesService.mostrarNotificacion(
-      '✅ Escrito guardado correctamente',
-      'success'
-    );
+    this.notificacionesService.mostrarNotificacion('✅ Escrito guardado correctamente', 'success');
 
     // Limpiar y volver a documentos
     this.limpiarEscrito();
@@ -678,10 +670,10 @@ export class Documentos implements OnInit {
     this.nuevoEscrito.plantilla = plantilla.id;
     this.nuevoEscrito.contenido = plantilla.contenido;
     this.cambiarTab('nuevo');
-    
+
     this.notificacionesService.mostrarNotificacion(
       `📋 Plantilla "${plantilla.nombre}" cargada`,
-      'info'
+      'info',
     );
   }
 
@@ -713,10 +705,24 @@ export class Documentos implements OnInit {
   }
 
   descargarDocumentoPreview(): void {
-    this.notificacionesService.mostrarNotificacion(
-      '⬇️ Generando PDF...',
-      'info'
-    );
+    this.notificacionesService.mostrarNotificacion('⬇️ Generando PDF...', 'info');
     // Aquí iría la lógica para generar y descargar PDF
+  }
+
+  getIniciales(nombre: string): string {
+    const palabras = nombre.trim().split(' ').filter(Boolean);
+    if (palabras.length >= 2) {
+      return (palabras[0][0] + palabras[1][0]).toUpperCase();
+    }
+
+    const primera = palabras[0] ?? 'U';
+    return (primera[0] + (primera[1] || '')).toUpperCase();
+  }
+
+  cerrarSesion(): void {
+    if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
+      this.authService.logout();
+      this.router.navigate(['/login']);
+    }
   }
 }

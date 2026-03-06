@@ -1,0 +1,69 @@
+<div class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Crear Nuevo Reporte</h2>
+            <button (click)="cancelar()" class="btn-cerrar">✕</button>
+        </div>
+
+        <form (ngSubmit)="guardar()" class="formulario">
+            <div class="form-group">
+                <label for="titulo">Título del Reporte:</label>
+                <input
+                    id="titulo"
+                    type="text"
+                    [(ngModel)]="titulo"
+                    name="titulo"
+                    placeholder="Ingresa el título"
+                    required />
+            </div>
+
+            <div class="form-group">
+                <label for="descripcion">Descripción:</label>
+                <textarea
+                    id="descripcion"
+                    [(ngModel)]="descripcion"
+                    name="descripcion"
+                    placeholder="Describe el contenido del reporte"
+                    required
+                    rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="tipo">Tipo de Reporte:</label>
+                <select
+                    id="tipo"
+                    [(ngModel)]="tipoReporte"
+                    name="tipo"
+                    required>
+                    <option value>-- Selecciona un tipo --</option>
+                    @for (tipo of tipos; track tipo) {
+                    <option [value]="tipo">{{ tipo | titlecase }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="autor">Autor:</label>
+                <input
+                    id="autor"
+                    type="text"
+                    [(ngModel)]="autor"
+                    name="autor"
+                    placeholder="Tu nombre"
+                    required />
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" (click)="cancelar()" class="btn-cancelar">
+                    Cancelar
+                </button>
+                <button
+                    type="submit"
+                    [disabled]="!validarFormulario()"
+                    class="btn-guardar">
+                    Guardar Reporte
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

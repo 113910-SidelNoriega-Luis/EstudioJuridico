@@ -8,7 +8,6 @@ import { Consultas } from './cliente/consultas/consultas';
 import { Inicio } from './inicio/inicio';
 import { PanelAsesorComponent } from './panel-asesor/panel-asesor';
 import { Documentos } from './cliente/documentos/documentos';
-import { DocumentosAsesorComponent } from './panel-asesor/documentos/documentos-asesor';
 import { CasoDetalleComponent } from './components/caso-detalle/caso-detalle';
 import { SelectorUsuarioComponent } from './components/selector-usuario/selector-usuario.component';
 import { MisCasosComponent } from './cliente/mis-casos/mis-casos';
@@ -32,15 +31,15 @@ export const routes: Routes = [
   { path: 'panel-cliente/dashboard', component: Home },
   { path: 'panel-cliente/turnos', component: Turnos },
   { path: 'panel-cliente/consultas', component: Consultas },
-  { path: 'panel-cliente/caso/:id', component: CasoDetalleComponent }, // ✅ RUTA AGREGADA
+  { path: 'panel-cliente/caso/:id', component: CasoDetalleClienteComponent },
   { path: 'panel-cliente/documentos', component: Documentos },
-  { path: 'panel-cliente/casos', component: CasoDetalleClienteComponent },
-  { path: 'panel-cliente/mis-casos', component: CasoDetalleClienteComponent },
+  { path: 'panel-cliente/casos', component: MisCasosComponent },
+  { path: 'panel-cliente/mis-casos', component: MisCasosComponent },
 
   // En el array de rutas:
-{ path: 'payment/success', component: PaymentSuccessComponent },
-{ path: 'payment/pending', component: PaymentPendingComponent },
-{ path: 'payment/failure', component: PaymentFailureComponent },
+  { path: 'payment/success', component: PaymentSuccessComponent },
+  { path: 'payment/pending', component: PaymentPendingComponent },
+  { path: 'payment/failure', component: PaymentFailureComponent },
 
   // RUTAS DEL PANEL ASESOR
   {
@@ -57,9 +56,6 @@ export const routes: Routes = [
       },
     ],
   },
-
-  // Rutas del Asesor (para más adelante)
-  { path: 'panel-asesor/documentos', component: DocumentosAsesorComponent },
 
   // Rutas para asesor
   {

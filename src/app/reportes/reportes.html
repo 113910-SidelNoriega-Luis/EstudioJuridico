@@ -1,0 +1,95 @@
+<div class="reportes-wrapper">
+    <div class="reportes-header">
+        <h1>📊 Reportes del Estudio</h1>
+    </div>
+
+    @if (error()) {
+    <div class="error-message">
+        <p>{{ error() }}</p>
+    </div>
+    }
+
+    <!-- Navegación por Mes -->
+    <div class="navegacion-meses">
+        <button (click)="cambiarMes('anterior')" class="btn-mes">
+            ← Anterior
+        </button>
+        <div class="mes-actual">
+            <span class="mes-texto">{{ obtenerNombreMes() }} {{
+                anioSeleccionado() }}</span>
+        </div>
+        <button (click)="cambiarMes('siguiente')" class="btn-mes">
+            Siguiente →
+        </button>
+    </div>
+
+    @if (cargando()) {
+    <div class="loading">
+        <p>Cargando datos...</p>
+    </div>
+    } @else {
+    <div class="reportes-container">
+
+        <!-- Gráfico de tendencia: Atendidos vs Cerrados (Línea) -->
+        @if (datasetsTendencia().length > 0) {
+        <div class="reporte-detalle">
+            <app-grafico
+                [titulo]="'📈 Evolución Mensual — Atendidos vs Cerrados'"
+                [tipo]="'linea'"
+                [etiquetas]="etiquetasTendencia()"
+                [datasets]="datasetsTendencia()">
+            </app-grafico>
+        </div>
+        }
+
+        @if (!datosMes()) {
+        <div class="sin-reportes">
+            <p>No hay datos disponibles para {{ obtenerNombreMes() }} {{
+                anioSeleccionado() }}</p>
+        </div>
+        } @else {
+
+        <!-- Fila: Desglose semanal (Barras) + Distribución por tipo (Dona) -->
+        <div class="graficos-fila">
+            <div class="reporte-detalle grafico-grande">
+                <app-grafico
+                    [titulo]="'📊 Desglose Semanal'"
+                    [tipo]="'columnas'"
+                    [etiquetas]="etiquetasGrafico()"
+                    [datasets]="datasetsGrafico()">
+                </app-grafico>
+            </div>
+            <div class="reporte-detalle grafico-chico">
+                <app-grafico
+                    [titulo]="'🍩 Tipos de Caso'"
+                    [tipo]="'dona'"
+                    [etiquetas]="etiquetasTiposCaso()"
+                    [datasets]="datasetsTiposCaso()">
+                </app-grafico>
+            </div>
+        </div>
+
+        <!-- Tasa de cierre por mes (Área) -->
+        @if (datasetsTasaCierre().length > 0) {
+        <div class="reporte-detalle">
+            <app-grafico
+                [titulo]="'📉 Evolución de Tasa de Cierre (%)'"
+                [tipo]="'area'"
+                [etiquetas]="etiquetasTendencia()"
+                [datasets]="datasetsTasaCierre()">
+            </app-grafico>
+        </div>
+        }
+
+        <!-- Tabla semanal -->
+        <div class="reporte-detalle">
+            <app-tabla-datos
+                [titulo]="'Detalle por Semana'"
+                [encabezados]="['Semana', 'Nuevos', 'Cerrados', 'En Proceso', 'Total']"
+                [datos]="datosMes()!.semanas">
+            </app-tabla-datos>
+        </div>
+        }
+    </div>
+    }
+</div>

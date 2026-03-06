@@ -7,6 +7,8 @@ import { NotificacionesService } from '../services/notificaciones.service';
 import { SelectorFechaComponent, FechaSeleccionada } from '../components/selector-fecha.component';
 import { CasosAsesorComponent } from './casos-asesor/casos-asesor';
 import { CasoDetalleAsesorComponent } from './caso-detalle-asesor/caso-detalle-asesor-actualizado';
+import { ReportesComponent } from '../reportes/reportes';
+import { DocumentosAsesorComponent } from './documentos/documentos-asesor';
 
 interface DiaAgenda {
   nombre: string; // Ej: "Lun 09/12"
@@ -78,6 +80,15 @@ interface Caso {
   ultimaActualizacion?: string;
 }
 
+interface Cliente {
+  id: number;
+  nombre: string;
+  email: string;
+  telefono: string;
+  casosActivos: number;
+  ultimaConsulta: string;
+}
+
 interface DiaAgenda {
   nombre: string;
   fecha: string;
@@ -102,7 +113,8 @@ interface SlotAgenda {
     RouterLink,
     RouterLinkActive,
     FormsModule,
-    SelectorFechaComponent,
+    ReportesComponent,
+    DocumentosAsesorComponent,
   ],
   templateUrl: './panel-asesor.html',
   styleUrls: ['./panel-asesor.css'],
@@ -144,7 +156,14 @@ export class PanelAsesorComponent implements OnInit {
   usuario: Usuario | null = null;
 
   // Control de vistas
-  vistaActiva: 'dashboard' | 'agenda' | 'consultas' | 'casos' | 'clientes' = 'dashboard';
+  vistaActiva:
+    | 'dashboard'
+    | 'agenda'
+    | 'consultas'
+    | 'casos'
+    | 'clientes'
+    | 'reportes'
+    | 'documentos' = 'dashboard';
 
   // Estadísticas
   estadisticas = {
@@ -260,7 +279,7 @@ export class PanelAsesorComponent implements OnInit {
   ];
 
   // Clientes
-  clientes = [
+  clientes: Cliente[] = [
     {
       id: 1,
       nombre: 'Juan Pérez',
@@ -284,10 +303,18 @@ export class PanelAsesorComponent implements OnInit {
   consultaSeleccionada: Consulta | null = null;
   respuestaConsulta: string = '';
 
+  // Modal de cliente
+  mostrarModalCliente: boolean = false;
+  clienteSeleccionado: Cliente | null = null;
+
+  // Modal de detalle de turno
+  mostrarModalTurno: boolean = false;
+  turnoSeleccionado: TurnoAgenda | null = null;
+
   constructor(
     private authService: AuthService,
     private router: Router,
-    private notificacionesService: NotificacionesService
+    private notificacionesService: NotificacionesService,
   ) {
     this.usuario = this.authService.getUsuarioActual();
   }
@@ -394,10 +421,26 @@ export class PanelAsesorComponent implements OnInit {
     this.generarAgendaSemanal();
   }
 
-  cambiarVista(vista: 'dashboard' | 'agenda' | 'consultas' | 'casos' | 'clientes'): void {
+  cambiarVista(
+    vista: 'dashboard' | 'agenda' | 'consultas' | 'casos' | 'clientes' | 'reportes' | 'documentos',
+  ): void {
     this.vistaActiva = vista;
     this.mostrarSelectorFecha = vista === 'agenda';
     window.scrollTo(0, 0);
+
+    // Navegar a la ruta base del panel-asesor si estamos en una subruta
+    if (this.estoyEnRutaCasos()) {
+      this.router.navigate(['/panel-asesor']);
+    }
+  }
+
+  irADocumentos(): void {
+    this.cambiarVista('documentos');
+  }
+
+  irAMisCasos(): void {
+    window.scrollTo(0, 0);
+    this.router.navigate(['/panel-asesor/casos']);
   }
 
   // onFechaSeleccionada(fecha: FechaSeleccionada): void {
@@ -428,13 +471,13 @@ export class PanelAsesorComponent implements OnInit {
           turno.hora,
           turno.horaFin,
           turno.motivo || turno.asunto,
-          this.usuario?.nombre || 'Asesor'
+          this.usuario?.nombre || 'Asesor',
         )
         .subscribe({
           next: () => {
             this.notificacionesService.mostrarNotificacion(
               '✅ Turno confirmado y email enviado al cliente',
-              'success'
+              'success',
             );
           },
         });
@@ -479,7 +522,7 @@ export class PanelAsesorComponent implements OnInit {
 
     this.notificacionesService.mostrarNotificacion(
       `✅ Respuesta enviada a ${this.consultaSeleccionada.clienteNombre}`,
-      'success'
+      'success',
     );
 
     this.estadisticas.consultasPendientes--;
@@ -488,22 +531,90 @@ export class PanelAsesorComponent implements OnInit {
 
   verDetalleCaso(caso: Caso): void {
     alert(
-      `Caso ${caso.numero}\nCliente: ${caso.cliente}\nTipo: ${caso.tipo}\nEstado: ${caso.estado}`
+      `Caso ${caso.numero}\nCliente: ${caso.cliente}\nTipo: ${caso.tipo}\nEstado: ${caso.estado}`,
     );
   }
 
-  verDetalleCliente(cliente: any): void {
-    alert(
-      `Cliente: ${cliente.nombre}\nEmail: ${cliente.email}\nTeléfono: ${cliente.telefono}\nCasos activos: ${cliente.casosActivos}`
-    );
+  verDetalleCliente(cliente: Cliente): void {
+    this.clienteSeleccionado = cliente;
+    this.mostrarModalCliente = true;
+  }
+
+  cerrarModalCliente(): void {
+    this.mostrarModalCliente = false;
+    this.clienteSeleccionado = null;
   }
 
   clickSlotAgenda(slot: any): void {
     if (slot.disponible) {
-      alert(`Slot disponible\n¿Deseas agendar un turno para un cliente?`);
+      this.notificacionesService.mostrarNotificacion('Slot disponible para agendar', 'info');
     } else if (slot.turno) {
-      alert(`Turno ocupado:\nCliente: ${slot.turno.clienteNombre}\nMotivo: ${slot.turno.asunto}`);
+      this.abrirModalTurno(slot.turno);
     }
+  }
+
+  abrirModalTurno(turno: TurnoAgenda): void {
+    this.turnoSeleccionado = turno;
+    this.mostrarModalTurno = true;
+  }
+
+  cerrarModalTurno(): void {
+    this.mostrarModalTurno = false;
+    this.turnoSeleccionado = null;
+  }
+
+  aceptarTurno(turno: TurnoAgenda): void {
+    turno.estado = 'confirmado';
+    turno.fechaConfirmacion =
+      new Date().toISOString().split('T')[0] +
+      ' ' +
+      new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+
+    this.notificacionesService.mostrarNotificacion(
+      `✅ Turno de ${turno.clienteNombre} confirmado exitosamente`,
+      'success',
+    );
+
+    this.generarAgendaSemanal(); // Actualizar vista
+    this.cerrarModalTurno();
+  }
+
+  cancelarTurno(turno: TurnoAgenda): void {
+    if (!confirm(`¿Estás seguro de cancelar el turno de ${turno.clienteNombre}?`)) {
+      return;
+    }
+
+    // Eliminar el turno del array turnosAgendados
+    const index = this.turnosAgendados.findIndex(
+      (t) =>
+        t.fecha === turno.fecha && t.hora === turno.hora && t.clienteNombre === turno.clienteNombre,
+    );
+
+    if (index !== -1) {
+      this.turnosAgendados.splice(index, 1);
+    }
+
+    // Eliminar de localStorage si existe
+    this.liberarTurnoEnLocalStorage(turno.fecha, turno.hora);
+
+    this.notificacionesService.mostrarNotificacion(
+      `❌ Turno de ${turno.clienteNombre} cancelado y slot liberado`,
+      'success',
+    );
+
+    // Regenerar agenda para mostrar slot disponible
+    this.generarAgendaSemanal();
+    this.cerrarModalTurno();
+  }
+
+  private liberarTurnoEnLocalStorage(fecha: string, hora: string): void {
+    const data = localStorage.getItem(LS_TURNOS_KEY);
+    if (!data) return;
+
+    const reservas = JSON.parse(data);
+    const nuevasReservas = reservas.filter((r: any) => !(r.fecha === fecha && r.hora === hora));
+
+    localStorage.setItem(LS_TURNOS_KEY, JSON.stringify(nuevasReservas));
   }
 
   cerrarSesion(): void {
@@ -526,7 +637,7 @@ export class PanelAsesorComponent implements OnInit {
   getTurnosDelDia(): Turno[] {
     if (!this.fechaSeleccionadaCalendario) return [];
     return this.proximosTurnos.filter(
-      (t) => t.fecha === this.fechaSeleccionadaCalendario!.fechaISO
+      (t) => t.fecha === this.fechaSeleccionadaCalendario!.fechaISO,
     );
   }
 

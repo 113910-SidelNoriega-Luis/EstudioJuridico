@@ -25,14 +25,26 @@
           <a class="nav-link" routerLink="/panel-cliente/casos"
             routerLinkActive="active">Mis Casos</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/panel-cliente/documentos"
-            routerLinkActive="active">Documentos</a>
-        </li>
       </ul>
 
       <div class="user-menu">
-        <span class="text-white">👤 {{ usuario?.nombre || 'Usuario' }}</span>
+        <div class="dropdown">
+          <button
+            class="btn btn-link dropdown-toggle text-white text-decoration-none d-flex align-items-center gap-2"
+            type="button" data-bs-toggle="dropdown">
+            <div class="user-avatar">{{getIniciales(usuario?.nombre ||
+              'Usuario')}}</div>
+            <span class="d-none d-md-inline">{{usuario?.nombre ||
+              'Usuario'}}</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#">Mi Perfil</a></li>
+            <li><a class="dropdown-item" href="#">Configuración</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" (click)="cerrarSesion()"
+                style="cursor: pointer;">Cerrar Sesión</a></li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
@@ -99,7 +111,7 @@
       </div>
 
       <!-- Tabla de Agenda -->
-       <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="mb-0">Agenda Semanal</h5>
         <div class="btn-group">
           <button class="btn btn-sm btn-outline-primary"
@@ -107,7 +119,7 @@
             [disabled]="semanaOffset === 0">
             ← Semana Anterior
           </button>
-          
+
           <button class="btn btn-sm btn-outline-primary"
             (click)="siguienteSemana()">
             Semana Siguiente →
